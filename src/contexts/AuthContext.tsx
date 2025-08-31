@@ -1,86 +1,109 @@
 'use client';
 
-import React, {
-  createContext,
-  useContext,
-  useCallback,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
+import React, { createContext, useContext, useCallback, useMemo, useState, useEffect, type ReactNode } from 'react';
+import { useProductContext } from '@/contexts/product-context';
 import type { User } from '@/lib/types';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 
-interface AuthContextType {
+type AuthCtx = {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  error: Error | null;
-  redirectPath: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string, rememberMe?: boolean) => Promise<void>;
   logout: () => Promise<void>;
-  setUser: (user: User | null) => void;
+  redirectPath: string | null;
   setRedirectPath: (path: string | null) => void;
-}
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+};
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthCtx | undefined>(undefined);
+
+function normalizeUser(u: any): User {
+  const isAdmin = u?.isAdmin ?? (u?.role ? ['admin', 'seller', 'staff'].includes(u.role) : false);
+  return {
+    id: String(u?.id ?? ''),
+    email: u?.email ?? '',
+    username: u?.username ?? '',
+    nickname: u?.nickname ?? u?.name ?? u?.username ?? '',
+    name: u?.name ?? u?.username ?? '',
+    avatarUrl: u?.avatarUrl,
+    phone: u?.phone,
+    membershipTier: u?.membershipTier,
+    totalSpent: u?.totalSpent,
+    pointsBalance: u?.pointsBalance,
+    isAdmin,
+    createdAt: u?.createdAt ? new Date(u.createdAt) : undefined,
+    updatedAt: u?.updatedAt ? new Date(u.updatedAt) : undefined,
+  };
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [redirectPath, setRedirectPath] = useLocalStorage<string | null>('redirectPath', null);
+  const { setRole } = useProductContext();
+  // user가 바뀔 때마다 product-context의 role도 동기화
+  useEffect(() => {
+    if (user?.isAdmin) setRole('admin');
+    else if (user) setRole('user');
+    else setRole('guest');
+  }, [user, setRole]);
 
-  const login = useCallback(async (username: string, password: string) => {
-    try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
-      const data = await res.json();
-      if (data.ok && data.user) {
-        setUser({
-          id: String(data.user.id),
-          email: data.user.email,
-          username: data.user.username,
-          nickname: data.user.name || '',
-          name: data.user.name || '',
-          isAdmin: data.user.role === 'admin',
-        });
-      } else {
-        throw new Error(data.error || '로그인 실패');
+  // ✅ 초기 로드/새로고침 시 쿠키로 상태 복원
+  useEffect(() => {
+    let aborted = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/me', { credentials: 'include', cache: 'no-store' });
+        const data = await res.json();
+        if (!aborted) setUser(data?.user ? normalizeUser(data.user) : null);
+      } catch {
+        if (!aborted) setUser(null);
+      } finally {
+        if (!aborted) setIsLoading(false);
       }
-    } catch (e: any) {
+    })();
+    return () => { aborted = true; };
+  }, []);
+
+  // 로그인: DB 인증 + JWT 쿠키 발급(/api/login) 사용
+  const login = useCallback(async (username: string, password: string, rememberMe = false) => {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ username, password, rememberMe }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data?.ok) throw new Error(data?.error || '로그인 실패');
+    setUser(normalizeUser(data.user));
+  }, []);
+
+  // ✅ 실제 로그아웃: 서버 쿠키 제거
+  const logout = useCallback(async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } finally {
       setUser(null);
-      throw new Error(e?.message || '로그인 실패');
     }
   }, []);
 
-  const logout = useCallback(async () => {
-    setUser(null);
-  }, []);
-
-  const value = useMemo(
-    () => ({
-      user,
-      isAuthenticated: !!user,
-      isLoading: false,
-      error: null,
-      redirectPath,
-      login,
-      logout,
-      setUser,
-      setRedirectPath,
-    }),
-    [user, redirectPath, login, logout, setRedirectPath],
-  );
+  const value = useMemo<AuthCtx>(() => ({
+    user,
+    isAuthenticated: !!user,
+    isLoading,
+    login,
+    logout,
+    redirectPath,
+    setRedirectPath,
+    setUser,
+  }), [user, isLoading, login, logout, redirectPath, setRedirectPath]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
   return ctx;
 }

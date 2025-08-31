@@ -50,7 +50,7 @@ export function HeaderAuthNav() {
                 <Link href="/mypage">마이페이지</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/admin">관리자</Link>
+                <Link href="/admin" prefetch={false}>관리자</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={logout}>
@@ -67,25 +67,6 @@ export function HeaderAuthNav() {
           <Link href="/orders" className="hover:underline">주문조회</Link>
         </div>
       )}
-      <div className="h-4 w-px bg-gray-200" />
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-auto p-0 text-xs gap-1">
-            <Shield className="h-3 w-3" />
-            역할: {role}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuLabel>역할 변경 (테스트용)</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuRadioGroup value={role} onValueChange={(value) => setRole(value as Role)}>
-            <DropdownMenuRadioItem value="guest">Guest</DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="user">User</DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="seller">Seller</DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="admin">Admin</DropdownMenuRadioItem>
-          </DropdownMenuRadioGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </>
   );
 }

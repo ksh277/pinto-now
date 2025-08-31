@@ -47,14 +47,14 @@ function LoginContent() {
   const searchParams = useSearchParams();
 
   const handleLogin = async () => {
-    await login(formData.username, formData.password);
+    await login(formData.username, formData.password, secureLogin);
     const redirectTo = redirectPath || "/";
     setRedirectPath(null);
     router.push(redirectTo);
   };
   
   useEffect(() => {
-    const redirectTo = searchParams.get('redirect_to');
+    const redirectTo = searchParams?.get('redirect_to');
     if (redirectTo) {
       setRedirectPath(decodeURIComponent(redirectTo));
     }

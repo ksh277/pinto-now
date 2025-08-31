@@ -57,23 +57,15 @@ export function Header() {
     }
   };
 
+
   return (
     <header className="w-full flex-col border-b bg-background">
-
-      {/* 상단 유틸 바 */}
-
+      {/* 상단 유틸 바: 로그인/회원가입/주문조회/마이페이지/로그아웃/관리자 모드 등 */}
       <div className="border-b hidden md:block"></div>
       <div className="w-full mx-auto flex h-10 items-center px-4 text-xs">
         <div className="flex flex-1 items-center justify-end gap-4">
-          <Link href="/register" className="hover:text-primary text-sm">회원가입</Link>
-          <Link href="/login" className="hover:text-primary text-sm">로그인</Link>
-          <Link href="/mypage/orders" className="hover:text-primary text-sm" onClick={handleOrderClick}>주문조회</Link>
-          {/* 관리자 모드 버튼: 로그인+관리자만 노출 */}
-          {isAuthenticated && user?.isAdmin && (
-            <Link href="/admin" className="ml-2 px-3 py-1 rounded bg-amber-100 text-amber-800 font-semibold text-xs border border-amber-300 hover:bg-amber-200 transition">
-              관리자 모드
-            </Link>
-          )}
+          {/* 메뉴 렌더링을 HeaderAuthNav로 위임 */}
+          <HeaderAuthNav />
         </div>
       </div>
 

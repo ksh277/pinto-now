@@ -39,16 +39,30 @@ export default function TopNavClient({ initialUser }: Props) {
     );
   }
 
+  if (["admin", "seller", "staff"].includes(user.role)) {
+    return (
+      <nav>
+        <Link href="/mypage">마이페이지</Link>{' '}
+        <Link href="/orders">주문조회</Link>{' '}
+        <button type="button" onClick={handleLogout}>
+          로그아웃
+        </button>{' '}
+        <Link href="/admin">
+          <button type="button" style={{ background: '#ffe6b0', border: '1px solid #e0b000', borderRadius: 4, padding: '2px 10px', marginLeft: 8 }}>
+            관리자 모드
+          </button>
+        </Link>
+      </nav>
+    );
+  }
+
   return (
     <nav>
       <Link href="/mypage">마이페이지</Link>{' '}
       <Link href="/orders">주문조회</Link>{' '}
       <button type="button" onClick={handleLogout}>
         로그아웃
-      </button>{' '}
-      {['admin', 'seller', 'staff'].includes(user.role) && (
-        <Link href="/admin">관리자 모드</Link>
-      )}
+      </button>
     </nav>
   );
 }
