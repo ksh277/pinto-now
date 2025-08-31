@@ -1,5 +1,12 @@
 export type Banner = {
   id: string;
+  href: string;
+  imgSrc: string;
+  alt: string;
+};
+
+export type StripBannerData = {
+  id: string;
   isOpen: boolean;
   bgType: 'color' | 'image' | 'gradient';
   bgValue: string;
@@ -11,22 +18,33 @@ export type Banner = {
 };
 
 export async function fetchBanners(): Promise<Banner[]> {
-  return [];
+  try {
+    const res = await fetch('/api/banners', { cache: 'no-store' });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
 }
 
-export async function addBanner(_: { imageUrl: string; title: string }) {
-  return Promise.resolve();
+export async function addBanner(data: { imgSrc: string; alt: string; href?: string }) {
+  await fetch('/api/banners', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ imgSrc: data.imgSrc, alt: data.alt, href: data.href }),
+  });
 }
 
-export async function removeBanner(_: string) {
-  return Promise.resolve();
+export async function removeBanner(id: string) {
+  await fetch(`/api/banners/${id}`, { method: 'DELETE' });
 }
 
-export async function updateBanner(
-  _: string,
-  __: { imageUrl?: string; title?: string },
-) {
-  return Promise.resolve();
+export async function updateBanner(id: string, data: { imgSrc?: string; alt?: string; href?: string }) {
+  await fetch(`/api/banners/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
 }
 
 const HIDE_PREFIX = 'banner:';
