@@ -1,15 +1,15 @@
-import React from 'react';
+"use client";
 
-interface BannerItem {
-  id: string;
-  imageUrl: string;
-  title: string;
-}
+import React, { useEffect, useState } from 'react';
+import { fetchBanners, type Banner } from '@/lib/banner';
 
-// 임시: 실제로는 DB에서 받아와야 함
-const mockBanners: BannerItem[] = [];
+export default function MainBannerSection() {
+  const [banners, setBanners] = useState<Banner[]>([]);
 
-export default function MainBannerSection({ banners = mockBanners }: { banners?: BannerItem[] }) {
+  useEffect(() => {
+    fetchBanners().then(setBanners).catch(() => setBanners([]));
+  }, []);
+
   return (
     <section style={{ display: 'flex', justifyContent: 'center', gap: 40, background: '#fafbfc', padding: '32px 0' }}>
       {banners.slice(0, 12).map((banner) => (
@@ -28,12 +28,12 @@ export default function MainBannerSection({ banners = mockBanners }: { banners?:
             }}
           >
             <img
-              src={banner.imageUrl}
-              alt={banner.title}
+              src={banner.imgSrc}
+              alt={banner.alt}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </div>
-          <div style={{ fontSize: 14, marginTop: 4 }}>{banner.title}</div>
+          <div style={{ fontSize: 14, marginTop: 4 }}>{banner.alt}</div>
         </div>
       ))}
     </section>

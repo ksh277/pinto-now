@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { TopBanner, type HeroBanner } from '@/components/TopBanner';
+import TopStripBanner from '@/components/TopStripBanner';
+import TopBanner from '@/components/TopBanner';
+import MainBannerSection from '@/components/main/MainBannerSection';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { CategoryShortcuts } from '@/components/category-shortcuts';
@@ -28,33 +30,6 @@ import { getWeeklyMarket, type WeeklyMarketItem } from '@/lib/market';
 import { ChevronRight } from 'lucide-react';
 
 export default async function HomePage() {
-  const heroBanners: HeroBanner[] = [
-    {
-      id: '1',
-      href: '/event/1',
-      alt: '2025 여름 신상 런칭',
-      imgSrc: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: '2',
-      href: '/event/2',
-      alt: '굿즈 디자인 공모전',
-      imgSrc: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: '3',
-      href: '/event/3',
-      alt: '단체주문 할인 이벤트',
-      imgSrc: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      id: '4',
-      href: '/event/4',
-      alt: '2025 봄맞이 한정판',
-      imgSrc: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=800&q=80',
-    },
-  ];
-
   const shortcutCategories = [
     { id: '1', href: '/category/1인샵', label: '1인샵', imgSrc: 'https://placehold.co/100x100.png', hint: 'gift box' },
     { id: '2', href: '/category/선물추천', label: '선물추천', imgSrc: 'https://placehold.co/100x100.png', hint: 'gift box' },
@@ -91,10 +66,12 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col bg-slate-50 dark:bg-slate-900 min-h-screen px-8 md:px-16">
+      <TopStripBanner />
       {/* HERO */}
       <section className="pt-8">
-        <TopBanner banners={heroBanners} />
+        <TopBanner />
       </section>
+      <MainBannerSection />
 
       {/* SHORTCUTS */}
   <section className="py-12 md:py-16">

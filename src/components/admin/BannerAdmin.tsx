@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { addBanner, fetchBanners, removeBanner } from '@/lib/banner';
 
 interface BannerItem {
   id: string;
-  imageUrl: string;
-  title: string;
+  imgSrc: string;
+  alt: string;
+  href: string;
 }
 
 export function BannerAdmin() {
@@ -13,31 +15,31 @@ export function BannerAdmin() {
   const [image, setImage] = useState<File | null>(null);
   const [title, setTitle] = useState('');
 
+  useEffect(() => {
+    fetchBanners().then(setBanners).catch(() => setBanners([]));
+  }, []);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setImage(e.target.files[0]);
     }
   };
 
-  const handleAddBanner = () => {
+  const handleAddBanner = async () => {
     if (!image || !title) return;
     const reader = new FileReader();
-    reader.onload = (e) => {
-      setBanners((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          imageUrl: e.target?.result as string,
-          title,
-        },
-      ].slice(0, 12));
+    reader.onload = async (e) => {
+      await addBanner({ imgSrc: e.target?.result as string, alt: title });
+      const items = await fetchBanners();
+      setBanners(items);
       setImage(null);
       setTitle('');
     };
     reader.readAsDataURL(image);
   };
 
-  const handleRemove = (id: string) => {
+  const handleRemove = async (id: string) => {
+    await removeBanner(id);
     setBanners((prev) => prev.filter((b) => b.id !== id));
   };
 
@@ -74,12 +76,12 @@ export function BannerAdmin() {
               }}
             >
               <img
-                src={banner.imageUrl}
-                alt={banner.title}
+                src={banner.imgSrc}
+                alt={banner.alt}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
-            <div style={{ fontSize: 14, marginBottom: 4 }}>{banner.title}</div>
+            <div style={{ fontSize: 14, marginBottom: 4 }}>{banner.alt}</div>
             <button onClick={() => handleRemove(banner.id)} style={{ fontSize: 12 }}>삭제</button>
           </div>
         ))}

@@ -31,3 +31,67 @@ model Design {
 
   previewPng     Bytes?
 }
+
+model Banner {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  href      String
+  imgSrc    String
+  alt       String
+}
+
+model StripBanner {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isOpen    Boolean  @default(true)
+  bgType    String
+  bgValue   String
+  message   String
+  href      String?
+  canClose  Boolean  @default(true)
+  isActive  Boolean  @default(true)
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String
+  description String?
+  price       Int
+}
+
+model Notice {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title     String
+  content   String
+}
+
+model Faq {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  question  String
+  answer    String
+}
+
+model Guide {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title     String
+  content   String
+}
+
+model Inquiry {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  email     String
+  message   String
+  status    String?  @default("open")
+}

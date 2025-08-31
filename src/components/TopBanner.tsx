@@ -4,22 +4,12 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { CarouselApi } from '@/components/ui/carousel';
+import { fetchBanners, type Banner as HeroBanner } from '@/lib/banner';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
 } from '@/components/ui/carousel';
-
-export type HeroBanner = {
-  id: string;
-  href: string;
-  imgSrc: string;
-  alt: string;
-};
-
-interface TopBannerProps {
-  banners: HeroBanner[];
-}
 
 function chunk<T>(arr: T[], size: number): T[][] {
   const res: T[][] = [];
@@ -28,10 +18,14 @@ function chunk<T>(arr: T[], size: number): T[][] {
   }
   return res;
 }
-
-export function TopBanner({ banners }: TopBannerProps) {
+export function TopBanner() {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
+  const [banners, setBanners] = useState<HeroBanner[]>([]);
+
+  useEffect(() => {
+    fetchBanners().then(setBanners).catch(() => setBanners([]));
+  }, []);
 
   const slides = chunk(banners, 2);
 
@@ -53,7 +47,7 @@ export function TopBanner({ banners }: TopBannerProps) {
           {slides.map((group, idx) => (
             <CarouselItem key={idx}>
               <div className="grid grid-cols-1 md:grid-cols-2">
-                {group.map(b => (
+                {group.map((b) => (
                   <Link
                     key={b.id}
                     href={b.href}
