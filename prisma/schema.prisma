@@ -8,28 +8,28 @@ datasource db {
 }
 
 model Design {
-  id             String   @id @default(cuid())
-  createdAt      DateTime @default(now())
-  mode           String   // 'auto' | 'template'
-  templateShape  String?  // 'rect' | 'circle' | 'pentagon' | 'hexagon'
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  mode          String // 'auto' | 'template'
+  templateShape String? // 'rect' | 'circle' | 'pentagon' | 'hexagon'
 
-  widthMM        Float
-  heightMM       Float
-  dpi            Int
-  bleedMM        Float
-  safeMM         Float
-  borderMM       Float     // +15mm
-  cutOffsetMM    Float     // +8mm
+  widthMM     Float
+  heightMM    Float
+  dpi         Int
+  bleedMM     Float
+  safeMM      Float
+  borderMM    Float // +15mm
+  cutOffsetMM Float // +8mm
 
-  holeX          Float     // px
-  holeY          Float     // px
+  holeX          Float // px
+  holeY          Float // px
   holeDiameterMM Float
 
-  boardPath      Json?
-  cutlinePath    Json?
-  stateJson      Json
+  boardPath   Json?
+  cutlinePath Json?
+  stateJson   Json
 
-  previewPng     Bytes?
+  previewPng Bytes?
 }
 
 model Banner {
