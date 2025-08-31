@@ -240,9 +240,28 @@ export default function Register() {
       setError("비밀번호가 일치하지 않습니다.");
       return;
     }
-    console.log("회원가입 성공:", userData);
-    setError("");
-    setCurrentStep(3);
+    try {
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: userData.username,
+          password: userData.password,
+          name: userData.name,
+          nickname: userData.nickname,
+          phone: userData.phone,
+        }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setError("");
+        setCurrentStep(3);
+      } else {
+        setError(data.error || '회원가입 실패');
+      }
+    } catch (e) {
+      setError('서버 오류');
+    }
   };
 
   const renderStep1 = () => (

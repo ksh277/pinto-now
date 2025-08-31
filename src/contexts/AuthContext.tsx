@@ -29,8 +29,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [redirectPath, setRedirectPath] = useLocalStorage<string | null>('redirectPath', null);
 
-  const login = useCallback(async () => {
-    throw new Error('Auth not implemented');
+  const login = useCallback(async (username: string, password: string) => {
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await res.json();
+      if (data.ok && data.user) {
+        setUser({
+          id: String(data.user.id),
+          email: data.user.email,
+          username: data.user.username,
+          nickname: data.user.name || '',
+          name: data.user.name || '',
+          isAdmin: data.user.role === 'admin',
+        });
+      } else {
+        throw new Error(data.error || '로그인 실패');
+      }
+    } catch (e: any) {
+      setUser(null);
+      throw new Error(e?.message || '로그인 실패');
+    }
   }, []);
 
   const logout = useCallback(async () => {

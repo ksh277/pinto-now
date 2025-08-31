@@ -1,124 +1,96 @@
-'use client';
-
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
 import { TopBanner, type HeroBanner } from '@/components/TopBanner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { CategoryShortcuts } from '@/components/category-shortcuts';
-import { useProductContext } from '@/contexts/product-context';
+import ProductSectionClient from '@/components/main/ProductSectionClient';
 import type { Product } from '@/lib/types';
+
+// Define Rankable type if not imported
+type Rankable = {
+  id: string;
+  nameKo?: string;
+  priceKrw?: number;
+  imageUrl?: string;
+  rank?: number;
+  stats?: { likeCount?: number; reviewCount?: number };
+};
+
+// Provide a fallback top4 array for demonstration (replace with real data as needed)
+const top4: Rankable[] = [
+  { id: '1', nameKo: '상품1', priceKrw: 10000, imageUrl: '', rank: 1, stats: { likeCount: 10, reviewCount: 2 } },
+  { id: '2', nameKo: '상품2', priceKrw: 20000, imageUrl: '', rank: 2, stats: { likeCount: 20, reviewCount: 4 } },
+  { id: '3', nameKo: '상품3', priceKrw: 30000, imageUrl: '', rank: 3, stats: { likeCount: 30, reviewCount: 6 } },
+  { id: '4', nameKo: '상품4', priceKrw: 40000, imageUrl: '', rank: 4, stats: { likeCount: 40, reviewCount: 8 } },
+];
 import { getWeeklyMarket, type WeeklyMarketItem } from '@/lib/market';
 import { ChevronRight } from 'lucide-react';
 
-const heroBanners: HeroBanner[] = [
-  {
-    id: '1',
-    href: '#',
-    alt: 'Hand holding a wooden whale craft.',
-    imgSrc: 'https://placehold.co/1600x1200.png',
-  },
-  {
-    id: '2',
-    href: '#',
-    alt: 'Custom wooden coasters with map engravings.',
-    imgSrc: 'https://placehold.co/1600x1200.png',
-  },
-];
-
-const shortcutCategories = [
-  { id: '1', href: '#', label: '1인샵', imgSrc: 'https://placehold.co/100x100.png', hint: 'gift box' },
-  { id: '2', href: '#', label: '선물추천', imgSrc: 'https://placehold.co/100x100.png', hint: 'gift box' },
-  { id: '3', href: '#', label: '겨울아이디어', imgSrc: 'https://placehold.co/100x100.png', hint: 'snowflake' },
-  { id: '4', href: '#', label: '여행 굿즈', imgSrc: 'https://placehold.co/100x100.png', hint: 'luggage' },
-  { id: '5', href: '#', label: '문구/미니', imgSrc: 'https://placehold.co/100x100.png', hint: 'stationery' },
-  { id: '6', href: '#', label: '반려동물 굿즈', imgSrc: 'https://placehold.co/100x100.png', hint: 'dog paw' },
-  { id: '7', href: '#', label: '의류', imgSrc: 'https://placehold.co/100x100.png', hint: 't-shirt' },
-  { id: '8', href: '#', label: '개성 아이디어', imgSrc: 'https://placehold.co/100x100.png', hint: 'idea lightbulb' },
-];
-
-const infoCards = [
-  { id: '1', title: '나랑 가까운 오프라인샵은 어디에 있을까요?', description: '핸드폰으로 뚝딱뚝딱 빠르고 간편하게 나만의 굿즈를 만들 수 있습니다.' },
-  { id: '2', title: '내 반려동물을 위한 굿즈출시', description: '일상생활용품, 반려장례용품, 추억 다양한 제품들이 준비되어 있습니다.' },
-  { id: '3', title: '커스텀 아이디어로 나만의 굿즈 판매하기', description: '핀토에서 준비한 굿즈 제품들로 나만의 디자인을 입혀 판매할 수 있습니다.' },
-  { id: '4', title: '웹툰/연예인 응원봉,포토카드,아크릴', description: '단체주문,소량부터 대량까지 핀토에게 맡겨 주세요. 직접 생산감리도 가능!' },
-];
-
-export default function Home() {
-  const { products } = useProductContext();
-
-  const acrylic = products.filter(p => p.categoryId === 'acrylic');
-  const wood = products.filter(p => p.categoryId === 'wood');
-  const pool: Product[] = products.length ? products : [];
-
-  const take = (arr: Product[], start = 0, count = 3): Product[] =>
-    (arr.length ? arr : pool).slice(start, start + count);
-
-  const shelves = [
+export default async function HomePage() {
+  const heroBanners: HeroBanner[] = [
     {
-      id: 's1',
-      headline: '티셔츠 | 다양한 색상과 소재가 준비되어 있습니다.',
-      sub: '디자인이 고민이면 핀토 상담가에게 문의 주세요',
-      moreHref: '/category/apparel',
-      picks: take(acrylic, 0, 3),
+      id: '1',
+      href: '/event/1',
+      alt: '2025 여름 신상 런칭',
+      imgSrc: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
     },
     {
-      id: 's2',
-      headline: '키링 | 스포츠, 축제, 행사, 굿즈에 많이 사용되요.',
-      sub: '칼선/재단 걱정하지 않아도 돼요. 자동편집!',
-      moreHref: '/category/acrylic',
-      picks: take(acrylic, 3, 3),
+      id: '2',
+      href: '/event/2',
+      alt: '굿즈 디자인 공모전',
+      imgSrc: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80',
     },
     {
-      id: 's3',
-      headline: '우산 | 소량부터 대량까지 다양하게 준비되어 있습니다.',
-      sub: '핸드폰으로도 뚝딱 만들 수 있는 나만의 굿즈',
-      moreHref: '/category/wood',
-      picks: take(wood, 0, 3),
+      id: '3',
+      href: '/event/3',
+      alt: '단체주문 할인 이벤트',
+      imgSrc: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80',
+    },
+    {
+      id: '4',
+      href: '/event/4',
+      alt: '2025 봄맞이 한정판',
+      imgSrc: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=800&q=80',
     },
   ];
 
-  const fmtPrice = (n?: number) =>
-    typeof n === 'number' ? `${n.toLocaleString()}원` : '가격문의';
+  const shortcutCategories = [
+    { id: '1', href: '/category/1인샵', label: '1인샵', imgSrc: 'https://placehold.co/100x100.png', hint: 'gift box' },
+    { id: '2', href: '/category/선물추천', label: '선물추천', imgSrc: 'https://placehold.co/100x100.png', hint: 'gift box' },
+    { id: '3', href: '/category/겨울아이디어', label: '겨울아이디어', imgSrc: 'https://placehold.co/100x100.png', hint: 'snowflake' },
+    { id: '4', href: '/category/여행굿즈', label: '여행 굿즈', imgSrc: 'https://placehold.co/100x100.png', hint: 'luggage' },
+    { id: '5', href: '/category/문구미니', label: '문구/미니', imgSrc: 'https://placehold.co/100x100.png', hint: 'stationery' },
+    { id: '6', href: '/category/반려동물굿즈', label: '반려동물 굿즈', imgSrc: 'https://placehold.co/100x100.png', hint: 'dog paw' },
+    { id: '7', href: '/category/의류', label: '의류', imgSrc: 'https://placehold.co/100x100.png', hint: 't-shirt' },
+    { id: '8', href: '/category/개성아이디어', label: '개성 아이디어', imgSrc: 'https://placehold.co/100x100.png', hint: 'idea lightbulb' },
+  ];
 
-  // 좋아요 순 주간 랭킹 4개 (폴백용)
-  const top4 = [...products]
-    .sort(
-      (a: Product, b: Product) =>
-        (b.stats?.likeCount ?? 0) - (a.stats?.likeCount ?? 0),
-    )
-    .slice(0, 4);
+  const infoCards = [
+    { id: '1', title: '나랑 가까운 오프라인샵은 어디에 있을까요?', description: '핸드폰으로 뚝딱뚝딱 빠르고 간편하게 나만의 굿즈를 만들 수 있습니다.' },
+    { id: '2', title: '내 반려동물을 위한 굿즈출시', description: '일상생활용품, 반려장례용품, 추억 다양한 제품들이 준비되어 있습니다.' },
+    { id: '3', title: '커스텀 아이디어로 나만의 굿즈 판매하기', description: '핀토에서 준비한 굿즈 제품들로 나만의 디자인을 입혀 판매할 수 있습니다.' },
+    { id: '4', title: '웹툰/연예인 응원봉,포토카드,아크릴', description: '단체주문,소량부터 대량까지 핀토에게 맡겨 주세요. 직접 생산감리도 가능!' },
+  ];
 
-  type Rankable = {
-    id: string;
-    nameKo?: string;
-    priceKrw?: number;
-    imageUrl?: string;
-    rank?: number;
-  };
 
+  let weekly: WeeklyMarketItem[] = [];
+  try {
+    weekly = await getWeeklyMarket({ limit: 4 });
+  } catch {
+    weekly = [];
+  }
   const top4Fallback: Rankable[] = top4.map(p => ({
     id: p.id,
     nameKo: p.nameKo,
     priceKrw: p.priceKrw,
     imageUrl: p.imageUrl,
   }));
-  const [weekly, setWeekly] = useState<WeeklyMarketItem[]>([]);
-
-  useEffect(() => {
-    getWeeklyMarket({ limit: 4 })
-      .then(setWeekly)
-      .catch(() => {
-        /* ignore errors, fallback will be used */
-      });
-  }, []);
-
   const ranking: Rankable[] = weekly.length ? weekly : top4Fallback;
   const showBadge = weekly.length > 0;
 
   return (
-  <div className="flex flex-col bg-slate-50 dark:bg-slate-900 min-h-screen px-8 md:px-16">
+    <div className="flex flex-col bg-slate-50 dark:bg-slate-900 min-h-screen px-8 md:px-16">
       {/* HERO */}
       <section className="pt-8">
         <TopBanner banners={heroBanners} />
@@ -129,13 +101,13 @@ export default function Home() {
         <CategoryShortcuts categories={shortcutCategories} />
       </section>
 
+
       {/* INFO CARDS — 작은 캡션 + 회색 박스 (글자 더 아래 / 박스 더 큼) */}
-  <section className="pt-12 md:pt-14">
+      <section className="pt-12 md:pt-14">
         <p className="mb-4 text-[13px] leading-5 text-slate-500 px-4">
           온, 오프라인 어디에서나 쉽고 빠르게 만들 수 있어요!
         </p>
-
-  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 px-2 md:px-8">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 px-2 md:px-8">
           {infoCards.map(card => (
             <div
               key={card.id}
@@ -152,64 +124,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* PRODUCT SHELF — 3열(상단 회색 배너 + 하단 미니 리스트) */}
-  <section className="py-10 md:py-14">
-        <h2 className="mb-4 text-[15px] font-semibold text-slate-700">
-          단체 굿즈 합리적인 가격으로 예쁘게 만들어 드릴게요.
-        </h2>
+      {/* PRODUCT SHELF — 3열(상단 회색 배너 + 하단 미니 리스트) infoCards section 바로 아래로 이동 */}
+      <ProductSectionClient />
 
-  <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-    {shelves.map(shelf => (
-      <div key={shelf.id}>
-        {/* 이미지 박스 */}
-        <div className="min-h-[240px] md:min-h-[260px] rounded-2xl bg-neutral-200/80 dark:bg-neutral-800/70 pt-12 md:pt-14 pb-7 px-6 flex items-center justify-center">
-          {/* 여기에 대표 이미지를 넣으려면 아래처럼 사용하세요. 현재는 예시로 비워둡니다. */}
-          {/* <Image src={...} alt={...} ... /> */}
-        </div>
-        {/* 설명글 */}
-        <h3 className="mt-4 text-[15px] font-semibold leading-6 text-neutral-900 dark:text-neutral-100 break-keep">
-          {shelf.headline}
-        </h3>
-        <p className="mt-2 text-[12px] leading-6 text-neutral-600 dark:text-neutral-300 break-keep">
-          {shelf.sub}
-        </p>
-        {/* 상품 리스트 */}
-        <div className="mt-4 space-y-4">
-          {shelf.picks.map((p: Product) => (
-            <div key={p.id} className="flex items-center gap-3">
-              <Link href={`/products/${p.id}`} className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-neutral-200 block">
-                <Image
-                  src={p.imageUrl || 'https://placehold.co/300x300.png'}
-                  alt={p.nameKo || 'product'}
-                  fill
-                  sizes="64px"
-                  className="object-cover"
-                />
-              </Link>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[12px] text-slate-500">
-                  {p.nameKo || '상품명'}
-                </p>
-                <div className="mt-1 text-[13px] font-semibold text-teal-600">
-                  {fmtPrice(p.priceKrw)} <span className="text-teal-600/70">부터</span>
-                </div>
-                <div className="mt-1 flex items-center gap-3 text-[11px] text-slate-400">
-                  <span>♡ {p.stats?.likeCount ?? 0}</span>
-                  <span>리뷰 {p.stats?.reviewCount ?? 0}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-          <div className="pt-1">
-            <Button asChild variant="outline" className="h-8 w-full rounded-full border-slate-300 text-xs text-slate-600">
-              <Link href={shelf.moreHref || '#'}>more</Link>
-            </Button>
-          </div>
-        </div>
-      </div>
-    ))}
-  </div>
-      </section>
+
 
       {/* 창작자 CTA (가운데 큰 텍스트/버튼) */}
       <section className="bg-white dark:bg-card">
@@ -251,7 +169,6 @@ export default function Home() {
                   sizes="(max-width: 640px) 50vw, 25vw"
                 />
               </div>
-
               <div className="px-1 pt-3">
                   <p className="line-clamp-1 text-[12px] text-slate-500">
                     {p.nameKo || '상품명'}
@@ -259,7 +176,7 @@ export default function Home() {
 
                 <div className="mt-2 flex items-center justify-between">
                   <span className="text-[13px] font-semibold text-teal-600">
-                    {fmtPrice(p.priceKrw)} <span className="text-teal-600/70">부터</span>
+                    {p.priceKrw?.toLocaleString() ?? '가격문의'}원 <span className="text-teal-600/70">부터</span>
                   </span>
                   {showBadge && (
                   <span className="rounded-md border-2 border-rose-200 px-2 py-[2px] text-[10px] font-semibold text-rose-300">
