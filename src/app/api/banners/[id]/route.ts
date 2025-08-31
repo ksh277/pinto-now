@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 interface Params { params: { id: string } }
 
@@ -14,9 +14,11 @@ export async function PUT(req: Request, { params }: Params) {
   const updated = await prisma.banner.update({
     where: { id: params.id },
     data: {
+      title: data.title ?? undefined,
+      imageUrl: data.imageUrl ?? undefined,
       href: data.href ?? undefined,
-      imgSrc: data.imgSrc ?? undefined,
-      alt: data.alt ?? undefined,
+      isActive: data.isActive ?? undefined,
+      sortOrder: data.sortOrder ?? undefined,
     },
   });
   return NextResponse.json(updated);
