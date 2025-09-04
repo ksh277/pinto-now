@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -7,9 +6,9 @@ import Link from 'next/link';
 import { useProductContext } from '@/contexts/product-context';
 import { useCartContext } from '@/contexts/cart-context';
 import type { Product } from '@/lib/types';
+import { getPricingByProductId, hasAdvancedPricing, calculatePrice } from '@/lib/pricing-data';
 import {
   ShoppingCart,
-  Star,
   Plus,
   Minus,
   Upload,
@@ -17,6 +16,7 @@ import {
   Puzzle,
   ChevronRight,
   CreditCard,
+  Star,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -29,10 +29,10 @@ import Image from 'next/image';
 export default function ProductDetail() {
   const params = useParams();
   const router = useRouter();
-  const id = params.id as string;
+  const id = params?.id ? String(params.id) : '';
   const { toast } = useToast();
   const { locale: language } = useLanguage();
-  const { getProductById } = useProductContext();
+  const { getProductById, isProductsLoading } = useProductContext();
   const { addToCart } = useCartContext();
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -44,30 +44,53 @@ export default function ProductDetail() {
   const [selectedBase, setSelectedBase] = useState<string | undefined>(undefined);
   const [selectedColor, setSelectedColor] = useState<string | undefined>(undefined);
   const [selectedPackaging, setSelectedPackaging] = useState<string | undefined>(undefined);
+  const [selectedPrintType, setSelectedPrintType] = useState<string | undefined>(undefined);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [activeTab, setActiveTab] = useState("pdf");
   const [customText, setCustomText] = useState("");
+  
+  // 기타 옵션 상태
+  const [oppPackaging, setOppPackaging] = useState(false); // OPP포장비용 100원
+  const [paperPrint, setPaperPrint] = useState(false); // 간지출력 200원
+  const [magneticAdd, setMagneticAdd] = useState(false); // 마그네틱추가 200원
+  const [magneticEmbed, setMagneticEmbed] = useState(false); // 마그네틱매립 400원
+  const [designService, setDesignService] = useState(false); // 디자인비용(인쇄) 5만원
+  const [keyringAdd, setKeyringAdd] = useState(false); // 키링추가(부자재) 300원
 
   const productData = getProductById(id);
+  const advancedPricing = getPricingByProductId(id);
+  const hasAdvancedPricingSystem = hasAdvancedPricing(id);
   
   useEffect(() => {
     if (productData) {
       setProduct(productData);
+      
+      // 기본 옵션 설정
       if (productData.options?.sizes?.length) {
         setSelectedSize(productData.options.sizes[0].name);
       }
-       if (productData.options?.colors?.length) {
+      if (productData.options?.colors?.length) {
         setSelectedColor(productData.options.colors[0].nameKo);
       }
       if (productData.options?.bases?.length) {
         setSelectedBase(productData.options.bases[0].name);
       }
-       if (productData.options?.packaging?.length) {
+      if (productData.options?.packaging?.length) {
         setSelectedPackaging(productData.options.packaging[0].name);
       }
+      
+      // 고급 가격 시스템 초기화
+      if (hasAdvancedPricingSystem && advancedPricing) {
+        if (advancedPricing.printTypes.length) {
+          setSelectedPrintType(advancedPricing.printTypes[0].id);
+        }
+        if (advancedPricing.sizes.length && !productData.options?.sizes?.length) {
+          setSelectedSize(advancedPricing.sizes[0].id);
+        }
+      }
     }
-  }, [id, productData]);
+  }, [id, productData, hasAdvancedPricingSystem, advancedPricing]);
 
   const productDisplay = useMemo(() => {
     if (!product) return null;
@@ -117,35 +140,57 @@ export default function ProductDetail() {
 
   const calculateTotalPrice = () => {
     if (!productDisplay || !product) return 0;
-  
-    const sizeData = productDisplay.options.sizes?.find(s => s.name === selectedSize);
-    const sizePrice = sizeData?.price || product.priceKrw || 0;
     
-    const colorData = productDisplay.options.colors?.find(c => c.nameKo === selectedColor);
-    const colorPrice = colorData?.priceDelta || 0;
+    let baseTotal = 0;
     
-    const baseData = productDisplay.options.bases?.find(b => b.name === selectedBase);
-    const baseTypePrice = baseData?.price || 0;
-    
-    const packagingData = productDisplay.options.packaging?.find(p => p.name === selectedPackaging);
-    const packagingPrice = packagingData?.price || 0;
+    // 고급 가격 시스템 사용 가능한 경우
+    if (hasAdvancedPricingSystem && advancedPricing && selectedPrintType && selectedSize) {
+      const advancedQuote = calculatePrice(advancedPricing.id, selectedPrintType, selectedSize, quantity);
+      if (advancedQuote) {
+        baseTotal = advancedQuote.totalPrice;
+      }
+    } else {
+      // 기존 가격 시스템 (fallback)
+      const sizeData = productDisplay.options.sizes?.find(s => s.name === selectedSize);
+      const sizePrice = sizeData?.price || product.priceKrw || 0;
+      
+      const colorData = productDisplay.options.colors?.find(c => c.nameKo === selectedColor);
+      const colorPrice = colorData?.priceDelta || 0;
+      
+      const baseData = productDisplay.options.bases?.find(b => b.name === selectedBase);
+      const baseTypePrice = baseData?.price || 0;
+      
+      const packagingData = productDisplay.options.packaging?.find(p => p.name === selectedPackaging);
+      const packagingPrice = packagingData?.price || 0;
 
-    const itemPrice = sizePrice;
-    const addons = colorPrice + baseTypePrice + packagingPrice;
-    const subtotal = itemPrice + addons;
+      const itemPrice = sizePrice;
+      const addons = colorPrice + baseTypePrice + packagingPrice;
+      const subtotal = itemPrice + addons;
 
-    const quantityRange = productDisplay.options.quantityRanges?.find(r => {
-      if (!r.range) return false;
-      const [minStr, maxStr] = r.range.split(/[~-]/);
-      const min = parseInt(minStr.replace(/\D/g, ""));
-      const max = maxStr ? parseInt(maxStr.replace(/\D/g, "")) : Infinity;
-      return quantity >= min && (isNaN(max) || quantity <= max);
-    });
-    const multiplier = quantityRange?.multiplier || 1;
+      const quantityRange = productDisplay.options.quantityRanges?.find(r => {
+        if (!r.range) return false;
+        const [minStr, maxStr] = r.range.split(/[~-]/);
+        const min = parseInt(minStr.replace(/\D/g, ""));
+        const max = maxStr ? parseInt(maxStr.replace(/\D/g, "")) : Infinity;
+        return quantity >= min && (isNaN(max) || quantity <= max);
+      });
+      const multiplier = quantityRange?.multiplier || 1;
 
-    const total = Math.round(subtotal * multiplier * quantity);
+      baseTotal = Math.round(subtotal * multiplier * quantity);
+    }
     
-    return total;
+    // 기타 옵션 비용 계산 (개당 비용)
+    let additionalCosts = 0;
+    if (oppPackaging) additionalCosts += 100 * quantity; // OPP포장비용 100원 (개당)
+    if (paperPrint) additionalCosts += 200 * quantity; // 간지출력 200원 (개당)
+    if (magneticAdd) additionalCosts += 200 * quantity; // 마그네틱추가 200원 (개당)
+    if (magneticEmbed) additionalCosts += 400 * quantity; // 마그네틱매립 400원 (개당)
+    if (keyringAdd) additionalCosts += 300 * quantity; // 키링추가(부자재) 300원 (개당)
+    
+    // 디자인비용은 총 주문당 5만원 (수량 무관)
+    if (designService) additionalCosts += 50000;
+    
+    return baseTotal + additionalCosts;
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -224,6 +269,19 @@ export default function ProductDetail() {
   }, [productDisplay]);
 
 
+  // 로딩 상태
+  if (isProductsLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-[#1a1a1a] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">상품 정보를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 상품을 찾을 수 없는 경우
   if (!productDisplay || !product) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-[#1a1a1a] flex items-center justify-center">
@@ -292,124 +350,202 @@ export default function ProductDetail() {
             </div>
 
             <div className="space-y-4">
-              <div>
-                <Label className="text-base font-medium mb-3 block text-gray-900 dark:text-white">✅ 스탠드 사이즈</Label>
-                <div className="space-y-4">
-                    {Object.entries(sizeCategories).map(([categoryName, sizes]) => 
-                        sizes.length > 0 && (
-                        <div key={categoryName}>
-                            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{categoryName} 사이즈</h4>
-                            <div className="grid grid-cols-4 gap-2">
-                              {sizes.map((size: { name: string; price: number }) => (
-                                <button
-                                key={size.name}
-                                onClick={() => setSelectedSize(size.name)}
-                                className={`p-2 rounded border text-center text-sm transition-all ${
-                                    selectedSize === size.name
-                                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                                    : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 text-gray-900 dark:text-gray-100"
-                                }`}
-                                >
-                                <div className="font-medium">{size.name.replace(categoryName, '').trim()}</div>
-                                <div className="text-xs text-blue-600 dark:text-blue-400">{size.price.toLocaleString()}원</div>
-                                </button>
-                            ))}
-                            </div>
-                        </div>
-                        )
-                    )}
-                </div>
-              </div>
-
-                {productDisplay.options.bases && productDisplay.options.bases.length > 0 && (
+              {/* 고급 가격 시스템: 인쇄 방식 선택 */}
+              {hasAdvancedPricingSystem && advancedPricing && (
                 <div>
-                    <Label className="text-base font-medium mb-3 block text-gray-900 dark:text-white">✅ 받침 선택</Label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {productDisplay.options.bases.map(base => (
-                        <button
-                        key={base.name}
-                        onClick={() => setSelectedBase(base.name)}
-                        className={`p-3 rounded-lg border text-center transition-all ${
-                            selectedBase === base.name
-                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                            : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 text-gray-900 dark:text-gray-100"
-                        }`}
-                        >
-                        <div className="font-medium">{base.name}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">{base.description}</div>
-                        <div className="text-sm font-medium text-blue-600 dark:text-blue-400">{base.price > 0 ? `+${base.price.toLocaleString()}원` : "무료"}</div>
-                        </button>
-                    ))}
-                    </div>
-                </div>
-                )}
-              {productDisplay.options.colors && productDisplay.options.colors.length > 0 && (
-                <div>
-                  <Label className="text-base font-medium mb-3 block text-gray-900 dark:text-white">✅ 색상 선택</Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {productDisplay.options.colors.map(color => (
+                  <Label className="text-base font-medium mb-3 block text-gray-900 dark:text-white">🎨 인쇄 방식</Label>
+                  <div className="grid grid-cols-1 gap-3">
+                    {advancedPricing.printTypes.map(printType => (
                       <button
-                        key={color.nameKo}
-                        onClick={() => setSelectedColor(color.nameKo)}
-                        className={`p-3 rounded-lg border text-center transition-all ${
-                          selectedColor === color.nameKo
+                        key={printType.id}
+                        onClick={() => setSelectedPrintType(printType.id)}
+                        className={`p-4 rounded-lg border text-left transition-all ${
+                          selectedPrintType === printType.id
                             ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
                             : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 text-gray-900 dark:text-gray-100"
                         }`}
                       >
-                        <div className="font-medium">{color.nameKo}</div>
-                        {color.priceDelta ? (<div className="text-sm font-medium text-blue-600 dark:text-blue-400">+{color.priceDelta.toLocaleString()}원</div>) : null}
+                        <div className="font-medium">{printType.name}</div>
+                        {printType.multiplier !== 1.0 && (
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            기본 가격의 {(printType.multiplier * 100).toFixed(0)}%
+                          </div>
+                        )}
                       </button>
                     ))}
                   </div>
                 </div>
               )}
+              
+              <div>
+                <Label className="text-base font-medium mb-3 block text-gray-900 dark:text-white">📏 사이즈</Label>
+                {hasAdvancedPricingSystem && advancedPricing ? (
+                  // 고급 가격 시스템: 새로운 사이즈 옵션
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {advancedPricing.sizes
+                      .filter(size => {
+                        // 선택된 인쇄 방식이 없으면 모든 사이즈 표시
+                        if (!selectedPrintType) return true;
+                        
+                        // 가격이 존재하는 사이즈만 표시
+                        const quote = calculatePrice(advancedPricing.id, selectedPrintType, size.id, 1);
+                        return quote !== null;
+                      })
+                      .map(size => (
+                      <button
+                        key={size.id}
+                        onClick={() => setSelectedSize(size.id)}
+                        className={`p-3 rounded-lg border text-center transition-all ${
+                          selectedSize === size.id
+                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                            : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 text-gray-900 dark:text-gray-100"
+                        }`}
+                      >
+                        <div className="font-medium">{size.name}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">{size.dimension}</div>
+                        {selectedPrintType && (
+                          <div className="text-sm font-medium text-blue-600 dark:text-blue-400 mt-1">
+                            {(() => {
+                              const quote = calculatePrice(advancedPricing.id, selectedPrintType, size.id, 1);
+                              return quote ? `${quote.unitPrice.toLocaleString()}원` : '-';
+                            })()}
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  // 기존 사이즈 시스템
+                  <div className="space-y-4">
+                    {Object.entries(sizeCategories).map(([categoryName, sizes]) => 
+                      sizes.length > 0 && (
+                        <div key={categoryName}>
+                          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{categoryName} 사이즈</h4>
+                          <div className="grid grid-cols-4 gap-2">
+                            {sizes.map((size: { name: string; price: number }) => (
+                              <button
+                                key={size.name}
+                                onClick={() => setSelectedSize(size.name)}
+                                className={`p-2 rounded border text-center text-sm transition-all ${
+                                  selectedSize === size.name
+                                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                                    : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 text-gray-900 dark:text-gray-100"
+                                }`}
+                              >
+                                <div className="font-medium">{size.name.replace(categoryName, '').trim()}</div>
+                                <div className="text-xs text-blue-600 dark:text-blue-400">{size.price.toLocaleString()}원</div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* 기타 옵션 섹션 */}
+              <div>
+                <Label className="text-base font-medium mb-3 block text-gray-900 dark:text-white">🔧 기타 옵션</Label>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <label className="flex items-center justify-between p-3 border dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">OPP포장</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">+100원/개</div>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={oppPackaging}
+                        onChange={(e) => setOppPackaging(e.target.checked)}
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                      />
+                    </label>
+                    
+                    <label className="flex items-center justify-between p-3 border dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">간지출력</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">+200원/개</div>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={paperPrint}
+                        onChange={(e) => setPaperPrint(e.target.checked)}
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                      />
+                    </label>
+                    
+                    <label className="flex items-center justify-between p-3 border dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">마그네틱추가</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">+200원/개</div>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={magneticAdd}
+                        onChange={(e) => setMagneticAdd(e.target.checked)}
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                      />
+                    </label>
+                    
+                    <label className="flex items-center justify-between p-3 border dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">마그네틱매립</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">+400원/개</div>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={magneticEmbed}
+                        onChange={(e) => setMagneticEmbed(e.target.checked)}
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                      />
+                    </label>
+                    
+                    <label className="flex items-center justify-between p-3 border dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">키링추가</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">+300원/개</div>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={keyringAdd}
+                        onChange={(e) => setKeyringAdd(e.target.checked)}
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                      />
+                    </label>
+                    
+                    <label className="flex items-center justify-between p-3 border-2 border-orange-200 dark:border-orange-800 rounded-lg cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-900/20 bg-orange-25">
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">디자인비용(인쇄)</div>
+                        <div className="text-sm text-orange-600 dark:text-orange-400">+50,000원 (총 주문)</div>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={designService}
+                        onChange={(e) => setDesignService(e.target.checked)}
+                        className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500 dark:focus:ring-orange-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <Label className="text-base font-medium mb-3 block text-gray-900 dark:text-white">✅ 수량 선택</Label>
                 <div className="flex items-center gap-4 mb-3">
                   <div className="flex items-center border dark:border-gray-700 rounded-lg">
                     <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-l-lg text-gray-900 dark:text-gray-100"><Minus className="w-4 h-4" /></button>
-                    <span className="px-4 py-2 border-x dark:border-gray-700 min-w-[60px] text-center text-gray-900 dark:text-gray-100">{quantity}</span>
+                    <input
+                      type="number"
+                      value={quantity}
+                      onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                      className="w-16 px-2 py-1 border-x dark:border-gray-700 text-center text-gray-900 dark:text-gray-100 appearance-none"
+                      min="1"
+                    />
                     <button onClick={() => setQuantity(quantity + 1)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-r-lg text-gray-900 dark:text-gray-100"><Plus className="w-4 h-4" /></button>
                   </div>
                 </div>
-                 {productDisplay.options.quantityRanges && (
-                    <div className="bg-gray-50 dark:bg-[#1a1a1a]/50 rounded-lg p-3">
-                        <div className="text-sm text-gray-600 dark:text-gray-300"><strong>수량별 할인 안내:</strong></div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 space-y-1">
-                            {productDisplay.options.quantityRanges.map(range => (
-                            <div key={range.range} className="flex justify-between">
-                                <span>{range.range} ({range.condition})</span>
-                                <span className="font-medium">{range.multiplier === 1 ? "정가" : `${((1 - range.multiplier) * 100).toFixed(0)}% 할인`}</span>
-                            </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
               </div>
-
-                {productDisplay.options.packaging && productDisplay.options.packaging.length > 0 && (
-                <div>
-                    <Label className="text-base font-medium mb-3 block text-gray-900 dark:text-white">✅ 포장 방식</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                    {productDisplay.options.packaging.map(pkg => (
-                        <button
-                        key={pkg.name}
-                        onClick={() => setSelectedPackaging(pkg.name)}
-                        className={`p-3 rounded-lg border text-left transition-all ${
-                            selectedPackaging === pkg.name
-                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-                            : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 text-gray-900 dark:text-gray-100"
-                        }`}
-                        >
-                        <div className="font-medium">{pkg.name}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">{pkg.description}</div>
-                        <div className="text-sm font-medium text-blue-600 dark:text-blue-400">{pkg.price > 0 ? `+${pkg.price.toLocaleString()}원` : "무료"}</div>
-                        </button>
-                    ))}
-                    </div>
-                </div>
-                )}
 
               <div>
                 <Label className="text-base font-medium mb-3 block text-gray-900 dark:text-white">✅ 파일 업로드</Label>

@@ -1,7 +1,6 @@
 
 'use client';
 import Link from 'next/link';
-import { LanguageSwitcher } from "./language-switcher";
 
 export function Footer() {
 

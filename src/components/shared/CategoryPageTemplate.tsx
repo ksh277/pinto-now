@@ -118,8 +118,8 @@ export default function CategoryPageTemplate({
                     </>
                   ) : (
                     <>
-                      <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-                        <a href="/editor">제품 제작하기</a>
+                      <Button size="lg" className="bg-blue-600 hover:bg-blue-700" asChild>
+                        <Link href="/editor">제품 제작하기</Link>
                       </Button>
                       <Button variant="outline" size="lg">
                         대량 주문 문의

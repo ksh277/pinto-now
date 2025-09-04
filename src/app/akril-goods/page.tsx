@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronRight, Package, Truck, Star } from 'lucide-react';
 import { StripBannerProvider } from '@/contexts/StripBannerContext';
+import { availableProducts } from '@/lib/pricing-data';
 
 const copy = {
   title: '아크릴 굿즈',
@@ -44,78 +45,14 @@ const copy = {
   ]
 };
 
-const products = [
-  { 
-    id: 'acrylic-keyring', 
-    name: '아크릴 키링', 
-    tags: ['키링', '개인', '소량'], 
-    price: 2500,
-  image: '/components/img/placeholder-product.jpg',
-  },
-  { 
-    id: 'acrylic-standee', 
-    name: '아크릴 스탠디', 
-    tags: ['스탠드', '굿즈', '팬아트'], 
-    price: 8000,
-  image: '/components/img/placeholder-product.jpg',
-  },
-  { 
-    id: 'acrylic-bookmark', 
-    name: '아크릴 북마크', 
-    tags: ['북마크', '문구', '개인'], 
-    price: 3000,
-  image: '/components/img/placeholder-product.jpg',
-  },
-  { 
-    id: 'acrylic-photo-frame', 
-    name: '아크릴 포토프레임', 
-    tags: ['프레임', '사진', '인테리어'], 
-    price: 12000,
-  image: '/components/img/placeholder-product.jpg',
-  },
-  { 
-    id: 'acrylic-trophy', 
-    name: '아크릴 트로피', 
-    tags: ['트로피', '시상', '기념품'], 
-    price: 25000,
-  image: '/components/img/placeholder-product.jpg',
-  },
-  { 
-    id: 'acrylic-name-plate', 
-    name: '아크릴 네임플레이트', 
-    tags: ['네임플레이트', '사무용품', '개인'], 
-    price: 15000,
-  image: '/components/img/placeholder-product.jpg',
-  },
-  { 
-    id: 'acrylic-charm', 
-    name: '아크릴 참', 
-    tags: ['참', '액세서리', '굿즈'], 
-    price: 4000,
-  image: '/components/img/placeholder-product.jpg',
-  },
-  { 
-    id: 'acrylic-memo-holder', 
-    name: '아크릴 메모홀더', 
-    tags: ['메모홀더', '사무용품', '실용'], 
-    price: 7000,
-  image: '/components/img/placeholder-product.jpg',
-  },
-  { 
-    id: 'acrylic-clock', 
-    name: '아크릴 시계', 
-    tags: ['시계', '인테리어', '실용'], 
-    price: 35000,
-  image: '/components/img/placeholder-product.jpg',
-  },
-  { 
-    id: 'acrylic-medal', 
-    name: '아크릴 메달', 
-    tags: ['메달', '시상', '스포츠'], 
-    price: 18000,
-  image: '/components/img/placeholder-product.jpg',
-  }
-];
+// pricing-data.ts의 availableProducts를 기반으로 제품 목록 생성
+const products = availableProducts.map((product, index) => ({
+  id: index + 1,
+  name: product.name,
+  image: "/components/img/placeholder-product.jpg", // 기본 이미지 사용
+  tags: product.name.split(' ').slice(0, 2), // 이름에서 태그 생성
+  price: product.pricingTiers[0].prices[Object.keys(product.pricingTiers[0].prices)[0]] || 0
+}));
 
 export const metadata = {
   title: '아크릴 굿즈 제작 | 투명하고 견고한 프리미엄 아크릴 제품 | PINTO',
@@ -242,7 +179,7 @@ export default function AkrilGoodsPage() {
                       <span className="text-lg font-bold text-blue-600">
                         {product.price.toLocaleString()}원~
                       </span>
-                      <Link href={`/product/${product.id}`} className="text-sm text-gray-500 hover:text-gray-700 flex items-center">
+                      <Link href={`/products/${product.id}`} className="text-sm text-gray-500 hover:text-gray-700 flex items-center">
                         자세히 보기
                         <ChevronRight className="w-4 h-4 ml-1" />
                       </Link>

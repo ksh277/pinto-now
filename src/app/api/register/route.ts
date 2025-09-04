@@ -8,7 +8,7 @@ function parseDb() {
   const {
     MYSQL_HOST='127.0.0.1', MYSQL_PORT='3310',
     MYSQL_USER='root', MYSQL_PASSWORD='rootpass', MYSQL_DB='pinto'
-  } = process.env as any;
+  } = process.env;
   return { host: MYSQL_HOST, port: Number(MYSQL_PORT), user: MYSQL_USER, password: MYSQL_PASSWORD, database: MYSQL_DB };
 }
 
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
       : await mysql.createConnection(parseDb() as any);
     // 아이디(유저네임) 중복 체크
     const [rows] = await conn.query('SELECT id FROM users WHERE username = ?', [username]);
-    if ((rows as any[]).length > 0) {
+    if (Array.isArray(rows) && rows.length > 0) {
       await conn.end();
       return NextResponse.json({ ok: false, error: '이미 사용 중인 아이디' }, { status: 409 });
     }
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     );
     await conn.end();
     return NextResponse.json({ ok: true });
-  } catch (e: any) {
-    return NextResponse.json({ ok: false, error: e?.message }, { status: 500 });
+  } catch (e: unknown) {
+    return NextResponse.json({ ok: false, error: e instanceof Error ? e.message : 'Unknown error' }, { status: 500 });
   }
 }

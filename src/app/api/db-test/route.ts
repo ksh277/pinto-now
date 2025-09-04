@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { getPool, query } from '@/lib/mysql';
+import { query } from '@/lib/mysql';
 
 const expected = [
   "users","products","orders","order_items","reviews","product_stats","product_likes","payments",
@@ -45,7 +45,7 @@ export async function GET(_req: NextRequest) {
       tables,
       missing,
     });
-  } catch (e: any) {
-    return Response.json({ ok: false, error: e.message || String(e) }, { status: 500 });
+  } catch (e: unknown) {
+    return Response.json({ ok: false, error: e instanceof Error ? e.message : String(e) }, { status: 500 });
   }
 }

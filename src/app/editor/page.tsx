@@ -1,9 +1,18 @@
-
 'use client';
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 export default function EditorPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Content />
+    </Suspense>
+  );
+}
+
+function Content() {
   const sp = useSearchParams();
   const template = sp?.get('template') ?? '';
   const type = sp?.get('type') ?? '';

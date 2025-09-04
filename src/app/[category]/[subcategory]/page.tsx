@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { buildEditorLink, subcategoryConfig } from '@/lib/subcategory-config';
 
 interface PageProps {
-  params: { category: string; subcategory: string };
+  params: Promise<{ category: string; subcategory: string }>;
 }
 
 export default async function SubcategoryPage({ params }: PageProps) {

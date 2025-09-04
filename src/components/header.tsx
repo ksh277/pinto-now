@@ -26,7 +26,7 @@ export function Header() {
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const router = useRouter();
 
   const handleCategoryHover = (cat: string) => {
@@ -48,14 +48,6 @@ export function Header() {
   const subNavToShow = mainNavItems.find(item => item.id === activeSubNav)?.subnav;
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
-  const handleOrderClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    if (!isAuthenticated) {
-      router.push('/login');
-    } else {
-      router.push('/mypage/orders');
-    }
-  };
 
 
   return (
@@ -156,15 +148,15 @@ export function Header() {
           <ul className="flex items-center gap-12 ml-16 list-none">
             {[
               { id: 'all', label: 'ALL' },
-              { id: 'acrylic', label: '아크릴' },
-              { id: 'paper', label: '지류' },
-              { id: 'sticker', label: '스티커' },
-              { id: 'clothing', label: '의류' },
-              { id: 'frame', label: '액자' },
-              { id: 'stationery', label: '문구/오피스' },
-              { id: 'ipgoods', label: 'IP굿즈 상품개발' },
-              { id: 'kit', label: '기업/웰컴 키트' },
-              { id: 'group', label: '단체 판촉' },
+              { id: 'acrylic', label: '아크릴', href: '/akril-goods' },
+              { id: 'paper', label: '지류', href: '/paper-goods' },
+              { id: 'sticker', label: '스티커', href: '/fan-goods' },
+              { id: 'clothing', label: '의류', href: '/tshirt' },
+              { id: 'frame', label: '액자', href: '/frame-prop-name-tag' },
+              { id: 'stationery', label: '문구/오피스', href: '/packing-supplies' },
+              { id: 'ipgoods', label: 'IP굿즈 상품개발', href: '/ip-goods-dev' },
+              { id: 'kit', label: '기업/웰컴 키트', href: '/brand-request' },
+              { id: 'group', label: '단체 판촉', href: '/promo-product-view' },
             ].map((item, index) => (
               <li key={index}>
                 <button

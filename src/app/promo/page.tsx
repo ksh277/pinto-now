@@ -5,36 +5,46 @@ import { Metadata } from 'next';
 const categorySlug = 'promo';
 const mapping = getCategoryMapping(categorySlug);
 
-if (!mapping) {
-  throw new Error(`Category mapping not found for: ${categorySlug}`);
-}
+const safeMapping = mapping || {
+  slug: 'promo',
+  categoryKo: '단체 판촉상품',
+  type: 'category' as const,
+  subtitle: '대량 주문 전용 판촉 상품',
+  description: '기업 및 단체를 위한 대량 주문 전용 판촉 상품을 합리적인 가격에 제작하세요.',
+  usp: [
+    { icon: '📦', title: '대량 할인', desc: '수량이 많을수록 더 저렴한 단가' },
+    { icon: '🏢', title: '기업 전용', desc: '세금계산서 발행 가능' },
+    { icon: '🎯', title: '맞춤 제작', desc: '로고 및 디자인 무료 인쇄' }
+  ],
+  heroImagePath: '/images/default-hero.png'
+};
 
 export const metadata: Metadata = {
-  title: `${mapping.categoryKo} | PINTO`,
-  description: mapping.description,
+  title: `${safeMapping.categoryKo} | PINTO`,
+  description: safeMapping.description,
   alternates: {
-    canonical: `https://pinto.co.kr/${mapping.slug}`
+    canonical: `https://pinto.co.kr/${safeMapping.slug}`
   },
   openGraph: {
-    title: `${mapping.categoryKo} | PINTO`,
-    description: mapping.description,
-    url: `https://pinto.co.kr/${mapping.slug}`,
+    title: `${safeMapping.categoryKo} | PINTO`,
+    description: safeMapping.description,
+    url: `https://pinto.co.kr/${safeMapping.slug}`,
     siteName: 'PINTO',
     type: 'website',
     images: [
       {
-        url: mapping.heroImagePath,
+        url: safeMapping.heroImagePath,
         width: 1200,
         height: 630,
-        alt: `${mapping.categoryKo} 메인 이미지`
+        alt: `${safeMapping.categoryKo} 메인 이미지`
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${mapping.categoryKo} | PINTO`,
-    description: mapping.description,
-    images: [mapping.heroImagePath]
+    title: `${safeMapping.categoryKo} | PINTO`,
+    description: safeMapping.description,
+    images: [safeMapping.heroImagePath]
   }
 };
 
@@ -73,9 +83,14 @@ const promoFaq = [
 ];
 
 export default function PromoPage() {
+  // mapping이 없을 경우 에러 로깅
+  if (!mapping) {
+    console.error(`Category mapping not found for: ${categorySlug}`);
+  }
+
   return (
     <CategoryPageTemplate 
-      mapping={mapping}
+      mapping={safeMapping}
       products={promoProducts}
       faq={promoFaq}
     />

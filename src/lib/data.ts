@@ -3,16 +3,16 @@
 import type { Product } from './types';
 
 const MOCK_PRODUCTS_RAW = [
-  // Keyrings (15)
-  { id: '1',  category_ko: '아크릴', subCategory_ko: 'keyring',  name_ko: '[아크릴키링 주문제작] 투명아크릴', price: 1200, reviews: 0, likes: 0, image: 'https://placehold.co/300x300.png' },
-  { id: '2',  category_ko: '아크릴', subCategory_ko: 'keyring',  name_ko: '[아크릴키링 주문제작] 하프미러 아크릴', price: 1700, reviews: 0,  likes: 0,  image: 'https://placehold.co/300x300.png' },
-  { id: '3',  category_ko: '아크릴', subCategory_ko: 'keyring',  name_ko: '[아크릴키링 주문제작] 글리터 아크릴', price: 1200, reviews: 0,  likes: 0,  image: 'https://placehold.co/300x300.png' },
-  { id: '4',  category_ko: '아크릴', subCategory_ko: 'keyring',  name_ko: '[아크릴키링 주문제작] 유색/투명컬러/아스텔 아크릴', price: 1200, reviews: 0,  likes: 0,  image: 'https://placehold.co/300x300.png' },
-  { id: '5',  category_ko: '아크릴', subCategory_ko: 'keyring',  name_ko: '[아크릴키링 주문제작] 자개 아크릴', price: 1200, reviews: 0,   likes: 0,  image: 'https://placehold.co/300x300.png' },
-  { id: '6',  category_ko: '아크릴', subCategory_ko: 'keyring',  name_ko: '[아크릴키링 주문제작] 투명아크릴2', price: 1300, reviews: 0,   likes: 0,  image: 'https://placehold.co/300x300.png' },
-  { id: '7',  category_ko: '아크릴', subCategory_ko: 'keyring',  name_ko: '[아크릴키링 주문제작] 하프미러 아크릴2', price: 1800, reviews: 0,   likes: 0,  image: 'https://placehold.co/300x300.png' },
-  { id: '8',  category_ko: '아크릴', subCategory_ko: 'keyring',  name_ko: '[아크릴키링 주문제작] 글리터 아크릴2', price: 1250, reviews: 0,   likes: 0,  image: 'https://placehold.co/300x300.png' },
-  { id: '9',  category_ko: '아크릴', subCategory_ko: 'keyring',  name_ko: '[아크릴키링 주문제작] 유색/투명컬러/아스텔 아크릴2', price: 1350, reviews: 0,   likes: 0,  image: 'https://placehold.co/300x300.png' },
+  // 새로운 9개 아크릴 상품 (ID 1-9)
+  { id: '1',  category_ko: '아크릴', subCategory_ko: 'coaster',  name_ko: '아크릴코롯 10T', price: 8300, reviews: 0, likes: 0, image: 'https://placehold.co/300x300.png' },
+  { id: '2',  category_ko: '아크릴', subCategory_ko: 'keyring',  name_ko: '아크릴키링 3T', price: 4200, reviews: 0,  likes: 0,  image: 'https://placehold.co/300x300.png' },
+  { id: '3',  category_ko: '아크릴', subCategory_ko: 'props',  name_ko: '포토프롭 3T', price: 5000, reviews: 0,  likes: 0,  image: 'https://placehold.co/300x300.png' },
+  { id: '4',  category_ko: '아크릴', subCategory_ko: 'props',  name_ko: '포토프(라미)', price: 6200, reviews: 0,  likes: 0,  image: 'https://placehold.co/300x300.png' },
+  { id: '5',  category_ko: '아크릴', subCategory_ko: 'stand',  name_ko: '아크릴스탠드(본품)', price: 4300, reviews: 0,   likes: 0,  image: 'https://placehold.co/300x300.png' },
+  { id: '6',  category_ko: '아크릴', subCategory_ko: 'keyring',  name_ko: '라미키링', price: 4300, reviews: 0,   likes: 0,  image: 'https://placehold.co/300x300.png' },
+  { id: '7',  category_ko: '아크릴', subCategory_ko: 'magnet',  name_ko: '아크릴 자석 냉장고 마그네틱', price: 6700, reviews: 0,   likes: 0,  image: 'https://placehold.co/300x300.png' },
+  { id: '8',  category_ko: '아크릴', subCategory_ko: 'stand',  name_ko: '아크릴 스탠드(바닥판)', price: 200, reviews: 0,   likes: 0,  image: 'https://placehold.co/300x300.png' },
+  { id: '9',  category_ko: '아크릴', subCategory_ko: 'laminated',  name_ko: '라미', price: 2000, reviews: 0,   likes: 0,  image: 'https://placehold.co/300x300.png' },
   { id: '10', category_ko: '아크릴', subCategory_ko: 'keyring',  name_ko: '[아크릴키링 주문제작] 자개 아크릴2', price: 1400, reviews: 0,   likes: 0,  image: 'https://placehold.co/300x300.png' },
   { id: '11', category_ko: '아크릴', subCategory_ko: 'keyring',  name_ko: '[아크릴키링 주문제작] 투명아크릴3', price: 1500, reviews: 0,  likes: 0,  image: 'https://placehold.co/300x300.png' },
   { id: '12', category_ko: '아크릴', subCategory_ko: 'keyring',  name_ko: '[아크릴키링 주문제작] 하프미러 아크릴3', price: 1600, reviews: 0,  likes: 0,  image: 'https://placehold.co/300x300.png' },
