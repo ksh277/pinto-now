@@ -2,9 +2,6 @@
 
 import { useState } from 'react';
 
-export const metadata = {
-  title: '브랜드 의뢰',
-};
 
 export default function BrandRequestPage() {
   const [form, setForm] = useState({ name: '', email: '', brand: '', requirements: '' });

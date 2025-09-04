@@ -140,7 +140,6 @@ export function Header() {
                           )}
                         </AccordionItem>
                       ))}
-                      <div className="border-t"><Link href="/editor" onClick={closeMobileMenu} className="flex items-center text-base font-semibold py-3">굿즈 에디터</Link></div>
                       <div className="border-t"><Link href="/reviews" onClick={closeMobileMenu} className="flex items-center text-base font-semibold py-3">리뷰</Link></div>
                       <div className="border-t"><Link href="/community" onClick={closeMobileMenu} className="flex items-center text-base font-semibold py-3">커뮤니티</Link></div>
                       <div className="border-t"><Link href="/support/notice" onClick={closeMobileMenu} className="flex items-center text-base font-semibold py-3">고객센터</Link></div>
@@ -210,61 +209,61 @@ export function Header() {
                 <div>
                   <div className="font-semibold mb-2">ALL</div>
                   <div className="flex flex-col gap-1">
-                    <Link href="#" className="hover:text-primary">커스텀상품(제품뷰)</Link>
-                    <Link href="#" className="hover:text-primary">단체판촉상품(제품뷰)</Link>
-                    <Link href="#" className="hover:text-primary">IP굿즈 상품개발(페이지)</Link>
-                    <Link href="#" className="hover:text-primary">브랜드의뢰(페이지)</Link>
+                    <Link href="/custom-product-view" className="hover:text-primary">커스텀상품(제품뷰)</Link>
+                    <Link href="/promo-product-view" className="hover:text-primary">단체판촉상품(제품뷰)</Link>
+                    <Link href="/ip-goods-dev" className="hover:text-primary">IP굿즈 상품개발(페이지)</Link>
+                    <Link href="/brand-request" className="hover:text-primary">브랜드의뢰(페이지)</Link>
                     <Link href="/reviews" className="hover:text-primary">리뷰(게시판)</Link>
-                    <Link href="#" className="hover:text-primary">상품주문 가이드(페이지)</Link>
+                    <Link href="/guide/order" className="hover:text-primary">상품주문 가이드(페이지)</Link>
                   </div>
                 </div>
                 {/* 팬굿즈 */}
                 <div>
                   <div className="font-semibold mb-2">팬굿즈</div>
                   <div className="flex flex-col gap-1">
-                    <Link href="#" className="hover:text-primary">아크릴 굿즈</Link>
-                    <Link href="#" className="hover:text-primary">지류 굿즈</Link>
-                    <Link href="#" className="hover:text-primary">스티커(다꾸)</Link>
-                    <Link href="#" className="hover:text-primary">핀거믹/버튼</Link>
-                    <Link href="#" className="hover:text-primary">등신대</Link>
-                    <Link href="#" className="hover:text-primary">ETC</Link>
+                    <Link href="/akril-goods" className="hover:text-primary">아크릴 굿즈</Link>
+                    <Link href="/paper-goods" className="hover:text-primary">지류 굿즈</Link>
+                    <Link href="/fan-goods" className="hover:text-primary">스티커(다꾸)</Link>
+                    <Link href="/pin-button" className="hover:text-primary">핀거믹/버튼</Link>
+                    <Link href="/life-size-standee" className="hover:text-primary">등신대</Link>
+                    <Link href="/etc" className="hover:text-primary">ETC</Link>
                   </div>
                 </div>
                 {/* 단체 판촉상품 */}
                 <div>
                   <div className="font-semibold mb-2">단체 판촉상품</div>
                   <div className="flex flex-col gap-1">
-                    <Link href="#" className="hover:text-primary">머그컵/유리컵</Link>
-                    <Link href="#" className="hover:text-primary">텀블러</Link>
-                    <Link href="#" className="hover:text-primary">수건</Link>
-                    <Link href="#" className="hover:text-primary">시계</Link>
-                    <Link href="#" className="hover:text-primary">우산</Link>
-                    <Link href="#" className="hover:text-primary">티셔츠</Link>
+                    <Link href="/mug-glass" className="hover:text-primary">머그컵/유리컵</Link>
+                    <Link href="/tumbler" className="hover:text-primary">텀블러</Link>
+                    <Link href="/towel" className="hover:text-primary">수건</Link>
+                    <Link href="/clock" className="hover:text-primary">시계</Link>
+                    <Link href="/umbrella" className="hover:text-primary">우산</Link>
+                    <Link href="/tshirt" className="hover:text-primary">티셔츠</Link>
                   </div>
                 </div>
                 {/* 광고물/사인 */}
                 <div>
                   <div className="font-semibold mb-2">광고물/사인</div>
                   <div className="flex flex-col gap-1">
-                    <Link href="#" className="hover:text-primary">LED 네온</Link>
-                    <Link href="#" className="hover:text-primary">환경디자인</Link>
-                    <Link href="#" className="hover:text-primary">미니간판</Link>
+                    <Link href="/led-neon" className="hover:text-primary">LED 네온</Link>
+                    <Link href="/env-design" className="hover:text-primary">환경디자인</Link>
+                    <Link href="/mini-sign" className="hover:text-primary">미니간판</Link>
                   </div>
                 </div>
                 {/* 반려동물 */}
                 <div>
                   <div className="font-semibold mb-2">반려동물</div>
                   <div className="flex flex-col gap-1">
-                    <Link href="#" className="hover:text-primary">액자/소품/네임택</Link>
-                    <Link href="#" className="hover:text-primary">쿠션/방석/패브릭 제품</Link>
-                    <Link href="#" className="hover:text-primary">장례용품</Link>
+                    <Link href="/frame-prop-name-tag" className="hover:text-primary">액자/소품/네임택</Link>
+                    <Link href="/cushion-fabric" className="hover:text-primary">쿠션/방석/패브릭 제품</Link>
+                    <Link href="/funeral" className="hover:text-primary">장례용품</Link>
                   </div>
                 </div>
                 {/* 포장 부자재 */}
                 <div>
                   <div className="font-semibold mb-2">포장 부자재</div>
                   <div className="flex flex-col gap-1">
-                    <Link href="#" className="hover:text-primary">전체보기</Link>
+                    <Link href="/packing-supplies" className="hover:text-primary">전체보기</Link>
                   </div>
                 </div>
               </div>

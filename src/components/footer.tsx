@@ -37,15 +37,21 @@ export function Footer() {
             </ul>
           </div>
           <div>
-             <h3 className="font-bold text-foreground mb-4">Follow Us & Language</h3>
-             <ul className="space-y-2">
-                <li><a href="#" className="hover:underline">Instagram</a></li>
-                <li><a href="#" className="hover:underline">Facebook</a></li>
-                <li><a href="#" className="hover:underline">Twitter</a></li>
-             </ul>
-             <div className="mt-4">
-                <LanguageSwitcher />
-             </div>
+      <h3 className="font-bold text-foreground mb-4">Follow Us</h3>
+      <ul className="space-y-2">
+        <li><a href="#" className="hover:underline">Instagram</a></li>
+        <li><a href="#" className="hover:underline">Facebook</a></li>
+        <li><a href="#" className="hover:underline">Twitter</a></li>
+      </ul>
+      <div className="mt-6">
+        <h4 className="font-semibold mb-2">언어 설정</h4>
+        <div className="flex gap-2">
+          <button type="button" className="px-3 py-1 rounded bg-background border hover:bg-primary/10" onClick={() => window.localStorage.setItem('locale', 'ko')}>한국어</button>
+          <button type="button" className="px-3 py-1 rounded bg-background border hover:bg-primary/10" onClick={() => window.localStorage.setItem('locale', 'en')}>English</button>
+          <button type="button" className="px-3 py-1 rounded bg-background border hover:bg-primary/10" onClick={() => window.localStorage.setItem('locale', 'ja')}>日本語</button>
+          <button type="button" className="px-3 py-1 rounded bg-background border hover:bg-primary/10" onClick={() => window.localStorage.setItem('locale', 'zh')}>中文</button>
+        </div>
+      </div>
           </div>
         </div>
         <div className="mt-8 border-t pt-8 text-center">

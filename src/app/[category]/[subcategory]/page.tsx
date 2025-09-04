@@ -7,8 +7,8 @@ interface PageProps {
   params: { category: string; subcategory: string };
 }
 
-export default function SubcategoryPage({ params }: PageProps) {
-  const { category, subcategory } = params;
+export default async function SubcategoryPage({ params }: PageProps) {
+  const { category, subcategory } = await params;
   const info = subcategoryConfig[category]?.[subcategory];
 
   if (!info) {

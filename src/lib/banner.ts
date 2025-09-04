@@ -31,7 +31,11 @@ export async function addBanner(data: { imgSrc: string; alt: string; href?: stri
   await fetch('/api/banners', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ imgSrc: data.imgSrc, alt: data.alt, href: data.href }),
+    body: JSON.stringify({
+      title: data.alt,
+      image_url: data.imgSrc,
+      href: data.href,
+    }),
   });
 }
 

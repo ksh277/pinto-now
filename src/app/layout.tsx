@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Palette } from 'lucide-react';
 import { Providers } from '@/components/providers';
 import { Header } from '@/components/header';
+import TopStripBanner from '@/components/TopStripBanner';
 import { Footer } from '@/components/footer';
 import { Toaster as RadixToaster } from '@/components/ui/toaster';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,8 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <Providers>
           <div className="flex min-h-screen flex-col">
+            
+            <TopStripBanner />
             <Header />
             <main className="flex-grow bg-background">{children}</main>
             <Footer />

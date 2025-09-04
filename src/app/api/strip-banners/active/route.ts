@@ -3,9 +3,9 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    const item = await prisma.stripBanner.findFirst({
-      where: { isActive: true },
-      orderBy: { createdAt: 'desc' },
+  const item = await prisma.banners.findFirst({
+      where: { is_active: true },
+      orderBy: { created_at: 'desc' },
     });
     return NextResponse.json(item ?? null, { status: 200 });
   } catch (e: any) {

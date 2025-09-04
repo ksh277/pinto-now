@@ -270,6 +270,14 @@ function LoginContent() {
                   일반 회원가입
                 </Button>
               </Link>
+                <Link href="/signup/company">
+                  <Button
+                    variant="outline"
+                    className="w-full h-10 border-border hover:bg-background/50 mt-2"
+                  >
+                    기업 회원가입
+                  </Button>
+                </Link>
             </div>
           </CardContent>
         </Card>

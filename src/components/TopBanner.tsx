@@ -20,11 +20,37 @@ function chunk<T>(arr: T[], size: number): T[][] {
 }
 export function TopBanner() {
   const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
+  const [, setCurrent] = useState(0);
   const [banners, setBanners] = useState<HeroBanner[]>([]);
 
   useEffect(() => {
-    fetchBanners().then(setBanners).catch(() => setBanners([]));
+    // DB에서 배너를 가져오지 말고 직접 로컬 이미지 사용
+    setBanners([
+      {
+        id: 'banner1',
+        href: '/',
+        imgSrc: '/images/sample-banner1.svg',
+        alt: 'PINTO 배너 1',
+      },
+      {
+        id: 'banner2', 
+        href: '/akril-goods',
+        imgSrc: '/images/sample-banner2.svg',
+        alt: 'PINTO 배너 2',
+      },
+      {
+        id: 'banner3',
+        href: '/guide/order',
+        imgSrc: '/images/sample-banner3.svg',
+        alt: 'PINTO 배너 3',
+      },
+      {
+        id: 'banner4',
+        href: '/reviews',
+        imgSrc: '/images/sample-banner4.svg',
+        alt: 'PINTO 배너 4',
+      },
+    ]);
   }, []);
 
   const slides = chunk(banners, 2);
@@ -67,18 +93,6 @@ export function TopBanner() {
           ))}
         </CarouselContent>
       </Carousel>
-      <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-2">
-        {slides.map((_, i) => (
-          <button
-            key={i}
-            aria-label={`Go to slide ${i + 1}`}
-            onClick={() => api?.scrollTo(i)}
-            className={`h-2 w-2 rounded-full ${
-              current === i ? 'bg-black' : 'bg-gray-300'
-            }`}
-          />
-        ))}
-      </div>
     </div>
   );
 }
