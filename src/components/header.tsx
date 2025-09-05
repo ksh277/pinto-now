@@ -161,9 +161,9 @@ export function Header() {
               <li key={index}>
                 <button
                   className={clsx(
-                    'relative px-2 py-1 text-base font-semibold transition-colors',
+                    'relative px-2 py-1 text-base font-semibold transition-colors whitespace-nowrap overflow-hidden',
                     activeCategory === item.id
-                      ? 'text-primary after:absolute after:-bottom-1 after:left-0 after:right-0 after:h-[2px] after:bg-primary'
+                      ? 'text-primary after:absolute after:-bottom-1 after:left-0 after:right-1 after:h-[2px] after:bg-primary'
                       : 'text-muted-foreground hover:text-primary'
                   )}
                   onMouseEnter={() => handleCategoryHover(item.id!)}
@@ -175,7 +175,7 @@ export function Header() {
             ))}
           </ul>
 
-          <div className="flex-shrink-0 w-[600px] max-w-[600px] mr-16">
+          <div className="flex-shrink-0 w-[600px] max-w-[600px] mr-8">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
               <Input

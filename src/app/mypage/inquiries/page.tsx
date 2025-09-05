@@ -17,33 +17,75 @@ export default function MyInquiriesPage() {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
-  // Mock data, this should come from a context or API call
-  const mockInquiries = [
-    { id: 'inq-1', title: "주문 배송지 변경 가능한가요?", createdAt: new Date(Date.now() - 86400000), status: 'answered'},
-    { id: 'inq-2', title: "아크릴 키링 인쇄 품질 문의", createdAt: new Date(Date.now() - 86400000 * 3), status: 'received'},
-  ];
-
+  const [inquiries, setInquiries] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [newInquiry, setNewInquiry] = useState({ title: '', content: '' });
   const [inquiryType, setInquiryType] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.replace('/login');
     }
+    if (isAuthenticated) {
+      fetchInquiries();
+    }
   }, [isLoading, isAuthenticated, router]);
 
-  const handleInquirySubmit = (e: React.FormEvent) => {
+  const fetchInquiries = async () => {
+    try {
+      const response = await fetch('/api/inquiries', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setInquiries(data.inquiries);
+      }
+    } catch (error) {
+      console.error('Error fetching inquiries:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInquirySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newInquiry.title.trim() || !newInquiry.content.trim() || !inquiryType) {
         alert('문의 유형, 제목, 내용을 모두 입력해주세요.');
         return;
     }
-    // Logic to submit the inquiry
-    console.log({ ...newInquiry, type: inquiryType });
-    setShowForm(false);
-    setNewInquiry({ title: '', content: '' });
-    setInquiryType('');
+    
+    setSubmitting(true);
+    try {
+      const response = await fetch('/api/inquiries', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          type: inquiryType,
+          title: newInquiry.title,
+          content: newInquiry.content
+        })
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        alert(result.message);
+        setShowForm(false);
+        setNewInquiry({ title: '', content: '' });
+        setInquiryType('');
+        fetchInquiries();
+      } else {
+        alert(result.error || '문의 등록 중 오류가 발생했습니다.');
+      }
+    } catch (error) {
+      alert('네트워크 오류가 발생했습니다.');
+    } finally {
+      setSubmitting(false);
+    }
   };
   
   if (isLoading || !isAuthenticated) {
@@ -117,11 +159,11 @@ export default function MyInquiriesPage() {
               </div>
 
               <div className="flex justify-end gap-2">
-                 <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>
+                 <Button type="button" variant="ghost" onClick={() => setShowForm(false)} disabled={submitting}>
                     취소
                   </Button>
-                  <Button type="submit">
-                    문의 등록
+                  <Button type="submit" disabled={submitting}>
+                    {submitting ? '등록 중...' : '문의 등록'}
                   </Button>
               </div>
             </form>
@@ -130,12 +172,16 @@ export default function MyInquiriesPage() {
       )}
 
        <div className="border-t">
-        {mockInquiries.length > 0 ? mockInquiries.map((inquiry) => (
+        {loading ? (
+          <div className="text-center py-16 text-muted-foreground">
+            <p>로딩 중...</p>
+          </div>
+        ) : inquiries.length > 0 ? inquiries.map((inquiry) => (
           <Link href={`/mypage/inquiries/${inquiry.id}`} key={inquiry.id} className="group block border-b">
               <div className="flex items-center justify-between py-4">
                   <div className="flex-grow">
                     <p className="text-sm text-muted-foreground">
-                        {inquiry.createdAt.toLocaleDateString()}
+                        {new Date(inquiry.createdAt).toLocaleDateString()}
                     </p>
                     <p className="font-medium group-hover:text-primary truncate">{inquiry.title}</p>
                   </div>

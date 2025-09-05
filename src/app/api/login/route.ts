@@ -7,18 +7,18 @@ function parseDb() {
   const url = process.env.DATABASE_URL;
   if (url) return { url };
   const {
-    MYSQL_HOST = '127.0.0.1',
-    MYSQL_PORT = '3310',
-    MYSQL_USER = 'root',
-    MYSQL_PASSWORD = 'rootpass',
-    MYSQL_DB = 'pinto',
+    DB_HOST = 'localhost',
+    DB_PORT = '3306',
+    DB_USER = 'root',
+    DB_PASSWORD = '12345',
+    DB_NAME = 'pinto',
   } = process.env as any;
   return {
-    host: MYSQL_HOST,
-    port: Number(MYSQL_PORT),
-    user: MYSQL_USER,
-    password: MYSQL_PASSWORD,
-    database: MYSQL_DB,
+    host: DB_HOST,
+    port: Number(DB_PORT),
+    user: DB_USER,
+    password: DB_PASSWORD,
+    database: DB_NAME,
   };
 }
 
@@ -34,10 +34,16 @@ export async function POST(req: NextRequest) {
         ? await mysql.createConnection((db as any).url)
         : await mysql.createConnection(db as any);
     try {
-      const [rows] = await conn.execute(
-        'SELECT id, username, name, password_hash, role, is_active FROM users WHERE username = ? LIMIT 1',
-        [username],
-      );
+      const [rows] = await conn.execute(`
+        SELECT u.id, u.username, up.name, u.password_hash, u.status, 
+               COALESCE(r.code, 'USER') as role
+        FROM users u 
+        LEFT JOIN user_profiles up ON u.id = up.user_id
+        LEFT JOIN user_roles ur ON u.id = ur.user_id  
+        LEFT JOIN roles r ON ur.role_id = r.id
+        WHERE u.username = ? 
+        LIMIT 1
+      `, [username]);
       if (!Array.isArray(rows) || rows.length === 0) {
         return NextResponse.json({ ok: false, error: '존재하지 않는 사용자입니다.' }, { status: 404 });
       }
@@ -46,7 +52,7 @@ export async function POST(req: NextRequest) {
       if (!valid) {
         return NextResponse.json({ ok: false, error: '비밀번호가 일치하지 않습니다.' }, { status: 401 });
       }
-      if (!row.is_active) {
+      if (row.status !== 'ACTIVE') {
         return NextResponse.json({ ok: false, error: '비활성화된 계정입니다.' }, { status: 403 });
       }
       // ✅ JWT 발급 + HttpOnly 쿠키 저장
@@ -64,7 +70,7 @@ export async function POST(req: NextRequest) {
           username: row.username,
           name: row.name,
           role: row.role,
-          isAdmin: ['admin', 'seller', 'staff'].includes(row.role),
+          isAdmin: ['ADMIN', 'STAFF'].includes(row.role),
         },
       });
       setSessionCookie(res, token, maxAge); // ← HttpOnly 쿠키 세팅

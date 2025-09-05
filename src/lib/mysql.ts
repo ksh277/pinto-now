@@ -28,11 +28,11 @@ function getConfig(): PoolOptions {
     return parseDatabaseUrl(process.env.DATABASE_URL);
   }
   return {
-    host: process.env.MYSQL_HOST || '127.0.0.1',
-    port: process.env.MYSQL_PORT ? Number(process.env.MYSQL_PORT) : 3306,
-    user: process.env.MYSQL_USER || 'root',
-    password: process.env.MYSQL_PASSWORD || '',
-    database: process.env.MYSQL_DB || 'pinto',
+    host: process.env.MYSQL_HOST || process.env.DB_HOST || '127.0.0.1',
+    port: process.env.MYSQL_PORT ? Number(process.env.MYSQL_PORT) : (process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306),
+    user: process.env.MYSQL_USER || process.env.DB_USER || 'root',
+    password: process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD || '',
+    database: process.env.MYSQL_DB || process.env.DB_NAME || 'pinto',
   };
 }
 

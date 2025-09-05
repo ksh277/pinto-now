@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -27,29 +28,52 @@ export default function ChangePasswordPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const { register, handleSubmit, formState: { errors } } = useForm<PasswordFormData>({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<PasswordFormData>({
     resolver: zodResolver(passwordSchema),
   });
 
-  const onSubmit = (data: PasswordFormData) => {
-    // In a real app, you would send this to your backend to verify
-    // the current password and update it.
-    console.log(data);
-
-    // Mocking API call
-    if (data.currentPassword === 'password123') { // Mock current password
-      toast({
-        title: '비밀번호 변경 완료',
-        description: '비밀번호가 성공적으로 변경되었습니다.',
+  const onSubmit = async (data: PasswordFormData) => {
+    setIsSubmitting(true);
+    try {
+      const response = await fetch('/api/users/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          currentPassword: data.currentPassword,
+          newPassword: data.newPassword
+        })
       });
-      router.push('/mypage/edit');
-    } else {
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: '비밀번호 변경 완료',
+          description: result.message,
+        });
+        reset();
+        router.push('/mypage');
+      } else {
+        toast({
+          variant: 'destructive',
+          title: '오류',
+          description: result.error || '비밀번호 변경 중 오류가 발생했습니다.',
+        });
+      }
+    } catch (error) {
+      console.error('Password change error:', error);
       toast({
         variant: 'destructive',
         title: '오류',
-        description: '현재 비밀번호가 올바르지 않습니다.',
+        description: '네트워크 오류가 발생했습니다.',
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -86,11 +110,11 @@ export default function ChangePasswordPage() {
                     </div>
                     
                     <div className="flex justify-end gap-2 pt-4">
-                        <Button type="button" variant="outline" onClick={() => router.back()}>
+                        <Button type="button" variant="outline" onClick={() => router.back()} disabled={isSubmitting}>
                             취소
                         </Button>
-                        <Button type="submit">
-                            비밀번호 변경
+                        <Button type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? '변경 중...' : '비밀번호 변경'}
                         </Button>
                     </div>
                 </form>

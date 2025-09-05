@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import PointsCard from '@/components/PointsCard';
 
 const OrderStatusCard = ({ title, count, icon: Icon }: { title: string; count: number; icon: React.ElementType }) => (
   <div className="flex flex-col items-center gap-2">
@@ -99,8 +100,10 @@ export default function MyPage() {
             </Card>
         </div>
 
-        <div className="md:col-span-1">
-             <Card>
+        <div className="md:col-span-1 space-y-8">
+            <PointsCard />
+            
+            <Card>
                 <CardHeader>
                     <CardTitle>나의 정보</CardTitle>
                 </CardHeader>

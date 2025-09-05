@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,22 +13,18 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { User } from '@/lib/types';
 
-// Extend User type for form data
-type UserUpdateFormData = Partial<User> & {
-  password?: string;
-  confirmPassword?: string;
-  phone_p1?: string;
-  phone_p2?: string;
-  phone_p3?: string;
-  tel_p1?: string;
-  tel_p2?: string;
-  tel_p3?: string;
-  receiveSms?: 'yes' | 'no';
-  receiveEmail?: 'yes' | 'no';
-  isLifetimeMember?: 'yes' | 'no';
+// Form data type
+type UserUpdateFormData = {
+  name?: string;
+  nickname?: string;
+  phone?: string;
+  tel?: string;
   zipcode?: string;
   address1?: string;
   address2?: string;
+  receive_sms?: boolean;
+  receive_email?: boolean;
+  is_lifetime_member?: boolean;
 };
 
 
@@ -50,46 +46,80 @@ export default function EditProfilePage() {
   const router = useRouter();
   const { user, setUser, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { register, handleSubmit, setValue } = useForm<UserUpdateFormData>({
+  const { register, handleSubmit, setValue, watch } = useForm<UserUpdateFormData>({
     defaultValues: {
-      username: user?.username,
-      name: user?.name,
-      email: user?.email,
-      nickname: user?.nickname,
+      name: user?.name || '',
+      nickname: user?.nickname || '',
+      phone: user?.phone || '',
+      tel: user?.tel || '',
+      zipcode: user?.zipcode || '',
+      address1: user?.address1 || '',
+      address2: user?.address2 || '',
+      receive_sms: user?.receive_sms ?? true,
+      receive_email: user?.receive_email ?? true,
+      is_lifetime_member: user?.is_lifetime_member ?? false,
     }
   });
 
-   useEffect(() => {
+  useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.replace('/login');
     }
     if (user) {
-        setValue('username', user.username);
-        setValue('name', user.name);
-        setValue('email', user.email);
-        setValue('nickname', user.nickname);
-        // Pre-fill other fields if they exist in user object
+        setValue('name', user.name || '');
+        setValue('nickname', user.nickname || '');
+        setValue('phone', user.phone || '');
+        setValue('tel', user.tel || '');
+        setValue('zipcode', user.zipcode || '');
+        setValue('address1', user.address1 || '');
+        setValue('address2', user.address2 || '');
+        setValue('receive_sms', user.receive_sms ?? true);
+        setValue('receive_email', user.receive_email ?? true);
+        setValue('is_lifetime_member', user.is_lifetime_member ?? false);
     }
   }, [isLoading, isAuthenticated, user, router, setValue]);
 
-  const onSubmit = (data: UserUpdateFormData) => {
-    // In a real app, you'd send this data to your backend API
-    // For now, we update the user in our context/local storage
-    if (user) {
-        const updatedUser: User = {
-            ...user,
-            name: data.name || user.name,
-            email: data.email || user.email,
-            nickname: data.nickname || user.nickname,
-            // ... update other properties
-        };
-        setUser(updatedUser);
+  const onSubmit = async (data: UserUpdateFormData) => {
+    if (!user) return;
+    
+    setIsSubmitting(true);
+    try {
+      const response = await fetch('/api/users/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setUser(result.user);
         toast({
-            title: '회원 정보 수정 완료',
-            description: '회원 정보가 성공적으로 업데이트되었습니다.',
+          title: '회원 정보 수정 완료',
+          description: result.message,
         });
         router.push('/mypage');
+      } else {
+        toast({
+          variant: 'destructive',
+          title: '오류',
+          description: result.error || '프로필 업데이트 중 오류가 발생했습니다.',
+        });
+      }
+    } catch (error) {
+      console.error('Profile update error:', error);
+      toast({
+        variant: 'destructive',
+        title: '오류',
+        description: '네트워크 오류가 발생했습니다.',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
@@ -108,7 +138,7 @@ export default function EditProfilePage() {
             <tbody>
                  <TableRow label="아이디">
                     <div className="flex flex-col">
-                        <Input id="username" {...register('username')} disabled className="w-64 bg-gray-100" />
+                        <Input id="username" value={user?.username || ''} disabled className="w-64 bg-gray-100" />
                         <span className="text-xs text-muted-foreground mt-1">(영문소문자/숫자, 4~16자)</span>
                     </div>
                  </TableRow>
@@ -170,7 +200,7 @@ export default function EditProfilePage() {
                  </TableRow>
                 <TableRow label="SMS 수신여부">
                     <div className="flex flex-col">
-                        <RadioGroup defaultValue="yes" className="flex gap-4">
+                        <RadioGroup value={watch('receive_sms') ? 'yes' : 'no'} onValueChange={(value) => setValue('receive_sms', value === 'yes')} className="flex gap-4">
                             <div className="flex items-center space-x-2"><RadioGroupItem value="yes" id="sms_yes"/><Label htmlFor="sms_yes">수신함</Label></div>
                             <div className="flex items-center space-x-2"><RadioGroupItem value="no" id="sms_no"/><Label htmlFor="sms_no">수신안함</Label></div>
                         </RadioGroup>
@@ -178,11 +208,11 @@ export default function EditProfilePage() {
                     </div>
                 </TableRow>
                  <TableRow label="이메일">
-                    <Input id="email" type="email" {...register('email')} className="w-64"/>
+                    <Input id="email" type="email" value={user?.email || ''} disabled className="w-64 bg-gray-100"/>
                  </TableRow>
                  <TableRow label="이메일 수신여부">
                      <div className="flex flex-col">
-                        <RadioGroup defaultValue="yes" className="flex gap-4">
+                        <RadioGroup value={watch('receive_email') ? 'yes' : 'no'} onValueChange={(value) => setValue('receive_email', value === 'yes')} className="flex gap-4">
                             <div className="flex items-center space-x-2"><RadioGroupItem value="yes" id="email_yes"/><Label htmlFor="email_yes">수신함</Label></div>
                             <div className="flex items-center space-x-2"><RadioGroupItem value="no" id="email_no"/><Label htmlFor="email_no">수신안함</Label></div>
                         </RadioGroup>
@@ -191,7 +221,7 @@ export default function EditProfilePage() {
                  </TableRow>
                  <TableRow label="평생회원">
                     <div className="flex flex-col">
-                        <RadioGroup defaultValue="yes" className="flex gap-4">
+                        <RadioGroup value={watch('is_lifetime_member') ? 'yes' : 'no'} onValueChange={(value) => setValue('is_lifetime_member', value === 'yes')} className="flex gap-4">
                            <div className="flex items-center space-x-2"><RadioGroupItem value="yes" id="lifetime_yes" /><Label htmlFor="lifetime_yes">동의함</Label></div>
                            <div className="flex items-center space-x-2"><RadioGroupItem value="no" id="lifetime_no" /><Label htmlFor="lifetime_no">동의안함</Label></div>
                         </RadioGroup>
@@ -202,8 +232,10 @@ export default function EditProfilePage() {
         </table>
         
         <div className="mt-12 flex justify-center gap-4">
-            <Button type="submit" size="lg">회원정보수정</Button>
-            <Button type="button" variant="outline" size="lg" onClick={() => router.back()}>취소</Button>
+            <Button type="submit" size="lg" disabled={isSubmitting}>
+              {isSubmitting ? '수정 중...' : '회원정보수정'}
+            </Button>
+            <Button type="button" variant="outline" size="lg" onClick={() => router.back()} disabled={isSubmitting}>취소</Button>
         </div>
       </form>
     </div>

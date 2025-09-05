@@ -32,6 +32,12 @@ export default function CheckoutPage() {
   }, [isAuthLoading, isAuthenticated, router, toast]);
 
   const handlePayment = async () => {
+    // 새로운 주문서 페이지로 리다이렉트
+    router.push('/order');
+    return;
+    
+    // 기존 결제 로직 (더 이상 사용하지 않음)
+    /*
     setIsLoading(true);
     toast({
       title: "주문 생성 중...",
@@ -122,11 +128,12 @@ export default function CheckoutPage() {
           </div>
         </CardContent>
         <CardFooter>
-          <Button size="lg" className="w-full" onClick={handlePayment} disabled={isLoading}>
-            {isLoading ? "결제 처리 중..." : `${totalPrice.toLocaleString()}원 ${t('checkout.payNow')}`}
+          <Button size="lg" className="w-full" onClick={handlePayment}>
+            주문서 작성하기
           </Button>
         </CardFooter>
       </Card>
     </div>
-  );
+  ); */
+}
 }

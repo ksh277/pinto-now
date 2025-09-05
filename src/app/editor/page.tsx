@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import GoodsEditor from '@/components/goods-editor';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,12 +24,7 @@ function Content() {
     return <ProductPicker onPick={setPicked} />;
   }
 
-  return (
-    <main className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Product Editor - {picked}</h1>
-      <p className="text-gray-600">Editor functionality will be implemented here.</p>
-    </main>
-  );
+  return <GoodsEditor productType={picked} />;
 }
 
 function ProductPicker({ onPick }: { onPick: (id: string) => void }) {

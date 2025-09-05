@@ -1,9 +1,36 @@
+export enum BannerType {
+  TOP_BANNER = 'TOP_BANNER',
+  STRIP_BANNER = 'STRIP_BANNER', 
+  HOME_SLIDER_PC = 'HOME_SLIDER_PC',
+  HOME_SLIDER_MOBILE = 'HOME_SLIDER_MOBILE',
+  IMAGE_BANNER = 'IMAGE_BANNER'
+}
+
+export type DeviceType = 'pc' | 'mobile' | 'all';
+
 export type Banner = {
   id: string;
   href: string;
   imgSrc: string;
   alt: string;
+  title?: string;
+  bannerType?: BannerType;
+  deviceType?: DeviceType;
+  isActive?: boolean;
+  sortOrder?: number;
+  startAt?: string;
+  endAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
+
+export const BANNER_LIMITS = {
+  [BannerType.TOP_BANNER]: 1,
+  [BannerType.STRIP_BANNER]: 1,
+  [BannerType.HOME_SLIDER_PC]: 2,
+  [BannerType.HOME_SLIDER_MOBILE]: 1,
+  [BannerType.IMAGE_BANNER]: 12
+} as const;
 
 export type StripBannerData = {
   id: string;
@@ -17,38 +44,164 @@ export type StripBannerData = {
   updatedAt?: string;
 };
 
-export async function fetchBanners(): Promise<Banner[]> {
+export async function fetchBanners(options?: {
+  includeInactive?: boolean;
+  sort?: string;
+  order?: 'asc' | 'desc';
+  limit?: number;
+  bannerType?: BannerType;
+  deviceType?: DeviceType;
+}): Promise<Banner[]> {
   try {
-    const res = await fetch('/api/banners', { cache: 'no-store' });
-    if (!res.ok) return [];
+    const params = new URLSearchParams();
+    if (options?.includeInactive) params.append('include_inactive', 'true');
+    if (options?.sort) params.append('sort', options.sort);
+    if (options?.order) params.append('order', options.order);
+    if (options?.limit) params.append('limit', options.limit.toString());
+    if (options?.bannerType) params.append('banner_type', options.bannerType);
+    if (options?.deviceType) params.append('device_type', options.deviceType);
+
+    const url = `/api/banners${params.toString() ? '?' + params.toString() : ''}`;
+    const res = await fetch(url, { cache: 'no-store' });
+    
+    if (!res.ok) {
+      console.error('Failed to fetch banners:', res.status);
+      return [];
+    }
+    
     return await res.json();
-  } catch {
+  } catch (error) {
+    console.error('Error fetching banners:', error);
     return [];
   }
 }
 
-export async function addBanner(data: { imgSrc: string; alt: string; href?: string }) {
-  await fetch('/api/banners', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      title: data.alt,
-      image_url: data.imgSrc,
-      href: data.href,
-    }),
+export async function fetchBannersByType(bannerType: BannerType, deviceType?: DeviceType): Promise<Banner[]> {
+  return fetchBanners({ 
+    bannerType, 
+    deviceType,
+    sort: 'sort_order',
+    order: 'asc' 
   });
 }
 
-export async function removeBanner(id: string) {
-  await fetch(`/api/banners/${id}`, { method: 'DELETE' });
+export async function checkBannerLimit(bannerType: BannerType): Promise<{ canAdd: boolean; current: number; limit: number }> {
+  const current = await fetchBannersByType(bannerType);
+  const limit = BANNER_LIMITS[bannerType];
+  
+  return {
+    canAdd: current.length < limit,
+    current: current.length,
+    limit
+  };
 }
 
-export async function updateBanner(id: string, data: { imgSrc?: string; alt?: string; href?: string }) {
-  await fetch(`/api/banners/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
+export async function addBanner(data: { 
+  imgSrc: string; 
+  alt: string; 
+  href?: string;
+  bannerType?: BannerType;
+  deviceType?: DeviceType;
+  isActive?: boolean;
+  sortOrder?: number;
+  startAt?: Date;
+  endAt?: Date;
+}): Promise<Banner | null> {
+  try {
+    // 배너 타입 제한 확인
+    if (data.bannerType) {
+      const limitCheck = await checkBannerLimit(data.bannerType);
+      if (!limitCheck.canAdd) {
+        throw new Error(`${data.bannerType} 타입의 배너는 최대 ${limitCheck.limit}개까지만 등록 가능합니다. (현재: ${limitCheck.current}개)`);
+      }
+    }
+
+    const response = await fetch('/api/banners', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: data.alt,
+        image_url: data.imgSrc,
+        href: data.href,
+        banner_type: data.bannerType || BannerType.IMAGE_BANNER,
+        device_type: data.deviceType || 'all',
+        is_active: data.isActive,
+        sort_order: data.sortOrder,
+        start_at: data.startAt?.toISOString(),
+        end_at: data.endAt?.toISOString(),
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to create banner');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error adding banner:', error);
+    throw error;
+  }
+}
+
+export async function removeBanner(id: string): Promise<boolean> {
+  try {
+    const response = await fetch(`/api/banners/${id}`, { 
+      method: 'DELETE' 
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to delete banner');
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error removing banner:', error);
+    throw error;
+  }
+}
+
+export async function updateBanner(id: string, data: { 
+  imgSrc?: string; 
+  alt?: string; 
+  href?: string;
+  bannerType?: BannerType;
+  deviceType?: DeviceType;
+  isActive?: boolean;
+  sortOrder?: number;
+  startAt?: Date;
+  endAt?: Date;
+}): Promise<Banner | null> {
+  try {
+    const updateData: any = {};
+    
+    if (data.alt !== undefined) updateData.title = data.alt;
+    if (data.imgSrc !== undefined) updateData.image_url = data.imgSrc;
+    if (data.href !== undefined) updateData.href = data.href;
+    if (data.bannerType !== undefined) updateData.banner_type = data.bannerType;
+    if (data.deviceType !== undefined) updateData.device_type = data.deviceType;
+    if (data.isActive !== undefined) updateData.is_active = data.isActive;
+    if (data.sortOrder !== undefined) updateData.sort_order = data.sortOrder;
+    if (data.startAt !== undefined) updateData.start_at = data.startAt.toISOString();
+    if (data.endAt !== undefined) updateData.end_at = data.endAt.toISOString();
+
+    const response = await fetch(`/api/banners/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updateData),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update banner');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating banner:', error);
+    throw error;
+  }
 }
 
 const HIDE_PREFIX = 'banner:';

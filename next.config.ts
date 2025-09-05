@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: !strict,
   },
   images: {
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
       {
         protocol: 'https',
@@ -36,6 +38,24 @@ const nextConfig: NextConfig = {
       config.resolve.alias['handlebars'] = false;
       config.resolve.alias['canvas'] = false;
     }
+
+    config.module.rules.push({
+      test: /handlebars\/lib\/index\.js$/,
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets: ['@babel/preset-env'],
+        },
+      },
+    });
+
+    config.module.rules.push({
+      test: /require-in-the-middle\/index\.js$/,
+      parser: {
+        requireEnsure: false,
+      },
+    });
+
     return config;
   },
 };

@@ -56,6 +56,7 @@ Thumbs.db
 *.log
 /tmp
 /temp
+/temp-pinto-now/
 
 # Vercel
 .vercel

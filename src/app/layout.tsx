@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Palette } from 'lucide-react';
 import { Providers } from '@/components/providers';
 import { Header } from '@/components/header';
-import TopStripBanner from '@/components/TopStripBanner';
+import TopBanner from '@/components/TopStripBanner';
 import { Footer } from '@/components/footer';
 import { Toaster as RadixToaster } from '@/components/ui/toaster';
 import { Button } from '@/components/ui/button';
@@ -30,23 +30,14 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <Providers>
-          <div className="flex min-h-screen flex-col">
-            
-            <TopStripBanner />
-            <Header />
-            <main className="flex-grow bg-background">{children}</main>
-            <Footer />
-          </div>
-          <RadixToaster />
-          <div className="fixed bottom-6 left-6 z-50">
-            <Button asChild size="lg" className="rounded-full shadow-lg">
-              <Link href="/editor">
-                <Palette className="mr-2" />
-                굿즈 에디터
-              </Link>
-            </Button>
-          </div>
+          <TopBanner />
+          <Header />
+          <main className="flex-1">
+            {children}
+          </main>
+          <Footer />
           <Chatbot />
+          <RadixToaster />
         </Providers>
       </body>
     </html>

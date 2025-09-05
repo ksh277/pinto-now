@@ -1,29 +1,57 @@
-// src/app/api/remove-bg/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 
-// Configure your REMBG server (FastAPI or any) endpoint via env
-const REMBG_URL = process.env.REMBG_URL || '';
-
-export async function POST(req: NextRequest){
+export async function POST(req: NextRequest) {
   try {
-    if (!REMBG_URL) {
-      return NextResponse.json({ error: 'REMBG_URL is not configured' }, { status: 500 });
-    }
     const formData = await req.formData();
-    const file = formData.get('file') as File | null;
-    if (!file) return NextResponse.json({ error: 'file missing' }, { status: 400 });
-
-    const upstream = new FormData();
-    upstream.set('file', file);
-
-    const res = await fetch(REMBG_URL, { method: 'POST', body: upstream });
-    if (!res.ok) {
-      const msg = await res.text();
-      return NextResponse.json({ error: 'upstream error', detail: msg }, { status: 502 });
+    const imageFile = formData.get('image') as File;
+    
+    if (!imageFile) {
+      return NextResponse.json({ error: 'No image provided' }, { status: 400 });
     }
-    const buf = Buffer.from(await res.arrayBuffer());
-    return new NextResponse(buf, { headers: { 'content-type': 'image/png' } });
-  } catch (e:any) {
-    return NextResponse.json({ error: 'unexpected', detail: e?.message }, { status: 500 });
+
+    // Remove.bg API 키 (환경변수에서 가져오기)
+    const apiKey = process.env.REMOVE_BG_API_KEY;
+    
+    if (!apiKey) {
+      // API 키가 없을 때 클라이언트 사이드에서 처리하도록 안내
+      return NextResponse.json({ 
+        error: 'Remove.bg API key not configured',
+        useClientSide: true 
+      }, { status: 400 });
+    }
+
+    // Remove.bg API 호출
+    const removeBgFormData = new FormData();
+    removeBgFormData.append('image_file', imageFile);
+    removeBgFormData.append('size', 'auto');
+
+    const response = await fetch('https://api.remove.bg/v1.0/removebg', {
+      method: 'POST',
+      headers: {
+        'X-Api-Key': apiKey,
+      },
+      body: removeBgFormData,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Remove.bg API error: ${response.status}`);
+    }
+
+    const resultBuffer = await response.arrayBuffer();
+    
+    return new NextResponse(resultBuffer, {
+      headers: {
+        'Content-Type': 'image/png',
+      },
+    });
+
+  } catch (error) {
+    console.error('Remove background error:', error);
+    return NextResponse.json(
+      { error: 'Failed to remove background', useClientSide: true }, 
+      { status: 500 }
+    );
   }
 }
+
+export const dynamic = 'force-dynamic';

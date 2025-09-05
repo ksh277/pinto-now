@@ -1,4 +1,3 @@
-
 export type ProductCategory = 'acrylic' | 'wood' | 'lanyard' | 'packaging';
 export type ProductSubcategory =
   | 'keyring'
@@ -80,15 +79,22 @@ export interface CartItem {
 export interface User {
   id: string;
   email: string;
-  username: string;
-  nickname: string;
-  name: string;
+  username?: string;
+  nickname?: string;
+  name?: string;
   avatarUrl?: string;
   phone?: string;
+  tel?: string;
+  zipcode?: string;
+  address1?: string;
+  address2?: string;
+  receive_sms?: boolean;
+  receive_email?: boolean;
+  is_lifetime_member?: boolean;
   membershipTier?: "basic" | "special" | "vip" | "vvip";
   totalSpent?: number;
   pointsBalance?: number;
-  isAdmin: boolean;
+  isAdmin?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -285,3 +291,25 @@ export interface Payment {
     refundedAt?: Date | TimestampLike; // Timestamp
     createdAt: Date | TimestampLike; // Timestamp
 }
+
+export interface Banner {
+  id: string;
+  title: string;
+  imageUrl: string;
+  href?: string;
+  startAt: Date | TimestampLike;
+  endAt: Date | TimestampLike;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: Date | TimestampLike;
+  updatedAt: Date | TimestampLike;
+}
+
+type Rankable = {
+  id: string;
+  nameKo?: string;
+  priceKrw?: number;
+  imageUrl?: string;
+  rank?: number;
+  stats?: { likeCount?: number; reviewCount?: number };
+};

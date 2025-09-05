@@ -4,11 +4,12 @@ import { useEffect, type ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useProductContext } from '@/contexts/product-context';
-import { Package, FileText, HelpCircle, MessageSquare, BookOpen, Image as ImageIcon } from 'lucide-react';
+import { Package, FileText, HelpCircle, MessageSquare, BookOpen, Image as ImageIcon, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/admin/banners', label: 'Banners', icon: ImageIcon },
+  { href: '/admin/info-cards', label: 'Info Cards', icon: CreditCard },
   { href: '/admin/products', label: 'Products', icon: Package },
   { href: '/admin/notice', label: 'Notices', icon: FileText },
   { href: '/admin/faq', label: 'FAQ', icon: HelpCircle },
