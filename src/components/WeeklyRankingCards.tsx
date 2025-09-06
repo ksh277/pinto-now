@@ -194,7 +194,9 @@ export default function WeeklyRankingCards({
                 {product.product_name}
               </h3>
 
-              <p className="text-gray-600 text-xs mb-2">{product.seller_name}</p>
+              <p className="text-gray-600 text-xs mb-2">
+                {product.seller_name.includes('ìƒ˜í"Œ') ? '개인창작자' : product.seller_name}
+              </p>
 
               <div className="flex justify-between items-center">
                 <span className="font-bold text-blue-600">
@@ -202,10 +204,6 @@ export default function WeeklyRankingCards({
                 </span>
               </div>
 
-              <div className="flex justify-between text-xs text-gray-500 mt-2">
-                <span>판매: {product.sales_count}개</span>
-                <span>클릭: {product.click_count}회</span>
-              </div>
             </div>
           </Link>
         ))}

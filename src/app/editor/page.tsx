@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import GoodsEditor from '@/components/goods-editor';
+import ImprovedEditor from '@/components/ImprovedEditor';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,7 +24,7 @@ function Content() {
     return <ProductPicker onPick={setPicked} />;
   }
 
-  return <GoodsEditor productType={picked} />;
+  return <ImprovedEditor productType={picked} />;
 }
 
 function ProductPicker({ onPick }: { onPick: (id: string) => void }) {

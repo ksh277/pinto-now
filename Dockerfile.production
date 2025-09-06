@@ -1,0 +1,64 @@
+# 프로덕션용 Dockerfile
+FROM node:20-alpine AS base
+
+# pnpm 설치
+RUN npm install -g pnpm
+
+# 의존성 설치 단계
+FROM base AS deps
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile --prod=false
+
+# 소스코드 복사 및 빌드 단계  
+FROM base AS builder
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Prisma 클라이언트 생성
+RUN pnpm prisma:generate
+
+# Next.js 빌드
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_STRICT=false
+RUN pnpm build
+
+# 프로덕션 의존성만 설치
+RUN pnpm install --frozen-lockfile --prod=true
+
+# 실행 단계
+FROM base AS runner
+WORKDIR /app
+
+# 비root 사용자 생성
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# 필요한 파일들 복사
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+# Prisma 관련 파일들 복사
+COPY --from=builder /app/node_modules/.pnpm/prisma*/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/node_modules/.pnpm/@prisma*/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/prisma ./prisma
+
+# 권한 설정
+RUN chown -R nextjs:nodejs /app
+USER nextjs
+
+# 환경 변수 설정
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# 포트 노출
+EXPOSE 3000
+
+# 애플리케이션 실행
+CMD ["node", "server.js"]

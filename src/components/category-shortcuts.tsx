@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -25,28 +24,28 @@ export function CategoryShortcuts() {
         } else {
           // 폴백 데이터 사용
           setCategories([
-            { id: '1', href: '/category/1인샵', label: '1인샵', imgSrc: 'https://placehold.co/100x100.png' },
-            { id: '2', href: '/category/선물추천', label: '선물추천', imgSrc: 'https://placehold.co/100x100.png' },
-            { id: '3', href: '/category/겨울아이디어', label: '겨울아이디어', imgSrc: 'https://placehold.co/100x100.png' },
-            { id: '4', href: '/category/여행굿즈', label: '여행 굿즈', imgSrc: 'https://placehold.co/100x100.png' },
-            { id: '5', href: '/category/문구미니', label: '문구/미니', imgSrc: 'https://placehold.co/100x100.png' },
-            { id: '6', href: '/category/반려동물굿즈', label: '반려동물 굿즈', imgSrc: 'https://placehold.co/100x100.png' },
-            { id: '7', href: '/category/의류', label: '의류', imgSrc: 'https://placehold.co/100x100.png' },
-            { id: '8', href: '/category/개성아이디어', label: '개성 아이디어', imgSrc: 'https://placehold.co/100x100.png' },
+            { id: '1', href: '/category/1만원이하굿즈', label: '1만원 이하 굿즈', imgSrc: 'https://placehold.co/100x100/FFB6C1/333?text=💰' },
+            { id: '2', href: '/category/야구굿즈', label: '야구 굿즈', imgSrc: 'https://placehold.co/100x100/87CEEB/333?text=⚾' },
+            { id: '3', href: '/category/여행굿즈', label: '여행 굿즈', imgSrc: 'https://placehold.co/100x100/98FB98/333?text=✈️' },
+            { id: '4', href: '/category/팬굿즈', label: '팬 굿즈', imgSrc: 'https://placehold.co/100x100/DDA0DD/333?text=💜' },
+            { id: '5', href: '/category/폰꾸미기', label: '폰꾸미기', imgSrc: 'https://placehold.co/100x100/FFE4B5/333?text=📱' },
+            { id: '6', href: '/category/반려동물굿즈', label: '반려동물 굿즈', imgSrc: 'https://placehold.co/100x100/F0E68C/333?text=🐾' },
+            { id: '7', href: '/category/선물추천', label: '선물 추천', imgSrc: 'https://placehold.co/100x100/F5DEB3/333?text=🎁' },
+            { id: '8', href: '/category/커스텀아이디어', label: '커스텀 아이디어', imgSrc: 'https://placehold.co/100x100/E6E6FA/333?text=💡' },
           ]);
         }
       } catch (error) {
         console.error('Failed to fetch category shortcuts:', error);
         // 에러 시 폴백 데이터 사용
         setCategories([
-          { id: '1', href: '/category/1인샵', label: '1인샵', imgSrc: 'https://placehold.co/100x100.png' },
-          { id: '2', href: '/category/선물추천', label: '선물추천', imgSrc: 'https://placehold.co/100x100.png' },
-          { id: '3', href: '/category/겨울아이디어', label: '겨울아이디어', imgSrc: 'https://placehold.co/100x100.png' },
-          { id: '4', href: '/category/여행굿즈', label: '여행 굿즈', imgSrc: 'https://placehold.co/100x100.png' },
-          { id: '5', href: '/category/문구미니', label: '문구/미니', imgSrc: 'https://placehold.co/100x100.png' },
-          { id: '6', href: '/category/반려동물굿즈', label: '반려동물 굿즈', imgSrc: 'https://placehold.co/100x100.png' },
-          { id: '7', href: '/category/의류', label: '의류', imgSrc: 'https://placehold.co/100x100.png' },
-          { id: '8', href: '/category/개성아이디어', label: '개성 아이디어', imgSrc: 'https://placehold.co/100x100.png' },
+          { id: '1', href: '/category/1만원이하굿즈', label: '1만원 이하 굿즈', imgSrc: 'https://placehold.co/100x100/FFB6C1/333?text=💰' },
+          { id: '2', href: '/category/야구굿즈', label: '야구 굿즈', imgSrc: 'https://placehold.co/100x100/87CEEB/333?text=⚾' },
+          { id: '3', href: '/category/여행굿즈', label: '여행 굿즈', imgSrc: 'https://placehold.co/100x100/98FB98/333?text=✈️' },
+          { id: '4', href: '/category/팬굿즈', label: '팬 굿즈', imgSrc: 'https://placehold.co/100x100/DDA0DD/333?text=💜' },
+          { id: '5', href: '/category/폰꾸미기', label: '폰꾸미기', imgSrc: 'https://placehold.co/100x100/FFE4B5/333?text=📱' },
+          { id: '6', href: '/category/반려동물굿즈', label: '반려동물 굿즈', imgSrc: 'https://placehold.co/100x100/F0E68C/333?text=🐾' },
+          { id: '7', href: '/category/선물추천', label: '선물 추천', imgSrc: 'https://placehold.co/100x100/F5DEB3/333?text=🎁' },
+          { id: '8', href: '/category/커스텀아이디어', label: '커스텀 아이디어', imgSrc: 'https://placehold.co/100x100/E6E6FA/333?text=💡' },
         ]);
       }
     }

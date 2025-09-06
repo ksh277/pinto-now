@@ -61,7 +61,7 @@ export default function MainBannerSection() {
           </p>
           <Button 
             variant="outline" 
-            className="border-white text-white hover:bg-white hover:text-black"
+            className="border-white text-black hover:bg-white hover:text-black"
             onClick={() => currentBanner.href && window.open(currentBanner.href, '_blank')}
           >
             판매방법 알아보기

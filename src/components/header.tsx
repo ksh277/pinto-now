@@ -43,6 +43,24 @@ export function Header() {
     setActiveCategory(cat);
     const item = mainNavItems.find(i => i.id === cat);
     setActiveSubNav(item?.subnav ? cat : null);
+    
+    // href가 있는 경우 해당 페이지로 이동
+    const categoryItem = [
+      { id: 'all', label: 'ALL' },
+      { id: 'acrylic', label: '아크릴', href: '/akril-goods' },
+      { id: 'paper', label: '지류', href: '/paper-goods' },
+      { id: 'sticker', label: '스티커', href: '/sticker-goods' },
+      { id: 'clothing', label: '의류', href: '/clothing-goods' },
+      { id: 'frame', label: '액자', href: '/frame-goods' },
+      { id: 'stationery', label: '문구/오피스', href: '/stationery-goods' },
+      { id: 'ipgoods', label: 'IP굿즈 상품개발', href: '/ip-goods-dev' },
+      { id: 'kit', label: '기업/웰컴 키트', href: '/brand-request' },
+      { id: 'group', label: '단체 판촉', href: '/promo-product-view' },
+    ].find(c => c.id === cat);
+    
+    if (categoryItem?.href) {
+      router.push(categoryItem.href);
+    }
   };
 
   const subNavToShow = mainNavItems.find(item => item.id === activeSubNav)?.subnav;
@@ -150,10 +168,10 @@ export function Header() {
               { id: 'all', label: 'ALL' },
               { id: 'acrylic', label: '아크릴', href: '/akril-goods' },
               { id: 'paper', label: '지류', href: '/paper-goods' },
-              { id: 'sticker', label: '스티커', href: '/fan-goods' },
-              { id: 'clothing', label: '의류', href: '/tshirt' },
-              { id: 'frame', label: '액자', href: '/frame-prop-name-tag' },
-              { id: 'stationery', label: '문구/오피스', href: '/packing-supplies' },
+              { id: 'sticker', label: '스티커', href: '/sticker-goods' },
+              { id: 'clothing', label: '의류', href: '/clothing-goods' },
+              { id: 'frame', label: '액자', href: '/frame-goods' },
+              { id: 'stationery', label: '문구/오피스', href: '/stationery-goods' },
               { id: 'ipgoods', label: 'IP굿즈 상품개발', href: '/ip-goods-dev' },
               { id: 'kit', label: '기업/웰컴 키트', href: '/brand-request' },
               { id: 'group', label: '단체 판촉', href: '/promo-product-view' },
@@ -215,7 +233,7 @@ export function Header() {
                   <div className="flex flex-col gap-1">
                     <Link href="/akril-goods" className="hover:text-primary">아크릴 굿즈</Link>
                     <Link href="/paper-goods" className="hover:text-primary">지류 굿즈</Link>
-                    <Link href="/fan-goods" className="hover:text-primary">스티커(다꾸)</Link>
+                    <Link href="/sticker-goods" className="hover:text-primary">스티커(다꾸)</Link>
                     <Link href="/pin-button" className="hover:text-primary">핀거믹/버튼</Link>
                     <Link href="/life-size-standee" className="hover:text-primary">등신대</Link>
                     <Link href="/etc" className="hover:text-primary">ETC</Link>
@@ -230,7 +248,7 @@ export function Header() {
                     <Link href="/towel" className="hover:text-primary">수건</Link>
                     <Link href="/clock" className="hover:text-primary">시계</Link>
                     <Link href="/umbrella" className="hover:text-primary">우산</Link>
-                    <Link href="/tshirt" className="hover:text-primary">티셔츠</Link>
+                    <Link href="/clothing-goods" className="hover:text-primary">의류</Link>
                   </div>
                 </div>
                 {/* 광고물/사인 */}
@@ -246,7 +264,7 @@ export function Header() {
                 <div>
                   <div className="font-semibold mb-2">반려동물</div>
                   <div className="flex flex-col gap-1">
-                    <Link href="/frame-prop-name-tag" className="hover:text-primary">액자/소품/네임택</Link>
+                    <Link href="/frame-goods" className="hover:text-primary">액자/소품/네임택</Link>
                     <Link href="/cushion-fabric" className="hover:text-primary">쿠션/방석/패브릭 제품</Link>
                     <Link href="/funeral" className="hover:text-primary">장례용품</Link>
                   </div>
@@ -255,7 +273,7 @@ export function Header() {
                 <div>
                   <div className="font-semibold mb-2">포장 부자재</div>
                   <div className="flex flex-col gap-1">
-                    <Link href="/packing-supplies" className="hover:text-primary">전체보기</Link>
+                    <Link href="/stationery-goods" className="hover:text-primary">문구/오피스</Link>
                   </div>
                 </div>
               </div>

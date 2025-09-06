@@ -1,0 +1,72 @@
+# PINTO 애플리케이션 Google Cloud 배포 명령어 목록
+# 프로젝트 ID: cellular-client-470408-j4
+
+# 1. Google Cloud CLI 프로젝트 설정
+gcloud config set project cellular-client-470408-j4
+gcloud auth login
+
+# 2. 필요한 API 활성화
+gcloud services enable cloudbuild.googleapis.com
+gcloud services enable run.googleapis.com
+gcloud services enable sql-component.googleapis.com
+gcloud services enable sqladmin.googleapis.com
+gcloud services enable containerregistry.googleapis.com
+
+# 3. Cloud SQL MySQL 인스턴스 생성
+gcloud sql instances create pinto-db \
+    --database-version=MYSQL_8_0 \
+    --tier=db-f1-micro \
+    --region=us-central1 \
+    --root-password=root123! \
+    --storage-type=SSD \
+    --storage-size=10GB
+
+# 4. 데이터베이스 생성
+gcloud sql databases create pinto --instance=pinto-db
+
+# 5. 애플리케이션용 사용자 생성
+gcloud sql users create pinto-user \
+    --instance=pinto-db \
+    --password=pinto123!
+
+# 6. Cloud Build를 통한 자동 배포
+gcloud builds submit --config cloudbuild.yaml .
+
+# 만약 Cloud Build가 실패하면 수동 배포:
+# 6-1. Docker 이미지 빌드 및 푸시
+docker build -f Dockerfile.production -t gcr.io/cellular-client-470408-j4/pinto-app:latest .
+docker push gcr.io/cellular-client-470408-j4/pinto-app:latest
+
+# 6-2. Cloud Run에 배포
+gcloud run deploy pinto-app \
+    --image gcr.io/cellular-client-470408-j4/pinto-app:latest \
+    --region us-central1 \
+    --platform managed \
+    --allow-unauthenticated \
+    --port 3000 \
+    --memory 2Gi \
+    --cpu 2 \
+    --max-instances 10 \
+    --set-cloudsql-instances cellular-client-470408-j4:us-central1:pinto-db \
+    --set-env-vars NODE_ENV=production,NEXT_STRICT=false,DATABASE_URL="mysql://pinto-user:pinto123!@/pinto?host=/cloudsql/cellular-client-470408-j4:us-central1:pinto-db"
+
+# 7. 배포 후 데이터베이스 초기화
+# Cloud SQL Proxy 다운로드 및 실행 (별도 터미널)
+curl -o cloud_sql_proxy https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64
+chmod +x cloud_sql_proxy
+./cloud_sql_proxy -instances=cellular-client-470408-j4:us-central1:pinto-db=tcp:3306
+
+# 다른 터미널에서 MySQL 연결하여 스키마 생성
+mysql -h 127.0.0.1 -u root -p
+# 비밀번호: root123!
+
+# MySQL에서 다음 명령 실행:
+SOURCE deploy_to_cloud_sql.sql;
+SOURCE insert-sample-data.sql;
+
+# 8. 서비스 상태 확인
+gcloud run services list
+gcloud run services describe pinto-app --region=us-central1
+
+# 9. 로그 확인
+gcloud logs read --service=pinto-app --limit=50

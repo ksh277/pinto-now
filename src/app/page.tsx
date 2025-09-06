@@ -100,7 +100,7 @@ export default async function HomePage() {
           </div>
 
           <WeeklyRankingCards 
-            sellerType="CREATOR" 
+            sellerType="INDIVIDUAL" 
             limit={4} 
             showRankNumbers={true}
           />

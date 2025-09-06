@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     try {
       const [rows] = await conn.execute(`
         SELECT u.id, u.username, up.name, u.password_hash, u.status, 
-               COALESCE(r.code, 'USER') as role
+               COALESCE(r.name, 'USER') as role
         FROM users u 
         LEFT JOIN user_profiles up ON u.id = up.user_id
         LEFT JOIN user_roles ur ON u.id = ur.user_id  

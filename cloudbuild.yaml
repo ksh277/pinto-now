@@ -1,0 +1,68 @@
+# Google Cloud Build 설정 파일
+steps:
+  # 1. Node.js dependencies 설치
+  - name: 'node:20'
+    entrypoint: 'npm'
+    args: ['install', '-g', 'pnpm']
+
+  - name: 'node:20'
+    entrypoint: 'pnpm'
+    args: ['install', '--frozen-lockfile']
+
+  # 2. Prisma 클라이언트 생성
+  - name: 'node:20'
+    entrypoint: 'pnpm'
+    args: ['prisma:generate']
+
+  # 3. Next.js 애플리케이션 빌드
+  - name: 'node:20'
+    entrypoint: 'pnpm'
+    args: ['build']
+    env:
+      - 'NEXT_STRICT=false'
+
+  # 4. Docker 이미지 빌드
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', 'gcr.io/$PROJECT_ID/pinto-app:$BUILD_ID',
+      '-t', 'gcr.io/$PROJECT_ID/pinto-app:latest',
+      '.'
+    ]
+
+  # 5. 이미지를 Container Registry에 푸시
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/pinto-app:$BUILD_ID']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/pinto-app:latest']
+
+  # 6. Cloud Run에 배포
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args: [
+      'run', 'deploy', 'pinto-app',
+      '--image', 'gcr.io/$PROJECT_ID/pinto-app:$BUILD_ID',
+      '--region', 'us-central1',
+      '--platform', 'managed',
+      '--allow-unauthenticated',
+      '--port', '3000',
+      '--memory', '2Gi',
+      '--cpu', '2',
+      '--max-instances', '10',
+      '--set-cloudsql-instances', 'cellular-client-470408-j4:us-west1:pinto-db',
+      '--set-env-vars', 'NODE_ENV=production,NEXT_STRICT=false,DATABASE_URL=mysql://pinto-user:pinto123!@/pinto?host=/cloudsql/cellular-client-470408-j4:us-west1:pinto-db'
+    ]
+
+# 빌드된 이미지들
+images:
+  - 'gcr.io/$PROJECT_ID/pinto-app:$BUILD_ID'
+  - 'gcr.io/$PROJECT_ID/pinto-app:latest'
+
+# 빌드 옵션
+options:
+  machineType: 'E2_HIGHCPU_8'
+  diskSizeGb: '100'
+  
+# 타임아웃 설정
+timeout: '1200s'

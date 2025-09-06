@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     
     try {
       // 1. admin 사용자 비밀번호 업데이트
-      const hash = await bcrypt.hash('ha1045!!', 10);
+      const hash = await bcrypt.hash('ha1045', 10);
       await conn.query(
         'UPDATE users SET password_hash = ?, updated_at = NOW() WHERE username = ?',
         [hash, 'admin']

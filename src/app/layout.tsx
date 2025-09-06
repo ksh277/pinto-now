@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Palette } from 'lucide-react';
 import { Providers } from '@/components/providers';
-import { Header } from '@/components/header';
+import { ConditionalHeader } from '@/components/conditional-header';
 import TopBanner from '@/components/TopStripBanner';
 import { Footer } from '@/components/footer';
 import { Toaster as RadixToaster } from '@/components/ui/toaster';
@@ -27,11 +27,12 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+        <script async src="https://docs.opencv.org/4.9.0/opencv.js"></script>
       </head>
       <body className="font-body antialiased">
         <Providers>
           <TopBanner />
-          <Header />
+          <ConditionalHeader />
           <main className="flex-1">
             {children}
           </main>
