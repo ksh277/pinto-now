@@ -34,7 +34,7 @@ jobs:
           pnpm -v
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Generate Prisma Client
         run: pnpm prisma:generate
@@ -58,7 +58,7 @@ jobs:
       # Docker 이미지 빌드 및 푸시
       - name: Build and Push Docker image
         run: |
-          docker build -f Dockerfile.production -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA .
+          docker build -f Dockerfile.simple -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA .
           docker push gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
 
       # Cloud Run에 배포
