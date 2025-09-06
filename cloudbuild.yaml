@@ -25,7 +25,7 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: [
       'build',
-      '-f', 'Dockerfile.production',
+      '-f', 'Dockerfile.simple',
       '-t', 'gcr.io/$PROJECT_ID/pinto-app:$BUILD_ID',
       '-t', 'gcr.io/$PROJECT_ID/pinto-app:latest',
       '.'

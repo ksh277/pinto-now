@@ -1,0 +1,27 @@
+# 간단한 Dockerfile - cloudbuild.yaml에서 미리 빌드된 상태 사용
+FROM node:20-alpine
+
+WORKDIR /app
+
+# 모든 파일 복사 (cloudbuild.yaml에서 이미 빌드됨)
+COPY . .
+
+# 비root 사용자 생성
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# 권한 설정
+RUN chown -R nextjs:nodejs /app
+USER nextjs
+
+# 환경 변수 설정
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# 포트 노출
+EXPOSE 3000
+
+# 애플리케이션 실행
+CMD ["npm", "start"]
