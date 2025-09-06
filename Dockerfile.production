@@ -8,8 +8,8 @@ RUN npm install -g pnpm
 FROM base AS deps
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --prod=false
+COPY package.json pnpm-lock.yaml* ./
+RUN if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile --prod=false; else pnpm install --prod=false; fi
 
 # 소스코드 복사 및 빌드 단계  
 FROM base AS builder
@@ -27,7 +27,7 @@ ENV NEXT_STRICT=false
 RUN pnpm build
 
 # 프로덕션 의존성만 설치
-RUN pnpm install --frozen-lockfile --prod=true
+RUN if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile --prod=true; else pnpm install --prod=true; fi
 
 # 실행 단계
 FROM base AS runner

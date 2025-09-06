@@ -56,14 +56,49 @@ GOOGLE_CLOUD_PROJECT_ID="YOUR_PROJECT_ID"
 
 ## 🚀 배포 실행
 
-### 방법 1: Cloud Build 자동 배포 (권장)
+### 방법 1: GitHub Actions 자동 배포 (권장) ⭐
+GitHub에 Push할 때마다 자동으로 Cloud Run에 배포됩니다.
+
+**GitHub Secrets 설정 필요:**
+```
+GCP_SA_KEY: Google Cloud 서비스 계정 JSON 키
+CLOUD_SQL_CONNECTION_NAME: cellular-client-470408-j4:us-west1:pinto-db
+DATABASE_URL: mysql://pinto-user:PASSWORD@/pinto?host=/cloudsql/CONNECTION_NAME
+NEXTAUTH_SECRET: NextAuth.js 비밀 키
+NEXTAUTH_URL: 배포된 앱 URL
+```
+
+**서비스 계정 생성:**
 ```bash
-# 리포지토리를 Cloud Source Repositories에 연결하고 Cloud Build 트리거 설정
-# 또는 수동으로 빌드 실행:
+# 서비스 계정 생성
+gcloud iam service-accounts create github-actions-sa \
+  --description="GitHub Actions service account" \
+  --display-name="GitHub Actions SA"
+
+# 필요한 권한 부여
+gcloud projects add-iam-policy-binding cellular-client-470408-j4 \
+  --member="serviceAccount:github-actions-sa@cellular-client-470408-j4.iam.gserviceaccount.com" \
+  --role="roles/run.admin"
+
+gcloud projects add-iam-policy-binding cellular-client-470408-j4 \
+  --member="serviceAccount:github-actions-sa@cellular-client-470408-j4.iam.gserviceaccount.com" \
+  --role="roles/storage.admin"
+
+gcloud projects add-iam-policy-binding cellular-client-470408-j4 \
+  --member="serviceAccount:github-actions-sa@cellular-client-470408-j4.iam.gserviceaccount.com" \
+  --role="roles/cloudsql.client"
+
+# JSON 키 생성
+gcloud iam service-accounts keys create github-actions-key.json \
+  --iam-account=github-actions-sa@cellular-client-470408-j4.iam.gserviceaccount.com
+```
+
+### 방법 2: Cloud Build 수동 배포
+```bash
 gcloud builds submit --config cloudbuild.yaml .
 ```
 
-### 방법 2: 수동 Docker 배포
+### 방법 3: 수동 Docker 배포
 ```bash
 # Docker 이미지 빌드
 docker build -f Dockerfile.production -t gcr.io/YOUR_PROJECT_ID/pinto-app:latest .
