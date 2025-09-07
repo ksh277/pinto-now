@@ -96,7 +96,7 @@ export default function ProductShelfCarousel({ banners }: ProductShelfCarouselPr
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {banners.map(banner => (
-            <div key={banner.id} className="flex-shrink-0 w-[calc(100vw-2rem)] max-w-[320px] md:w-[380px] snap-start">
+            <div key={banner.id} className="flex-shrink-0 w-[calc(100vw-3rem)] md:w-[380px] snap-start">
               <ProductShelfItem banner={banner} fmtPrice={fmtPrice} />
             </div>
           ))}

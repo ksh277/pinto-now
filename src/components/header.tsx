@@ -151,7 +151,8 @@ export function Header() {
                         </AccordionItem>
                       ))}
                       <div className="border-t"><Link href="/reviews" onClick={closeMobileMenu} className="flex items-center text-base font-semibold py-3">리뷰</Link></div>
-                      <div className="border-t"><Link href="/support/notice" onClick={closeMobileMenu} className="flex items-center text-base font-semibold py-3">고객센터</Link></div>
+                      <div className="border-t"><Link href="/support/faq" onClick={closeMobileMenu} className="flex items-center text-base font-semibold py-3">고객센터</Link></div>
+                      <div className="border-t"><Link href="/support/notice" onClick={closeMobileMenu} className="flex items-center text-base font-semibold py-3">공지사항</Link></div>
                     </Accordion>
                   </nav>
                 </div>
