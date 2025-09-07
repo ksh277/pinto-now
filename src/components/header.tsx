@@ -47,7 +47,7 @@ export function Header() {
     // href가 있는 경우 해당 페이지로 이동
     const categoryItem = [
       { id: 'all', label: 'ALL' },
-      { id: 'acrylic', label: '아크릴', href: '/akril-goods' },
+      { id: 'acrylic', label: '아크릴', href: '/acrylic' },
       { id: 'paper', label: '지류', href: '/paper-goods' },
       { id: 'sticker', label: '스티커', href: '/sticker-goods' },
       { id: 'clothing', label: '의류', href: '/clothing-goods' },
@@ -166,7 +166,7 @@ export function Header() {
           <ul className="flex items-center gap-12 ml-16 list-none">
             {[
               { id: 'all', label: 'ALL' },
-              { id: 'acrylic', label: '아크릴', href: '/akril-goods' },
+              { id: 'acrylic', label: '아크릴', href: '/acrylic' },
               { id: 'paper', label: '지류', href: '/paper-goods' },
               { id: 'sticker', label: '스티커', href: '/sticker-goods' },
               { id: 'clothing', label: '의류', href: '/clothing-goods' },
@@ -231,7 +231,7 @@ export function Header() {
                 <div>
                   <div className="font-semibold mb-2">팬굿즈</div>
                   <div className="flex flex-col gap-1">
-                    <Link href="/akril-goods" className="hover:text-primary">아크릴 굿즈</Link>
+                    <Link href="/acrylic" className="hover:text-primary">아크릴 굿즈</Link>
                     <Link href="/paper-goods" className="hover:text-primary">지류 굿즈</Link>
                     <Link href="/sticker-goods" className="hover:text-primary">스티커(다꾸)</Link>
                     <Link href="/pin-button" className="hover:text-primary">핀거믹/버튼</Link>

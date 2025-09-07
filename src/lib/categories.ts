@@ -16,21 +16,21 @@ export interface MainCategory {
 }
 
 const acrylicSubNav: SubCategory[] = [
-  { href: '/akril-goods', label: '아크릴키링', id: 'keyring' },
-  { href: '/akril-goods', label: '코롯토', id: 'korotto' },
-  { href: '/akril-goods', label: '스마트톡', id: 'smarttok' },
+  { href: '/acrylic', label: '아크릴키링', id: 'keyring' },
+  { href: '/acrylic', label: '코롯토', id: 'korotto' },
+  { href: '/acrylic', label: '스마트톡', id: 'smarttok' },
   { href: '/life-size-standee', label: '스탠드/디오라마', id: 'stand' },
   { href: '/frame-prop-name-tag', label: '포카홀더/포토액자', id: 'holder' },
-  { href: '/akril-goods', label: '아크릴쉐이커', id: 'shaker' },
-  { href: '/akril-goods', label: '아크릴카라비너', id: 'carabiner' },
-  { href: '/akril-goods', label: '거울', id: 'mirror' },
+  { href: '/acrylic', label: '아크릴쉐이커', id: 'shaker' },
+  { href: '/acrylic', label: '아크릴카라비너', id: 'carabiner' },
+  { href: '/acrylic', label: '거울', id: 'mirror' },
   { href: '/pin-button', label: '자석/뱃지/코스터', id: 'magnet' },
   { href: '/paper-goods', label: '문구류(집게, 볼펜 등)', id: 'stationery' },
-  { href: '/akril-goods', label: '아크릴 재단', id: 'cutting' },
+  { href: '/acrylic', label: '아크릴 재단', id: 'cutting' },
 ];
 
 const woodSubNav: SubCategory[] = [
-  { href: '/akril-goods', label: '우드키링', id: 'keyring' },
+  { href: '/wood', label: '우드키링', id: 'keyring' },
   { href: '/pin-button', label: '우드마그넷', id: 'magnet' },
   { href: '/life-size-standee', label: '우드스탠드', id: 'stand' },
 ];
@@ -60,6 +60,12 @@ const allSubNav: SubCategory[] = [
 ];
 
 export const mainNavItems: MainCategory[] = [
+  { 
+    id: 'all',
+    href: '/', 
+    label: 'ALL',
+    subnav: allSubNav
+  },
   { 
     id: 'acrylic',
     href: '/acrylic', 
