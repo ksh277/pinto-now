@@ -5,7 +5,16 @@ import { computeMaxAge, signToken, setSessionCookie, type AuthUser } from '@/lib
 
 function parseDb() {
   const url = process.env.DATABASE_URL;
-  if (url) return { url };
+  if (url) {
+    // SSL 설정 추가
+    const config: any = { url };
+    if (process.env.NODE_ENV === 'production' || url.includes('planetscale') || url.includes('cloud')) {
+      config.ssl = { rejectUnauthorized: true };
+    } else {
+      config.ssl = false;
+    }
+    return config;
+  }
   const {
     DB_HOST = 'localhost',
     DB_PORT = '3306',
@@ -13,13 +22,15 @@ function parseDb() {
     DB_PASSWORD = '12345',
     DB_NAME = 'pinto',
   } = process.env as any;
-  return {
+  const config = {
     host: DB_HOST,
     port: Number(DB_PORT),
     user: DB_USER,
     password: DB_PASSWORD,
     database: DB_NAME,
+    ssl: false, // 로컬 개발환경에서는 SSL 비활성화
   };
+  return config;
 }
 
 export async function POST(req: NextRequest) {

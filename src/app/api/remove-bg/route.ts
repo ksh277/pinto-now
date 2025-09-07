@@ -3,14 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
-    const imageFile = formData.get('image') as File;
+    const imageFile = formData.get('image') || formData.get('file') as File;
     
     if (!imageFile) {
       return NextResponse.json({ error: 'No image provided' }, { status: 400 });
     }
 
     // Remove.bg API 키 (환경변수에서 가져오기)
-    const apiKey = process.env.REMOVE_BG_API_KEY;
+    const apiKey = process.env.REMOVEBG_API_KEY;
     
     if (!apiKey) {
       // API 키가 없을 때 클라이언트 사이드에서 처리하도록 안내

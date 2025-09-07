@@ -60,46 +60,34 @@ const allSubNav: SubCategory[] = [
 ];
 
 export const mainNavItems: MainCategory[] = [
-  {
-    id: 'all',
-    href: '/all',
-    label: 'ALL',
-    subnav: allSubNav
-  },
-  // { 
-  //   id: 'acrylic',
-  //   href: '/akril-goods', 
-  //   label: '아크릴',
-  //   subnav: acrylicSubNav
-  // },
   { 
-    id: 'wood', 
-    href: '/akril-goods', 
-    label: '우드',
-    subnav: woodSubNav
+    id: 'acrylic',
+    href: '/acrylic', 
+    label: '아크릴',
+    subnav: acrylicSubNav
   },
-  { id: 'lanyard', href: '/akril-goods', label: '랜야드' },
-  { id: 'clothing', href: '/tshirt', label: '의류' },
+  { id: 'lanyard', href: '/lanyard', label: '랜야드' },
   { 
-    id: 'packaging', 
-    href: '/packing-supplies', 
-    label: '포장/부자재',
-    subnav: packagingSubNav
+    id: 'paper-goods',
+    href: '/paper-goods', 
+    label: '지류',
+    subnav: paperSubNav
   },
-  { id: 'stationery', href: '/paper-goods', label: '문구/오피스' },
+  { id: 'sticker', href: '/sticker', label: '스티커' },
+  { id: 'clothing', href: '/clothing', label: '의류' },
+  { id: 'frame', href: '/frame', label: '액자' },
+  { id: 'office', href: '/office', label: '문구/오피스' },
   { id: 'ipGoods', href: '/ip-goods-dev', label: 'IP굿즈 상품개발' },
   { id: 'welcomeKit', href: '/custom-product-view', label: '기업/웰컴 키트' },
   { id: 'promotional', href: '/promo-product-view', label: '단체 판촉' },
-  { id: 'fanGoods', href: '/fan-goods', label: '팬굿즈' },
-  { id: 'reviews', href: '/reviews', label: '리뷰' },
-  { id: 'guide', href: '/guide', label: '주문가이드' },
-  { id: 'brandRequest', href: '/brand-request', label: '브랜드의뢰' },
 ];
 
 export const categoriesMap: Record<string, { name: string; subCategories: Omit<SubCategory, 'href'>[] }> = {
   acrylic: { name: '아크릴굿즈', subCategories: acrylicSubNav.map(s => ({label: s.label, id: s.id})) },
-  wood: { name: '우드굿즈', subCategories: woodSubNav.map(s => ({label: s.label, id: s.id})) },
-  packaging: { name: '포장/부자재', subCategories: packagingSubNav.map(s => ({label: s.label, id: s.id})) },
-  'paper-goods': { name: '지류 굿즈', subCategories: paperSubNav.map(s => ({label: s.label, id: s.id})) },
   lanyard: { name: '랜야드', subCategories: [] },
+  'paper-goods': { name: '지류 굿즈', subCategories: paperSubNav.map(s => ({label: s.label, id: s.id})) },
+  sticker: { name: '스티커', subCategories: [] },
+  clothing: { name: '의류', subCategories: [] },
+  frame: { name: '액자', subCategories: [] },
+  office: { name: '문구/오피스', subCategories: [] },
 };

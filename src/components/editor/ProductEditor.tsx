@@ -130,7 +130,6 @@ export default function ProductEditor() {
   const [show3D, setShow3D] = useState(false);
   const [stageDataUrl, setStageDataUrl] = useState<string>('');
   const [fitMode, setFitMode] = useState<'fit' | 'cover'>('fit');
-  const [useServerRembg, setUseServerRembg] = useState(true);
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [applied, setApplied] = useState(false);
@@ -213,24 +212,20 @@ export default function ProductEditor() {
     setLoading('rembg');
     setError(null);
     try {
-      let blob: Blob | null = null;
-      if (useServerRembg) {
-        const fd = new FormData();
-        fd.append('file', await (await fetch(currentUrl)).blob());
-        const res = await fetch('/api/remove-bg', {
-          method: 'POST',
-          body: fd,
-        });
-        if (!res.ok) {
-          setError('배경제거 실패');
-          console.error(await res.text());
-          return;
-        }
-        blob = await res.blob();
-      } else {
-        setError('로컬 REMBG 미지원');
+      // remove.bg API 사용
+      const fd = new FormData();
+      fd.append('image', await (await fetch(currentUrl)).blob());
+      const res = await fetch('/api/remove-bg', {
+        method: 'POST',
+        body: fd,
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        setError(errorData.error || '배경제거 실패');
+        console.error(errorData);
         return;
       }
+      const blob = await res.blob();
       if (blob) {
         if (s.images.selected >= 0 && s.images.processed[s.images.selected]) {
           URL.revokeObjectURL(s.images.processed[s.images.selected]!);
@@ -682,16 +677,8 @@ export default function ProductEditor() {
           이미지 보정
         </button>
         <button onClick={handleRemoveBg} disabled={!imgEl || !!loading}>
-          배경제거{useServerRembg ? '(서버)' : '(로컬)'}
+          배경제거
         </button>
-        <label className="ml-2 text-xs">
-          <input
-            type="checkbox"
-            checked={useServerRembg}
-            onChange={(e) => setUseServerRembg(e.target.checked)}
-          />{' '}
-          서버 REMBG 사용
-        </label>
         <button onClick={toggleFitMode} disabled={!imgEl}>
           Fit/Cover
         </button>
