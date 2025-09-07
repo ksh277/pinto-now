@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import cv from '@techstark/opencv-js';
 
 /**
  * 이미지 객체 감지 및 캔버스 조절 API (모든 객체 타입 지원)
