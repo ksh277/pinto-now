@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 3000",
-    "build": "set NEXT_STRICT=false&& next build",
+    "build": "prisma generate && NEXT_STRICT=false next build",
     "test": "vitest run",
     "test:watch": "vitest",
     "storybook": "storybook dev -p 6006",

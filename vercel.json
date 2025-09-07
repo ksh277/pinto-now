@@ -1,7 +1,7 @@
 {
   "framework": "nextjs",
   "buildCommand": "npm run build",
-  "installCommand": "npm install --force",
+  "installCommand": "npm install --force && npx prisma generate",
   "devCommand": "npm run dev",
   "outputDirectory": ".next",
   "env": {
