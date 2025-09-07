@@ -8,43 +8,32 @@ datasource db {
 }
 
 model User {
-  id                                       BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
-  email                                    String            @unique(map: "email") @db.VarChar(255)
-  username                                 String?           @unique(map: "username") @db.VarChar(50)
-  password_hash                            String            @db.VarChar(255)
-  status                                   users_status      @default(ACTIVE)
-  createdAt                                DateTime?         @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt                                DateTime?         @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+  id                                       BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  username                                 String?          @unique(map: "username") @db.VarChar(50)
+  email                                    String           @unique(map: "email") @db.VarChar(255)
+  password_hash                            String           @db.VarChar(255)
+  status                                   users_status     @default(ACTIVE)
+  createdAt                                DateTime?        @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt                                DateTime?        @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
   addresses                                addresses[]
   admin_logs                               admin_logs[]
   cart_items                               cart_items[]
-  cms_settings                             cms_settings[]
   comment_likes                            comment_likes[]
   comments                                 comments[]
-  community_posts                          community_posts[]
-  design                                   design[]
   editor_designs                           editor_designs[]
   favorites                                favorites[]
-  follows_follows_follower_idTousers       follows[]         @relation("follows_follower_idTousers")
-  follows_follows_following_idTousers      follows[]         @relation("follows_following_idTousers")
-  inquiries_inquiries_user_idTousers       inquiries[]       @relation("inquiries_user_idTousers")
-  inquiries_inquiries_answered_byTousers   inquiries[]       @relation("inquiries_answered_byTousers")
+  follows_follows_follower_idTousers       follows[]        @relation("follows_follower_idTousers")
+  follows_follows_following_idTousers      follows[]        @relation("follows_following_idTousers")
   media_uploads                            media_uploads[]
-  notices                                  notices[]
   notifications                            notifications[]
   orders                                   orders[]
   point_ledger                             point_ledger[]
   post_likes                               post_likes[]
   posts                                    posts[]
   product_likes                            product_likes[]
-  review_comments                          review_comments[]
-  review_likes                             review_likes[]
-  reviews                                  reviews[]
-  sellers                                  sellers[]
   user_coupons                             user_coupons[]
-  user_profiles                            user_profiles?
-  user_roles_user_roles_user_idTousers     user_roles[]      @relation("user_roles_user_idTousers")
-  user_roles_user_roles_assigned_byTousers user_roles[]      @relation("user_roles_assigned_byTousers")
+  user_roles_user_roles_user_idTousers     user_roles[]     @relation("user_roles_user_idTousers")
+  user_roles_user_roles_assigned_byTousers user_roles[]     @relation("user_roles_assigned_byTousers")
 
   @@index([email], map: "idx_email")
   @@index([status], map: "idx_status")
@@ -136,18 +125,15 @@ model cart_items {
 }
 
 model categories {
-  id               BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
-  name             String       @db.VarChar(120)
-  slug             String       @unique(map: "slug") @db.VarChar(160)
-  parent_id        BigInt?      @db.UnsignedBigInt
-  description      String?      @db.Text
-  icon_url         String?      @db.VarChar(512)
-  sort_order       Int?         @default(0)
-  is_active        Boolean?     @default(true)
-  created_at       DateTime?    @default(now()) @db.Timestamp(0)
-  categories       categories?  @relation("categoriesTocategories", fields: [parent_id], references: [id], onUpdate: NoAction, map: "categories_ibfk_1")
-  other_categories categories[] @relation("categoriesTocategories")
-  products         products[]
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name        String    @db.VarChar(120)
+  slug        String    @unique(map: "slug") @db.VarChar(160)
+  parent_id   BigInt?   @db.UnsignedBigInt
+  description String?   @db.Text
+  icon_url    String?   @db.VarChar(512)
+  sort_order  Int?      @default(0)
+  is_active   Boolean?  @default(true)
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
 
   @@index([parent_id, is_active], map: "idx_parent_active")
   @@index([slug], map: "idx_slug")
@@ -175,7 +161,6 @@ model cms_settings {
   description String?           @db.VarChar(255)
   updated_by  BigInt?           @db.UnsignedBigInt
   updated_at  DateTime?         @default(now()) @db.Timestamp(0)
-  users       User?             @relation(fields: [updated_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "cms_settings_ibfk_1")
 
   @@index([category], map: "idx_category")
   @@index([updated_by], map: "updated_by")
@@ -221,7 +206,6 @@ model community_posts {
   images_json Json?
   created_at  DateTime @default(now()) @db.Timestamp(0)
   updated_at  DateTime @default(now()) @db.Timestamp(0)
-  users       User     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "community_posts_ibfk_1")
 
   @@index([user_id], map: "idx_posts_user")
 }
@@ -253,7 +237,6 @@ model design {
   name       String
   created_by BigInt?  @db.UnsignedBigInt
   created_at DateTime @default(now()) @db.Timestamp(0)
-  users      User?    @relation(fields: [created_by], references: [id], onUpdate: NoAction, map: "design_ibfk_1")
 
   @@index([created_by], map: "created_by")
 }
@@ -352,19 +335,16 @@ model guides {
 }
 
 model inquiries {
-  id                                 BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
-  user_id                            BigInt           @db.UnsignedBigInt
-  product_id                         BigInt?          @db.UnsignedBigInt
-  title                              String
-  body                               String?          @db.Text
-  status                             inquiries_status @default(open)
-  answer_text                        String?          @db.Text
-  answered_by                        BigInt?          @db.UnsignedBigInt
-  created_at                         DateTime         @default(now()) @db.Timestamp(0)
-  updated_at                         DateTime         @default(now()) @db.Timestamp(0)
-  users_inquiries_user_idTousers     User             @relation("inquiries_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "inquiries_ibfk_1")
-  products                           products?        @relation(fields: [product_id], references: [id], onUpdate: NoAction, map: "inquiries_ibfk_2")
-  users_inquiries_answered_byTousers User?            @relation("inquiries_answered_byTousers", fields: [answered_by], references: [id], onUpdate: NoAction, map: "inquiries_ibfk_3")
+  id          BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id     BigInt           @db.UnsignedBigInt
+  product_id  BigInt?          @db.UnsignedBigInt
+  title       String
+  body        String?          @db.Text
+  status      inquiries_status @default(open)
+  answer_text String?          @db.Text
+  answered_by BigInt?          @db.UnsignedBigInt
+  created_at  DateTime         @default(now()) @db.Timestamp(0)
+  updated_at  DateTime         @default(now()) @db.Timestamp(0)
 
   @@index([answered_by], map: "answered_by")
   @@index([product_id], map: "idx_inquiries_product")
@@ -407,7 +387,6 @@ model notices {
   created_by BigInt?  @db.UnsignedBigInt
   created_at DateTime @default(now()) @db.Timestamp(0)
   updated_at DateTime @default(now()) @db.Timestamp(0)
-  users      User?    @relation(fields: [created_by], references: [id], onUpdate: NoAction, map: "notices_ibfk_1")
 
   @@index([created_by], map: "created_by")
 }
@@ -442,7 +421,6 @@ model order_items {
   orders          orders          @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "order_items_ibfk_1")
   products        products        @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "order_items_ibfk_2")
   editor_designs  editor_designs? @relation(fields: [design_id], references: [id], onUpdate: NoAction, map: "order_items_ibfk_3")
-  reviews         reviews[]
 
   @@index([design_id], map: "design_id")
   @@index([order_id], map: "idx_order")
@@ -617,13 +595,11 @@ model product_options {
 }
 
 model product_shelf_banner_products {
-  id                    BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
-  banner_id             BigInt                @db.UnsignedBigInt
-  product_id            BigInt                @db.UnsignedBigInt
-  sort_order            Int?                  @default(0)
-  created_at            DateTime?             @default(now()) @db.Timestamp(0)
-  product_shelf_banners product_shelf_banners @relation(fields: [banner_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_shelf_banner_products_ibfk_1")
-  products              products              @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_shelf_banner_products_ibfk_2")
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  banner_id  BigInt    @db.UnsignedBigInt
+  product_id BigInt    @db.UnsignedBigInt
+  sort_order Int?      @default(0)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
 
   @@unique([banner_id, product_id], map: "unique_banner_product")
   @@index([banner_id, sort_order], map: "idx_banner_sort")
@@ -631,15 +607,14 @@ model product_shelf_banner_products {
 }
 
 model product_shelf_banners {
-  id                            BigInt                          @id @default(autoincrement()) @db.UnsignedBigInt
-  title                         String                          @db.VarChar(255)
-  description                   String                          @db.Text
-  image_url                     String                          @db.VarChar(512)
-  sort_order                    Int?                            @default(0)
-  is_active                     Boolean?                        @default(true)
-  created_at                    DateTime?                       @default(now()) @db.Timestamp(0)
-  updated_at                    DateTime?                       @default(now()) @db.Timestamp(0)
-  product_shelf_banner_products product_shelf_banner_products[]
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  title       String    @db.VarChar(255)
+  description String    @db.Text
+  image_url   String    @db.VarChar(512)
+  sort_order  Int?      @default(0)
+  is_active   Boolean?  @default(true)
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+  updated_at  DateTime? @default(now()) @db.Timestamp(0)
 
   @@index([is_active, sort_order], map: "idx_active_sort")
 }
@@ -650,41 +625,34 @@ model product_stats {
   reviews_count Int      @default(0) @db.UnsignedInt
   sales_count   Int      @default(0) @db.UnsignedInt
   updated_at    DateTime @default(now()) @db.Timestamp(0)
-  products      products @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_stats_ibfk_1")
 }
 
 model products {
-  id                            BigInt                          @id @default(autoincrement()) @db.UnsignedBigInt
-  seller_id                     BigInt                          @db.UnsignedBigInt
-  category_id                   BigInt                          @db.UnsignedBigInt
-  name                          String                          @db.VarChar(255)
-  slug                          String                          @unique(map: "slug") @db.VarChar(255)
-  description                   String?                         @db.Text
-  price                         Decimal                         @db.Decimal(10, 2)
-  stock                         Int?                            @default(0)
-  status                        products_status                 @default(DRAFT)
-  is_customizable               Boolean?                        @default(false)
-  thumbnail_url                 String?                         @db.VarChar(512)
-  rating_avg                    Decimal?                        @default(0.0) @db.Decimal(2, 1)
-  review_count                  Int?                            @default(0)
-  view_count                    Int?                            @default(0)
-  created_at                    DateTime?                       @default(now()) @db.Timestamp(0)
-  updated_at                    DateTime?                       @default(now()) @db.Timestamp(0)
-  artist_goods                  artist_goods[]
-  cart_items                    cart_items[]
-  editor_designs                editor_designs[]
-  favorites                     favorites[]
-  inquiries                     inquiries[]
-  inventory_movements           inventory_movements[]
-  order_items                   order_items[]
-  product_assets                product_assets[]
-  product_likes                 product_likes[]
-  product_options               product_options[]
-  product_shelf_banner_products product_shelf_banner_products[]
-  product_stats                 product_stats?
-  sellers                       sellers                         @relation(fields: [seller_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "products_ibfk_1")
-  categories                    categories                      @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "products_ibfk_2")
-  reviews                       reviews[]
+  id                  BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
+  seller_id           BigInt                @db.UnsignedBigInt
+  category_id         BigInt                @db.UnsignedBigInt
+  name                String                @db.VarChar(255)
+  slug                String                @unique(map: "slug") @db.VarChar(255)
+  description         String?               @db.Text
+  price               Decimal               @db.Decimal(10, 2)
+  stock               Int?                  @default(0)
+  status              products_status       @default(DRAFT)
+  is_customizable     Boolean?              @default(false)
+  thumbnail_url       String?               @db.VarChar(512)
+  rating_avg          Decimal?              @default(0.0) @db.Decimal(2, 1)
+  review_count        Int?                  @default(0)
+  view_count          Int?                  @default(0)
+  created_at          DateTime?             @default(now()) @db.Timestamp(0)
+  updated_at          DateTime?             @default(now()) @db.Timestamp(0)
+  artist_goods        artist_goods[]
+  cart_items          cart_items[]
+  editor_designs      editor_designs[]
+  favorites           favorites[]
+  inventory_movements inventory_movements[]
+  order_items         order_items[]
+  product_assets      product_assets[]
+  product_likes       product_likes[]
+  product_options     product_options[]
 
   @@index([category_id, status], map: "idx_category_status")
   @@index([created_at(sort: Desc)], map: "idx_created_at")
@@ -697,18 +665,14 @@ model products {
 }
 
 model review_comments {
-  id                    BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
-  review_id             BigInt            @db.UnsignedBigInt
-  user_id               BigInt            @db.UnsignedBigInt
-  parent_id             BigInt?           @db.UnsignedBigInt
-  content               String            @db.Text
-  is_hidden             Boolean?          @default(false)
-  created_at            DateTime?         @default(now()) @db.Timestamp(0)
-  updated_at            DateTime?         @default(now()) @db.Timestamp(0)
-  reviews               reviews           @relation(fields: [review_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "review_comments_ibfk_1")
-  users                 User              @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "review_comments_ibfk_2")
-  review_comments       review_comments?  @relation("review_commentsToreview_comments", fields: [parent_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "review_comments_ibfk_3")
-  other_review_comments review_comments[] @relation("review_commentsToreview_comments")
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  review_id  BigInt    @db.UnsignedBigInt
+  user_id    BigInt    @db.UnsignedBigInt
+  parent_id  BigInt?   @db.UnsignedBigInt
+  content    String    @db.Text
+  is_hidden  Boolean?  @default(false)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
 
   @@index([created_at(sort: Desc)], map: "idx_created_at")
   @@index([parent_id], map: "idx_parent")
@@ -721,8 +685,6 @@ model review_likes {
   review_id  BigInt    @db.UnsignedBigInt
   user_id    BigInt    @db.UnsignedBigInt
   created_at DateTime? @default(now()) @db.Timestamp(0)
-  reviews    reviews   @relation(fields: [review_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "review_likes_ibfk_1")
-  users      User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "review_likes_ibfk_2")
 
   @@unique([review_id, user_id], map: "unique_review_like")
   @@index([created_at(sort: Desc)], map: "idx_created_at")
@@ -732,23 +694,18 @@ model review_likes {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model reviews {
-  id              BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
-  product_id      BigInt            @db.UnsignedBigInt
-  user_id         BigInt            @db.UnsignedBigInt
-  order_item_id   BigInt?           @db.UnsignedBigInt
-  rating          Int               @db.TinyInt
-  content         String?           @db.Text
-  images          Json?
-  is_hidden       Boolean?          @default(false)
-  created_at      DateTime?         @default(now()) @db.Timestamp(0)
-  updated_at      DateTime?         @default(now()) @db.Timestamp(0)
-  like_count      Int?              @default(0)
-  comment_count   Int?              @default(0)
-  review_comments review_comments[]
-  review_likes    review_likes[]
-  products        products          @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reviews_ibfk_1")
-  users           User              @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reviews_ibfk_2")
-  order_items     order_items?      @relation(fields: [order_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reviews_ibfk_3")
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  product_id    BigInt    @db.UnsignedBigInt
+  user_id       BigInt    @db.UnsignedBigInt
+  order_item_id BigInt?   @db.UnsignedBigInt
+  rating        Int       @db.TinyInt
+  content       String?   @db.Text
+  images        Json?
+  is_hidden     Boolean?  @default(false)
+  created_at    DateTime? @default(now()) @db.Timestamp(0)
+  updated_at    DateTime? @default(now()) @db.Timestamp(0)
+  like_count    Int?      @default(0)
+  comment_count Int?      @default(0)
 
   @@index([comment_count(sort: Desc)], map: "idx_comment_count")
   @@index([created_at(sort: Desc)], map: "idx_created_at")
@@ -777,8 +734,6 @@ model sellers {
   created_at  DateTime?           @default(now()) @db.Timestamp(0)
   updated_at  DateTime?           @default(now()) @db.Timestamp(0)
   seller_type sellers_seller_type @default(COMPANY)
-  products    products[]
-  users       User                @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "sellers_ibfk_1")
 
   @@index([status], map: "idx_status")
   @@index([user_id], map: "idx_user")
@@ -866,7 +821,6 @@ model user_profiles {
   community_notifications Boolean?  @default(true)
   created_at              DateTime? @default(now()) @db.Timestamp(0)
   updated_at              DateTime? @default(now()) @db.Timestamp(0)
-  users                   User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "user_profiles_ibfk_1")
 
   @@index([nickname], map: "idx_nickname")
 }

@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model User {
+  id                BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  username          String?        @unique(map: "username") @db.VarChar(50)
+  email             String         @unique(map: "email") @db.VarChar(255)
+  password_hash     String         @db.VarChar(255)
+  status            users_status   @default(ACTIVE)
+  createdAt         DateTime?      @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt         DateTime?      @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  @@index([email], map: "idx_email")
+  @@index([status], map: "idx_status")
+  @@map("users")
+}
+
+model banners {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  title      String    @db.VarChar(255)
+  image_url  String    @db.VarChar(512)
+  href       String?   @db.VarChar(255)
+  start_at   DateTime  @db.DateTime(0)
+  end_at     DateTime  @db.DateTime(0)
+  sort_order Int?      @default(0)
+  is_active  Boolean?  @default(true)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @updatedAt @db.Timestamp(0)
+
+  @@index([is_active, start_at, end_at], map: "idx_active_dates")
+  @@index([sort_order], map: "idx_sort_order")
+}
+
+model categories {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name        String    @db.VarChar(120)
+  slug        String    @unique(map: "slug") @db.VarChar(160)
+  parent_id   BigInt?   @db.UnsignedBigInt
+  description String?   @db.Text
+  icon_url    String?   @db.VarChar(512)
+  sort_order  Int?      @default(0)
+  is_active   Boolean?  @default(true)
+  created_at  DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([parent_id, is_active], map: "idx_parent_active")
+  @@index([slug], map: "idx_slug")
+  @@index([sort_order], map: "idx_sort_order")
+}
+
+model category_shortcuts {
+  id         BigInt    @id @default(autoincrement())
+  title      String    @db.VarChar(100)
+  image_url  String    @db.Text
+  href       String    @db.VarChar(500)
+  sort_order Int?      @default(0)
+  is_active  Boolean?  @default(true)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  updated_at DateTime? @default(now()) @db.Timestamp(0)
+
+  @@index([is_active, sort_order], map: "idx_active_sort")
+}
+
+model products {
+  id                BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  seller_id         BigInt            @db.UnsignedBigInt
+  category_id       BigInt            @db.UnsignedBigInt
+  name              String            @db.VarChar(255)
+  slug              String            @unique(map: "slug") @db.VarChar(255)
+  description       String?           @db.Text
+  price             Decimal           @db.Decimal(10, 2)
+  stock             Int?              @default(0)
+  status            products_status   @default(DRAFT)
+  is_customizable   Boolean?          @default(false)
+  thumbnail_url     String?           @db.VarChar(512)
+  rating_avg        Decimal?          @default(0.0) @db.Decimal(2, 1)
+  review_count      Int?              @default(0)
+  view_count        Int?              @default(0)
+  created_at        DateTime?         @default(now()) @db.Timestamp(0)
+  updated_at        DateTime?         @default(now()) @db.Timestamp(0)
+
+  @@index([category_id, status], map: "idx_category_status")
+  @@index([created_at(sort: Desc)], map: "idx_created_at")
+  @@index([seller_id, status], map: "idx_seller_status")
+  @@index([slug], map: "idx_slug")
+}
+
+enum users_status {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum products_status {
+  DRAFT
+  ACTIVE
+  HIDDEN
+}
