@@ -64,7 +64,7 @@ export default function TopBanner() {
               aria-label="일주일 간 보지 않기"
               onChange={(e) => setDontShow(e.target.checked)}
             />
-            <span>일주일 간 보지 않기</span>
+            <span>일주일간 숨김</span>
           </label>
           <button
             type="button"

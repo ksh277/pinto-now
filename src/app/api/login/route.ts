@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     const conn = await createConnection();
     try {
       const [rows] = await conn.execute(`
-        SELECT u.id, u.username, u.nickname, up.name, u.password_hash, u.status, 
+        SELECT u.id, u.username, up.nickname, up.name, u.password_hash, u.status, 
                COALESCE(r.name, 'USER') as role
         FROM users u 
         LEFT JOIN user_profiles up ON u.id = up.user_id
