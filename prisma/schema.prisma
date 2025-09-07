@@ -12,6 +12,9 @@ model User {
   username                                 String?          @unique(map: "username") @db.VarChar(50)
   email                                    String           @unique(map: "email") @db.VarChar(255)
   password_hash                            String           @db.VarChar(255)
+  kakao_id                                 String?          @unique @db.VarChar(100)
+  naver_id                                 String?          @unique @db.VarChar(100)
+  auth_provider                            String?          @default("LOCAL") @db.VarChar(20)
   status                                   users_status     @default(ACTIVE)
   createdAt                                DateTime?        @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt                                DateTime?        @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
@@ -32,6 +35,7 @@ model User {
   posts                                    posts[]
   product_likes                            product_likes[]
   user_coupons                             user_coupons[]
+  user_profiles                            user_profiles?
   user_roles_user_roles_user_idTousers     user_roles[]     @relation("user_roles_user_idTousers")
   user_roles_user_roles_assigned_byTousers user_roles[]     @relation("user_roles_assigned_byTousers")
 
@@ -821,6 +825,7 @@ model user_profiles {
   community_notifications Boolean?  @default(true)
   created_at              DateTime? @default(now()) @db.Timestamp(0)
   updated_at              DateTime? @default(now()) @db.Timestamp(0)
+  user                    User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([nickname], map: "idx_nickname")
 }

@@ -26,12 +26,8 @@ export async function POST(req: NextRequest) {
             { email: username }
           ]
         },
-        select: {
-          id: true,
-          username: true,
-          email: true,
-          password_hash: true,
-          status: true
+        include: {
+          user_profiles: true
         }
       });
 
@@ -63,8 +59,9 @@ export async function POST(req: NextRequest) {
 
       const user: AuthUser = {
         id: dbUser.id.toString(),
-        username: dbUser.username,
+        username: dbUser.username || '',
         role,
+        nickname: dbUser.user_profiles?.nickname || undefined,
       };
 
       const maxAge = computeMaxAge(user, !!rememberMe);
@@ -83,6 +80,7 @@ export async function POST(req: NextRequest) {
           id: 'temp_admin',
           username: 'admin',
           role: 'admin',
+          nickname: 'admin',
         };
 
         const maxAge = computeMaxAge(user, !!rememberMe);

@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
         : await mysql.createConnection(db as any);
     try {
       const [rows] = await conn.execute(`
-        SELECT u.id, u.username, up.name, u.password_hash, u.status, 
+        SELECT u.id, u.username, u.nickname, up.name, u.password_hash, u.status, 
                COALESCE(r.name, 'USER') as role
         FROM users u 
         LEFT JOIN user_profiles up ON u.id = up.user_id
@@ -60,6 +60,7 @@ export async function POST(req: NextRequest) {
         id: String(row.id),
         username: row.username,
         role: (row.role || 'user') as any,
+        nickname: row.nickname,
       };
       const maxAge = computeMaxAge(authUser, !!rememberMe);
       const token = await signToken(authUser, maxAge);
@@ -68,6 +69,7 @@ export async function POST(req: NextRequest) {
         user: {
           id: String(row.id),
           username: row.username,
+          nickname: row.nickname,
           name: row.name,
           role: row.role,
           isAdmin: ['ADMIN', 'STAFF'].includes(row.role),

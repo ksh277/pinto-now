@@ -3,7 +3,7 @@ import { cookies, headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 export type Role = 'admin' | 'seller' | 'staff' | 'user';
-export type AuthUser = { id: string; username: string; role: Role };
+export type AuthUser = { id: string; username: string; role: Role; nickname?: string };
 
 const getEnv = (key: string, fallback: string) =>
   process.env[key] ? process.env[key]! : fallback;
@@ -38,9 +38,9 @@ export async function signToken(user: AuthUser, maxAgeSec: number): Promise<stri
 export async function verifyToken(token: string): Promise<(AuthUser & { iat: number }) | null> {
   try {
     const { payload } = await jwtVerify(token, encoder.encode(AUTH_JWT_SECRET));
-    const { id, username, role, iat } = payload as JWTPayload & AuthUser & { iat: number };
+    const { id, username, role, nickname, iat } = payload as JWTPayload & AuthUser & { iat: number };
     if (!id || !username || !role) return null;
-    return { id, username, role, iat };
+    return { id, username, role, nickname, iat };
   } catch {
     return null;
   }

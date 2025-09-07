@@ -11,13 +11,23 @@ function parseDatabaseUrl(url: string) {
   try {
     const m = url.match(/^mysql:\/\/([^:]+):([^@]+)@([^:/]+)(?::(\d+))?\/([^?]+)(\?.*)?$/);
     if (!m) throw new Error('Invalid DATABASE_URL');
-    return {
+    
+    const config: PoolOptions = {
       host: m[3],
       port: m[4] ? Number(m[4]) : 3306,
       user: m[1],
       password: m[2],
       database: m[5],
     };
+    
+    // SSL 설정 추가
+    if (process.env.NODE_ENV === 'production' || m[3].includes('planetscale') || m[3].includes('cloud')) {
+      config.ssl = { rejectUnauthorized: true };
+    } else {
+      config.ssl = false;
+    }
+    
+    return config;
   } catch (e) {
     throw new Error('Failed to parse DATABASE_URL');
   }
@@ -27,13 +37,21 @@ function getConfig(): PoolOptions {
   if (process.env.DATABASE_URL) {
     return parseDatabaseUrl(process.env.DATABASE_URL);
   }
-  return {
+  
+  const config: PoolOptions = {
     host: process.env.MYSQL_HOST || process.env.DB_HOST || '127.0.0.1',
     port: process.env.MYSQL_PORT ? Number(process.env.MYSQL_PORT) : (process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306),
     user: process.env.MYSQL_USER || process.env.DB_USER || 'root',
     password: process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD || '',
     database: process.env.MYSQL_DB || process.env.DB_NAME || 'pinto',
   };
+  
+  // 로컬 개발환경에서는 SSL 비활성화
+  if (config.host === 'localhost' || config.host === '127.0.0.1') {
+    config.ssl = false;
+  }
+  
+  return config;
 }
 
 export function getPool(): Pool {

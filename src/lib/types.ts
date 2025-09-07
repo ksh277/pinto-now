@@ -16,6 +16,11 @@ export type ProductSubcategory =
   | 'swatch'
   | 'supplies'
   | 'packaging'
+  | 'poster'
+  | 'sticker'
+  | 'postcard'
+  | 'business-card'
+  | 'leaflet'
   | 'all';
 
 
