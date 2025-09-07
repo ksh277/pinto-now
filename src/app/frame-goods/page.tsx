@@ -6,6 +6,8 @@ import { ChevronRight } from 'lucide-react';
 import { StripBannerProvider } from '@/contexts/StripBannerContext';
 import { getProductsByCategory, getProductStats } from '@/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: '액자 굿즈 제작 | 맞춤 포토프레임, 액자 제작 | PINTO',
   description: '고품질 소재로 제작하는 맞춤 액자. 우드, 아크릴, 메탈 프레임 등 다양한 소재와 사이즈로 소중한 추억을 보관하세요.',
@@ -37,7 +39,7 @@ export const metadata = {
 
 export default async function FrameGoodsPage() {
   let displayProducts = [];
-  let stats = {};
+  let stats: Record<string, { likeCount: number; reviewCount: number }> = {};
 
   try {
     // Fetch frame-related products (using acrylic category and filtering for frame products)

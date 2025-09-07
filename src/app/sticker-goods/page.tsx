@@ -6,6 +6,8 @@ import { ChevronRight } from 'lucide-react';
 import { StripBannerProvider } from '@/contexts/StripBannerContext';
 import { getProductsByCategory, getProductStats } from '@/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: '스티커 굿즈 제작 | 다양한 용도의 맞춤 스티커 | PINTO',
   description: '고품질 스티커 제작 서비스. 비닐, 투명, 홀로그램, 유포지 등 다양한 소재와 원형, 사각, 특수 커팅으로 나만의 스티커를 만들어보세요.',
@@ -37,7 +39,7 @@ export const metadata = {
 
 export default async function StickerGoodsPage() {
   let stickerProducts = [];
-  let stats = {};
+  let stats: Record<string, { likeCount: number; reviewCount: number }> = {};
 
   try {
     // Fetch sticker-related products (using acrylic category as fallback)

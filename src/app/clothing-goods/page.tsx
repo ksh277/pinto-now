@@ -6,6 +6,8 @@ import { ChevronRight } from 'lucide-react';
 import { StripBannerProvider } from '@/contexts/StripBannerContext';
 import { getProductsByCategory, getProductStats } from '@/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: '의류 굿즈 제작 | 맞춤 티셔츠, 후드티 제작 | PINTO',
   description: '고품질 원단과 정밀 프린팅으로 제작하는 맞춤 의류. 티셔츠, 후드티, 맨투맨 등 다양한 의류를 합리적인 가격에 제작하세요.',
@@ -37,7 +39,7 @@ export const metadata = {
 
 export default async function ClothingGoodsPage() {
   let clothingProducts = [];
-  let stats = {};
+  let stats: Record<string, { likeCount: number; reviewCount: number }> = {};
 
   try {
     // Fetch clothing-related products (using acrylic category as fallback)
