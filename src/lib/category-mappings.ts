@@ -395,6 +395,19 @@ export const categoryMappings: Record<string, CategoryMapping> = {
     ],
     heroImagePath: '/components/img/placeholder-product.jpg',
   },
+  'office': {
+    slug: 'office',
+    categoryKo: '문구/오피스 굿즈',
+    type: 'category',
+    subtitle: '업무와 학습을 위한 실용적인 맞춤 문구',
+    description: '일상에서 유용하게 사용할 수 있는 고품질 문구 및 오피스 용품을 맞춤 제작합니다.',
+    usp: [
+      { icon: '✏️', title: '실용성', desc: '일상에서 유용하게 사용되는 실용적인 제품' },
+      { icon: '🎨', title: '맞춤 디자인', desc: '브랜드와 개성을 반영한 맞춤 디자인' },
+      { icon: '💼', title: '업무 효율', desc: '업무와 학습 효율을 높이는 기능성' }
+    ],
+    heroImagePath: '/components/img/placeholder-product.jpg',
+  },
   'view-all': {
     slug: 'view-all',
     categoryKo: '전체보기',
