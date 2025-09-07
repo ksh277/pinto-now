@@ -1,9 +1,67 @@
 import { NextResponse } from 'next/server';
+import { spawn } from 'child_process';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 /**
- * 이미지 객체 감지 및 캔버스 조절 API (모든 객체 타입 지원)
- * POST /api/detect-object
+ * 고급 이미지 컷아웃 및 캔버스 조절 API
+ * - MediaPipe(인물) + GrabCut(사물) 자동 감지
+ * - 투명 배경 + 타이트 크롭 + 키링 고리 옵션
+ * POST /api/detect-person
  */
+
+async function advancedCutout(inputPath, outputPath, options = {}) {
+  const {
+    marginCm = 0.1,
+    addRing = false,
+    ringMm = 6.0,
+    ringGapMm = 3.0,
+    forceGeneral = false,
+    dpi = 300
+  } = options;
+
+  const pythonScript = path.join(process.cwd(), 'python', 'cutout.py');
+  
+  const args = [
+    pythonScript,
+    inputPath,
+    outputPath,
+    '--dpi', dpi.toString(),
+    '--margin-cm', marginCm.toString(),
+    '--feather', '2'
+  ];
+
+  if (addRing) {
+    args.push('--add-ring', '--ring-mm', ringMm.toString(), '--ring-gap-mm', ringGapMm.toString());
+  }
+  
+  if (forceGeneral) {
+    args.push('--force-general');
+  }
+
+  return new Promise((resolve, reject) => {
+    const pythonProcess = spawn('python', args);
+    
+    let stdout = '';
+    let stderr = '';
+    
+    pythonProcess.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+    
+    pythonProcess.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+    
+    pythonProcess.on('close', (code) => {
+      if (code === 0) {
+        resolve({ success: true, output: stdout });
+      } else {
+        reject(new Error(`Python script failed: ${stderr}`));
+      }
+    });
+  });
+}
 export async function POST(request) {
   console.log('🚶 사람 감지 API 호출됨!');
   try {

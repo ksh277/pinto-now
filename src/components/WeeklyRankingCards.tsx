@@ -85,10 +85,10 @@ export default function WeeklyRankingCards({
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ko-KR', {
+    return `~${new Intl.NumberFormat('ko-KR', {
       style: 'currency',
       currency: 'KRW',
-    }).format(price);
+    }).format(price)}`;
   };
 
   const getSellerTypeLabel = (type: string) => {
@@ -101,10 +101,21 @@ export default function WeeklyRankingCards({
   };
 
   const getRankBadgeColor = (rank: number) => {
-    if (rank === 1) return 'bg-yellow-500 text-white';
-    if (rank === 2) return 'bg-gray-400 text-white';
-    if (rank === 3) return 'bg-amber-600 text-white';
-    return 'bg-blue-500 text-white';
+    return 'bg-blue-500 text-white shadow-lg';
+  };
+
+  const getRankLabel = (rank: number) => {
+    return `BEST ${rank}`;
+  };
+
+  const getCreatorDescription = (sellerName: string, rank: number) => {
+    const descriptions = [
+      '인기 급상승 창작자입니다',
+      '꾸준한 사랑받는 작품을 만들어요',  
+      '독창적인 아이디어로 주목받고 있어요',
+      '고품질 굿즈 전문 창작자예요'
+    ];
+    return descriptions[(rank - 1) % descriptions.length];
   };
 
   if (isLoading) {
@@ -113,12 +124,13 @@ export default function WeeklyRankingCards({
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-bold">주간 랭킹 - {getSellerTypeLabel(sellerType)}</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {Array.from({ length: limit }).map((_, index) => (
-            <div key={index} className="bg-white rounded-lg border p-4 animate-pulse">
-              <div className="w-full h-48 bg-gray-300 rounded-lg mb-3"></div>
+            <div key={index} className="bg-white rounded-xl border p-4 animate-pulse">
+              <div className="w-full h-96 bg-gray-300 rounded-lg mb-4"></div>
               <div className="h-4 bg-gray-300 rounded mb-2"></div>
-              <div className="h-3 bg-gray-300 rounded w-2/3"></div>
+              <div className="h-3 bg-gray-300 rounded w-2/3 mb-2"></div>
+              <div className="h-3 bg-gray-300 rounded w-1/2"></div>
             </div>
           ))}
         </div>
@@ -159,51 +171,62 @@ export default function WeeklyRankingCards({
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {rankings.map((product) => (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {rankings.map((product, index) => (
           <Link 
             key={product.product_id} 
             href={`/products/${product.product_id}`}
             onClick={() => handleProductClick(product.product_id)}
             className="block group"
           >
-            <div className="bg-white rounded-lg border p-4 hover:shadow-lg transition-shadow relative">
+            <div className="bg-white rounded-xl border-2 border-gray-100 p-5 hover:shadow-xl hover:border-blue-200 transition-all duration-300 relative">
               {showRankNumbers && (
-                <div className={`absolute top-2 left-2 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${getRankBadgeColor(product.rank_position)}`}>
-                  {product.rank_position}
+                <div className={`absolute -top-2 -left-2 px-3 py-1 rounded-full flex items-center justify-center text-xs font-bold ${getRankBadgeColor(index + 1)} transform rotate-3`}>
+                  {getRankLabel(index + 1)}
                 </div>
               )}
 
-              <div className="relative w-full h-48 mb-3 overflow-hidden rounded-lg bg-gray-100">
+              <div className="relative w-full h-96 mb-4 overflow-hidden rounded-xl bg-gray-100 shadow-md">
                 {product.product_image ? (
                   <Image
                     src={product.product_image}
                     alt={product.product_name}
                     fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-200"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    sizes="(max-width: 768px) 50vw, 25vw"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    이미지 없음
+                  <div className="w-full h-full flex items-center justify-center text-gray-400 text-lg">
+                    🖼️
                   </div>
                 )}
+                
+                {/* 호버 시 오버레이 */}
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 rounded-xl"></div>
               </div>
 
-              <h3 className="font-semibold text-gray-900 text-sm mb-1 line-clamp-2 group-hover:text-blue-600">
-                {product.product_name}
-              </h3>
+              <div className="space-y-2">
+                <h3 className="font-bold text-gray-900 text-base mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors leading-tight">
+                  {product.product_name}
+                </h3>
 
-              <p className="text-gray-600 text-xs mb-2">
-                {product.seller_name.includes('ìƒ˜í"Œ') ? '개인창작자' : product.seller_name}
-              </p>
+                <div className="space-y-1">
+                  <p className="text-gray-700 text-sm font-medium">
+                    {product.seller_name.includes('샘플') ? `창작자 ${String.fromCharCode(65 + index)}` : product.seller_name}
+                  </p>
+                  
+                  <p className="text-gray-500 text-xs leading-relaxed">
+                    {getCreatorDescription(product.seller_name, index + 1)}
+                  </p>
+                </div>
 
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-blue-600">
-                  {formatPrice(product.product_price)}
-                </span>
+                <div className="pt-2 border-t border-gray-100">
+                  <span className="font-bold text-blue-600 text-lg">
+                    {formatPrice(product.product_price)}
+                  </span>
+                  <span className="text-xs text-gray-500 ml-1">부터</span>
+                </div>
               </div>
-
             </div>
           </Link>
         ))}
