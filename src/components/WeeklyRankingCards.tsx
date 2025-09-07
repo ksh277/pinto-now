@@ -124,9 +124,9 @@ export default function WeeklyRankingCards({
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-bold">주간 랭킹 - {getSellerTypeLabel(sellerType)}</h2>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="md:grid md:grid-cols-4 md:gap-6 flex md:block overflow-x-auto md:overflow-visible space-x-4 md:space-x-0 pb-4 md:pb-0 scrollbar-hide">
           {Array.from({ length: limit }).map((_, index) => (
-            <div key={index} className="bg-white rounded-xl border p-4 animate-pulse">
+            <div key={index} className="bg-white rounded-xl border p-4 animate-pulse min-w-[200px] md:min-w-0 flex-shrink-0 md:flex-shrink">
               <div className="w-full h-96 bg-gray-300 rounded-lg mb-4"></div>
               <div className="h-4 bg-gray-300 rounded mb-2"></div>
               <div className="h-3 bg-gray-300 rounded w-2/3 mb-2"></div>
@@ -171,7 +171,8 @@ export default function WeeklyRankingCards({
         )}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      {/* Mobile: Horizontal scroll, Desktop: Grid */}
+      <div className="md:grid md:grid-cols-4 md:gap-6 flex md:block overflow-x-auto md:overflow-visible space-x-4 md:space-x-0 pb-4 md:pb-0 scrollbar-hide">
         {rankings.map((product, index) => (
           <Link 
             key={product.product_id} 
@@ -179,7 +180,7 @@ export default function WeeklyRankingCards({
             onClick={() => handleProductClick(product.product_id)}
             className="block group"
           >
-            <div className="bg-white rounded-xl border-2 border-gray-100 p-5 hover:shadow-xl hover:border-blue-200 transition-all duration-300 relative">
+            <div className="bg-white rounded-xl border-2 border-gray-100 p-5 hover:shadow-xl hover:border-blue-200 transition-all duration-300 relative min-w-[200px] md:min-w-0 flex-shrink-0 md:flex-shrink">
               {showRankNumbers && (
                 <div className={`absolute -top-2 -left-2 px-3 py-1 rounded-full flex items-center justify-center text-xs font-bold ${getRankBadgeColor(index + 1)} transform rotate-3`}>
                   {getRankLabel(index + 1)}

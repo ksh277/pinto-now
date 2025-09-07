@@ -6,9 +6,6 @@
  * - chat - A function that takes a user's message and returns a response.
  */
 
-import { ai } from '@/ai/genkit';
-import { z } from 'zod';
-
 const goodsEditorHelp = `
 - 이미지 업로드 후 "보드/컷라인 생성"을 누르면 자동으로 이미지 외곽 기준 +15mm 보드와 +8mm 절제선이 만들어집니다.
 - 키링 홀은 캔버스의 흰색 원을 드래그하여 보드 둘레 원하는 위치에 둘 수 있어요(둘레 스냅).
@@ -16,10 +13,7 @@ const goodsEditorHelp = `
 - PNG/SVG/PDF로 내보내거나 DB에 저장할 수 있어요.
 `;
 
-const prompt = ai.definePrompt({
-  name: 'chatbotPrompt',
-  input: { schema: z.string() },
-  prompt: `You are a friendly and helpful customer support agent for a custom goods printing company called "Pinto".
+const systemPrompt = `You are a friendly and helpful customer support agent for a custom goods printing company called "Pinto".
 
 Your knowledge is based on the following information:
 - We sell custom goods like acrylic keyrings, smart-toks, stickers, etc.
@@ -175,13 +169,35 @@ Here is the product list. Prices are in KRW.
 - OPP 봉투 70x150: 100원
 - OPP 봉투 80x100: 100원
 
-Keep your answers concise and helpful.
-
-User query: {{{input}}}`,
-});
+Keep your answers concise and helpful.`;
 
 export async function chat(input: string): Promise<string> {
-  const llmResponse = await prompt(input);
-  const response = llmResponse.output || '죄송합니다. 답변을 생성할 수 없습니다.';
-  return response;
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: input }
+        ],
+        max_tokens: 1000,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`OpenAI API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || '죄송합니다. 답변을 생성할 수 없습니다.';
+  } catch (error) {
+    console.error('Chat error:', error);
+    return '죄송합니다. 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
+  }
 }

@@ -48,9 +48,12 @@ export function Chatbot() {
     <Sheet>
       <SheetTrigger asChild>
         <div className="fixed bottom-6 right-6 z-50">
-          <Button size="lg" className="rounded-full shadow-lg">
-            <MessageCircle className="mr-2" />
-            AI 문의하기
+          <Button 
+            size="lg" 
+            className="rounded-full shadow-lg md:px-6 md:py-3 w-12 h-12 md:w-auto md:h-auto p-0 md:p-3"
+          >
+            <MessageCircle className="md:mr-2 w-5 h-5" />
+            <span className="hidden md:inline">AI 문의하기</span>
           </Button>
         </div>
       </SheetTrigger>
