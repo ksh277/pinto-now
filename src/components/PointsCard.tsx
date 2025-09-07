@@ -32,14 +32,22 @@ export default function PointsCard() {
   }, []);
 
   const fetchPoints = async () => {
-    if (!user?.token) return;
+    if (!user) {
+      // 로그인하지 않은 경우 기본 포인트 데이터 설정
+      setPoints({
+        currentBalance: 0,
+        totalEarned: 0,
+        totalSpent: 0,
+        recentTransactions: []
+      });
+      setIsLoading(false);
+      return;
+    }
 
     try {
       setIsLoading(true);
       const response = await fetch('/api/points', {
-        headers: {
-          'Authorization': `Bearer ${user.token}`,
-        },
+        credentials: 'include', // 쿠키 포함
       });
 
       const result = await response.json();
@@ -48,10 +56,26 @@ export default function PointsCard() {
         setPoints(result.data);
         setError(null);
       } else {
-        setError(result.error || 'Failed to fetch points');
+        console.warn('Points API error:', result.error);
+        // API 에러가 있어도 기본값 표시
+        setPoints({
+          currentBalance: 0,
+          totalEarned: 0,
+          totalSpent: 0,
+          recentTransactions: []
+        });
+        setError(null); // 에러를 숨기고 기본값 표시
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      console.warn('Points fetch error:', err);
+      // 네트워크 에러가 있어도 기본값 표시
+      setPoints({
+        currentBalance: 0,
+        totalEarned: 0,
+        totalSpent: 0,
+        recentTransactions: []
+      });
+      setError(null); // 에러를 숨기고 기본값 표시
     } finally {
       setIsLoading(false);
     }

@@ -126,7 +126,7 @@ export function Header() {
                 </SheetHeader>
                 <div className="mt-6 flex flex-col h-full">
                   <div className="pb-4 border-b">
-                    <HeaderAuthNav />
+                    <HeaderAuthNav onMenuClose={closeMobileMenu} />
                   </div>
                   <nav className="mt-6 flex-grow">
                     <Accordion type="multiple" className="w-full">

@@ -4,51 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronRight } from 'lucide-react';
 import { StripBannerProvider } from '@/contexts/StripBannerContext';
-
-const products = [
-  {
-    id: 1,
-    name: '비닐 스티커 - 5cm',
-    image: "/components/img/placeholder-product.jpg",
-    tags: ['비닐', '5cm'],
-    price: 500
-  },
-  {
-    id: 2,
-    name: '투명 스티커 - 3cm',
-    image: "/components/img/placeholder-product.jpg",
-    tags: ['투명', '3cm'],
-    price: 800
-  },
-  {
-    id: 3,
-    name: '홀로그램 스티커 - 원형',
-    image: "/components/img/placeholder-product.jpg",
-    tags: ['홀로그램', '원형'],
-    price: 1200
-  },
-  {
-    id: 4,
-    name: '방수 스티커 - 사각',
-    image: "/components/img/placeholder-product.jpg",
-    tags: ['방수', '사각'],
-    price: 1000
-  },
-  {
-    id: 5,
-    name: '라벨 스티커 - 10cm',
-    image: "/components/img/placeholder-product.jpg",
-    tags: ['라벨', '10cm'],
-    price: 700
-  },
-  {
-    id: 6,
-    name: '특수 커팅 스티커',
-    image: "/components/img/placeholder-product.jpg",
-    tags: ['특수커팅', '맞춤'],
-    price: 1500
-  }
-];
+import { getProductsByCategory, getProductStats } from '@/lib/api';
 
 export const metadata = {
   title: '스티커 굿즈 제작 | 다양한 용도의 맞춤 스티커 | PINTO',
@@ -79,7 +35,13 @@ export const metadata = {
   }
 };
 
-export default function StickerGoodsPage() {
+export default async function StickerGoodsPage() {
+  // Fetch sticker-related products (using acrylic category as fallback)
+  const products = await getProductsByCategory('아크릴');
+  const stats = await getProductStats(products.map(p => p.id));
+
+  // Filter for sticker-like products or take first 6
+  const stickerProducts = products.slice(0, 6);
   return (
     <StripBannerProvider>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -102,12 +64,12 @@ export default function StickerGoodsPage() {
         <section className="py-8">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map((product) => (
+              {stickerProducts.map((product) => (
                 <Card key={product.id} className="group overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="relative aspect-square overflow-hidden bg-gray-100">
                     <Image
-                      src={product.image}
-                      alt={product.name}
+                      src={product.imageUrl || '/images/sample-banner1.svg'}
+                      alt={product.nameKo || 'Product'}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
@@ -115,23 +77,23 @@ export default function StickerGoodsPage() {
                   </div>
                   <CardContent className="p-4">
                     <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                      {product.name}
+                      {product.nameKo}
                     </h3>
                     <div className="flex flex-wrap gap-1 mb-3">
-                      {product.tags.map((tag) => (
-                        <Badge key={tag} variant="secondary" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
+                      <Badge variant="secondary" className="text-xs">
+                        스티커
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        맞춤제작
+                      </Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-lg font-bold text-green-600">
-                        {product.price.toLocaleString()}원~
+                        {product.priceKrw?.toLocaleString()}원~
                       </span>
-                      <Link href={`/products/${product.id}`} className="text-sm text-gray-500 hover:text-gray-700 flex items-center">
-                        자세히 보기
-                        <ChevronRight className="w-4 h-4 ml-1" />
-                      </Link>
+                      <div className="text-xs text-gray-500">
+                        ♡ {stats[product.id]?.likeCount || 0} 리뷰 {stats[product.id]?.reviewCount || 0}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

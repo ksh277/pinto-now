@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { query } from '@/lib/mysql';
-import { verify } from 'jsonwebtoken';
+import { verifyToken } from '@/lib/auth/jwt';
 
 interface PointTransaction {
   id: number;
@@ -18,14 +18,15 @@ interface UserPoints {
   recentTransactions: PointTransaction[];
 }
 
-function getUserIdFromToken(request: NextRequest): number | null {
+async function getUserIdFromToken(request: NextRequest): Promise<string | null> {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader?.startsWith('Bearer ')) return null;
+    const cookie = request.cookies.get('session')?.value;
+    if (!cookie) return null;
     
-    const token = authHeader.substring(7);
-    const decoded = verify(token, process.env.JWT_SECRET!) as any;
-    return decoded.userId;
+    const decoded = await verifyToken(cookie);
+    if (!decoded) return null;
+    
+    return decoded.id;
   } catch {
     return null;
   }
@@ -33,7 +34,7 @@ function getUserIdFromToken(request: NextRequest): number | null {
 
 export async function GET(req: NextRequest) {
   try {
-    const userId = getUserIdFromToken(req);
+    const userId = await getUserIdFromToken(req);
     if (!userId) {
       return Response.json({
         success: false,
@@ -103,7 +104,7 @@ export async function GET(req: NextRequest) {
 // POST endpoint to add points (for testing purposes)
 export async function POST(req: NextRequest) {
   try {
-    const userId = getUserIdFromToken(req);
+    const userId = await getUserIdFromToken(req);
     if (!userId) {
       return Response.json({
         success: false,

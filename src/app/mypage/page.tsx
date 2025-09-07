@@ -61,7 +61,7 @@ export default function MyPage() {
       <div className="mb-10">
         <h1 className="text-3xl font-bold mb-2">마이페이지</h1>
         <p className="text-lg text-muted-foreground">
-          {user?.name}님의 주문 및 활동 내역을 확인하세요.
+          {user?.nickname || user?.name || user?.username}님의 주문 및 활동 내역을 확인하세요.
         </p>
       </div>
 

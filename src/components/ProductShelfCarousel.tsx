@@ -26,6 +26,30 @@ type ProductShelfCarouselProps = {
   banners: ProductShelfBanner[];
 };
 
+// 배너 ID에 따라 적절한 카테고리 페이지로 매핑
+function getBannerCategoryUrl(banner: ProductShelfBanner): string {
+  const title = banner.title.toLowerCase();
+  const id = banner.id;
+
+  // 배너 제목이나 ID를 기반으로 적절한 카테고리 페이지로 매핑
+  if (title.includes('티셔츠') || title.includes('t-shirt') || id === 's1') {
+    return '/clothing-goods';
+  } else if (title.includes('키링') || title.includes('keyring') || id === 's2') {
+    return '/acrylic'; // 아크릴 키링은 아크릴 카테고리로
+  } else if (title.includes('우산') || title.includes('umbrella') || id === 's3') {
+    return '/promo-product-view'; // 우산은 단체판촉상품으로
+  } else if (title.includes('스티커') || title.includes('sticker')) {
+    return '/sticker-goods';
+  } else if (title.includes('액자') || title.includes('frame')) {
+    return '/frame-goods';
+  } else if (title.includes('의류') || title.includes('clothing')) {
+    return '/clothing-goods';
+  } else {
+    // 기본값으로 전체 상품 보기로
+    return '/all';
+  }
+}
+
 export default function ProductShelfCarousel({ banners }: ProductShelfCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -68,11 +92,11 @@ export default function ProductShelfCarousel({ banners }: ProductShelfCarouselPr
       <div className="relative">
         <div 
           ref={scrollRef}
-          className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 scrollbar-hide"
+          className="flex overflow-x-auto snap-x snap-mandatory gap-4 md:gap-6 pb-4 scrollbar-hide px-4 md:px-0"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {banners.map(banner => (
-            <div key={banner.id} className="flex-shrink-0 w-[320px] md:w-[380px] snap-start">
+            <div key={banner.id} className="flex-shrink-0 w-[calc(100vw-2rem)] max-w-[320px] md:w-[380px] snap-start">
               <ProductShelfItem banner={banner} fmtPrice={fmtPrice} />
             </div>
           ))}
@@ -164,7 +188,7 @@ function ProductShelfItem({
             variant="outline" 
             className="h-8 w-full rounded-full border-slate-300 text-xs text-slate-600"
           >
-            <Link href={`/products?banner=${banner.id}`}>
+            <Link href={getBannerCategoryUrl(banner)}>
               {hasMore ? `MORE (${banner.products.length - 2}+)` : 'MORE'}
             </Link>
           </Button>

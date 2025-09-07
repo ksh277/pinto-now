@@ -4,51 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChevronRight } from 'lucide-react';
 import { StripBannerProvider } from '@/contexts/StripBannerContext';
-
-const products = [
-  {
-    id: 1,
-    name: '우드 액자 - A4',
-    image: "/components/img/placeholder-product.jpg",
-    tags: ['우드', 'A4'],
-    price: 15000
-  },
-  {
-    id: 2,
-    name: '아크릴 액자 - B5',
-    image: "/components/img/placeholder-product.jpg",
-    tags: ['아크릴', 'B5'],
-    price: 12000
-  },
-  {
-    id: 3,
-    name: '메탈 액자 - A3',
-    image: "/components/img/placeholder-product.jpg",
-    tags: ['메탈', 'A3'],
-    price: 18000
-  },
-  {
-    id: 4,
-    name: '포토 프레임 - 5x7',
-    image: "/components/img/placeholder-product.jpg",
-    tags: ['포토', '5x7'],
-    price: 10000
-  },
-  {
-    id: 5,
-    name: '스탠딩 액자 - 탁상용',
-    image: "/components/img/placeholder-product.jpg",
-    tags: ['스탠딩', '탁상'],
-    price: 8000
-  },
-  {
-    id: 6,
-    name: '벽걸이 액자 - A2',
-    image: "/components/img/placeholder-product.jpg",
-    tags: ['벽걸이', 'A2'],
-    price: 25000
-  }
-];
+import { getProductsByCategory, getProductStats } from '@/lib/api';
 
 export const metadata = {
   title: '액자 굿즈 제작 | 맞춤 포토프레임, 액자 제작 | PINTO',
@@ -79,7 +35,18 @@ export const metadata = {
   }
 };
 
-export default function FrameGoodsPage() {
+export default async function FrameGoodsPage() {
+  // Fetch frame-related products (using acrylic category and filtering for frame products)
+  const allProducts = await getProductsByCategory('아크릴');
+  const stats = await getProductStats(allProducts.map(p => p.id));
+
+  // Filter for frame-related products (containing '액자' or 'holder') or take first 6
+  const frameProducts = allProducts.filter(p => 
+    p.nameKo?.includes('액자') || p.nameKo?.includes('홀더') || p.nameKo?.includes('포토')
+  ).slice(0, 6);
+  
+  // If no frame products found, use first 6 products
+  const displayProducts = frameProducts.length > 0 ? frameProducts : allProducts.slice(0, 6);
   return (
     <StripBannerProvider>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -102,12 +69,12 @@ export default function FrameGoodsPage() {
         <section className="py-8">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map((product) => (
+              {displayProducts.map((product) => (
                 <Card key={product.id} className="group overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="relative aspect-square overflow-hidden bg-gray-100">
                     <Image
-                      src={product.image}
-                      alt={product.name}
+                      src={product.imageUrl || '/images/sample-banner1.svg'}
+                      alt={product.nameKo || 'Product'}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
@@ -115,23 +82,23 @@ export default function FrameGoodsPage() {
                   </div>
                   <CardContent className="p-4">
                     <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                      {product.name}
+                      {product.nameKo}
                     </h3>
                     <div className="flex flex-wrap gap-1 mb-3">
-                      {product.tags.map((tag) => (
-                        <Badge key={tag} variant="secondary" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
+                      <Badge variant="secondary" className="text-xs">
+                        액자
+                      </Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        맞춤제작
+                      </Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-lg font-bold text-purple-600">
-                        {product.price.toLocaleString()}원~
+                        {product.priceKrw?.toLocaleString()}원~
                       </span>
-                      <Link href={`/products/${product.id}`} className="text-sm text-gray-500 hover:text-gray-700 flex items-center">
-                        자세히 보기
-                        <ChevronRight className="w-4 h-4 ml-1" />
-                      </Link>
+                      <div className="text-xs text-gray-500">
+                        ♡ {stats[product.id]?.likeCount || 0} 리뷰 {stats[product.id]?.reviewCount || 0}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

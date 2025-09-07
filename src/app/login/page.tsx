@@ -160,29 +160,6 @@ function LoginContent() {
                   </button>
                 </div>
 
-                <div className="flex items-center justify-end">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="secure-login"
-                      checked={secureLogin}
-                      onCheckedChange={(checked) =>
-                        setSecureLogin(checked as boolean)
-                      }
-                    />
-                    <label
-                      htmlFor="secure-login"
-                      className="text-sm cursor-pointer flex items-center"
-                    >
-                      <Shield className="w-4 h-4 mr-1" />
-                      {t({
-                        ko: "보안접속",
-                        en: "Secure Login",
-                        ja: "セキュアログイン",
-                        zh: "安全登录",
-                      })}
-                    </label>
-                  </div>
-                </div>
               </div>
 
               <Button

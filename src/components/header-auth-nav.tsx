@@ -20,7 +20,11 @@ import {
 import { Skeleton } from './ui/skeleton';
 import type { Role } from '@/contexts/product-context';
 
-export function HeaderAuthNav() {
+interface HeaderAuthNavProps {
+  onMenuClose?: () => void;
+}
+
+export function HeaderAuthNav({ onMenuClose }: HeaderAuthNavProps) {
   const { isAuthenticated, user, logout, isLoading } = useAuth();
   const { role, setRole } = useProductContext();
   const [isMounted, setIsMounted] = useState(false);
@@ -62,9 +66,9 @@ export function HeaderAuthNav() {
         </div>
       ) : (
         <div className="flex items-center gap-4 text-muted-foreground">
-          <Link href="/register" className="hover:underline">회원가입</Link>
-          <Link href="/login" className="hover:underline">로그인</Link>
-          <Link href="/orders" className="hover:underline">주문조회</Link>
+          <Link href="/register" className="hover:underline" onClick={onMenuClose}>회원가입</Link>
+          <Link href="/login" className="hover:underline" onClick={onMenuClose}>로그인</Link>
+          <Link href="/orders" className="hover:underline" onClick={onMenuClose}>주문조회</Link>
         </div>
       )}
     </>

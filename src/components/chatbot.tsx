@@ -8,8 +8,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { MessageCircle, Send } from 'lucide-react';
-import { chat } from '@/ai/flows/chat-flow';
-
 interface Message {
   role: 'user' | 'assistant';
   content: string;
@@ -25,18 +23,40 @@ export function Chatbot() {
 
     const userMessage: Message = { role: 'user', content: input };
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = input;
     setInput('');
     setIsLoading(true);
 
     try {
-      const response = await chat(input);
-      const assistantMessage: Message = { role: 'assistant', content: response };
+      // API 엔드포인트를 통해 호출
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: currentInput }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      const assistantMessage: Message = { 
+        role: 'assistant', 
+        content: data.response || '응답을 받지 못했습니다.'
+      };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Chatbot error:', error);
       const errorMessage: Message = {
         role: 'assistant',
-        content: '죄송합니다. 답변을 생성하는 중에 오류가 발생했습니다.',
+        content: '죄송합니다. 답변을 생성하는 중에 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {

@@ -10,8 +10,8 @@ export async function getProductsByCategory(key: string): Promise<Product[]> {
     // ignore
   }
   return [
-    { id: '1', nameKo: '샘플 상품', imageUrl: 'https://placehold.co/600x600.png', priceKrw: 10000 },
-    { id: '2', nameKo: '샘플 상품 2', imageUrl: 'https://placehold.co/600x600.png', priceKrw: 12000 },
+    { id: '1', nameKo: '샘플 상품', imageUrl: '/images/sample-banner1.svg', priceKrw: 10000 },
+    { id: '2', nameKo: '샘플 상품 2', imageUrl: '/images/sample-banner2.svg', priceKrw: 12000 },
   ];
 }
 

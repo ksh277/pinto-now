@@ -173,6 +173,12 @@ Keep your answers concise and helpful.`;
 
 export async function chat(input: string): Promise<string> {
   try {
+    console.log('Calling OpenAI API...');
+    
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OpenAI API key is not configured');
+    }
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -190,14 +196,38 @@ export async function chat(input: string): Promise<string> {
       }),
     });
 
+    console.log('OpenAI API response status:', response.status);
+
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('OpenAI API error response:', errorText);
+      throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    return data.choices?.[0]?.message?.content || '죄송합니다. 답변을 생성할 수 없습니다.';
+    console.log('OpenAI API response received');
+    
+    const result = data.choices?.[0]?.message?.content || '죄송합니다. 답변을 생성할 수 없습니다.';
+    console.log('Generated response length:', result.length);
+    
+    return result;
   } catch (error) {
-    console.error('Chat error:', error);
+    console.error('Chat error details:', error);
+    
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      
+      // API 키 관련 에러인지 확인
+      if (error.message.includes('401') || error.message.includes('unauthorized')) {
+        return 'API 인증에 실패했습니다. 관리자에게 문의해주세요.';
+      }
+      
+      // 네트워크 에러인지 확인
+      if (error.message.includes('fetch')) {
+        return 'OpenAI 서비스에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.';
+      }
+    }
+    
     return '죄송합니다. 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
   }
 }
