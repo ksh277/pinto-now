@@ -142,7 +142,7 @@ export default function AkrilGoodsPage() {
 
         {/* Products Grid */}
         <section className="py-16 md:py-24">
-          <div className="container mx-auto px-4">
+          <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
                 인기 아크릴 굿즈
@@ -152,7 +152,7 @@ export default function AkrilGoodsPage() {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4">
               {products.map((product) => (
                 <Card key={product.id} className="group overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="relative aspect-square overflow-hidden bg-gray-100">
@@ -161,11 +161,11 @@ export default function AkrilGoodsPage() {
                       alt={product.name}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
                     />
                   </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                  <CardContent className="p-5">
+                    <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-3 line-clamp-2">
                       {product.name}
                     </h3>
                     <div className="flex flex-wrap gap-1 mb-3">

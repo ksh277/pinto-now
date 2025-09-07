@@ -70,7 +70,7 @@ export default function CategoryPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="max-w-7xl mx-auto px-6 py-12">
       
       <div className="flex flex-wrap justify-start items-center gap-x-2 gap-y-2 border-b pb-4 mb-8">
         <Button 
@@ -112,7 +112,7 @@ export default function CategoryPage() {
         </Select>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4">
         {isProductsLoading ? (
             Array.from({length: 10}).map((_, i) => (
                 <div key={i} className="space-y-2">

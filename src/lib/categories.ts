@@ -41,11 +41,21 @@ const packagingSubNav: SubCategory[] = [
   { href: '/packing-supplies', label: '포장재', id: 'packaging' },
 ];
 
+const paperSubNav: SubCategory[] = [
+  { href: '/paper-goods', label: '포스터', id: 'poster' },
+  { href: '/paper-goods', label: '스티커', id: 'sticker' },
+  { href: '/paper-goods', label: '엽서', id: 'postcard' },
+  { href: '/paper-goods', label: '문구류', id: 'stationery' },
+  { href: '/paper-goods', label: '명함', id: 'business-card' },
+  { href: '/paper-goods', label: '리플릿', id: 'leaflet' },
+];
+
 // ALL subcategories for mega menu
 const allSubNav: SubCategory[] = [
   ...acrylicSubNav,
   ...woodSubNav,
   ...packagingSubNav,
+  ...paperSubNav,
   // 추가적으로 다른 카테고리 subnav도 여기에 합칠 수 있음
 ];
 
@@ -90,5 +100,6 @@ export const categoriesMap: Record<string, { name: string; subCategories: Omit<S
   acrylic: { name: '아크릴굿즈', subCategories: acrylicSubNav.map(s => ({label: s.label, id: s.id})) },
   wood: { name: '우드굿즈', subCategories: woodSubNav.map(s => ({label: s.label, id: s.id})) },
   packaging: { name: '포장/부자재', subCategories: packagingSubNav.map(s => ({label: s.label, id: s.id})) },
+  'paper-goods': { name: '지류 굿즈', subCategories: paperSubNav.map(s => ({label: s.label, id: s.id})) },
   lanyard: { name: '랜야드', subCategories: [] },
 };
