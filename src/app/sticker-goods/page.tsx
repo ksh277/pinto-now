@@ -36,12 +36,27 @@ export const metadata = {
 };
 
 export default async function StickerGoodsPage() {
-  // Fetch sticker-related products (using acrylic category as fallback)
-  const products = await getProductsByCategory('아크릴');
-  const stats = await getProductStats(products.map(p => p.id));
+  let stickerProducts = [];
+  let stats = {};
 
-  // Filter for sticker-like products or take first 6
-  const stickerProducts = products.slice(0, 6);
+  try {
+    // Fetch sticker-related products (using acrylic category as fallback)
+    const products = await getProductsByCategory('아크릴');
+    stats = await getProductStats(products.map(p => p.id));
+
+    // Filter for sticker-like products or take first 6
+    stickerProducts = products.slice(0, 6);
+  } catch (error) {
+    console.warn('Failed to fetch products for sticker page during build:', error);
+    // Use fallback static data for build
+    stickerProducts = [
+      { id: '1', nameKo: '비닐 스티커', imageUrl: '/images/sample-banner1.svg', priceKrw: 500 },
+      { id: '2', nameKo: '투명 스티커', imageUrl: '/images/sample-banner2.svg', priceKrw: 800 },
+      { id: '3', nameKo: '홀로그램 스티커', imageUrl: '/images/sample-banner3.svg', priceKrw: 1200 },
+      { id: '4', nameKo: '방수 스티커', imageUrl: '/images/sample-banner4.svg', priceKrw: 1000 },
+    ];
+    stats = {};
+  }
   return (
     <StripBannerProvider>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">

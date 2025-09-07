@@ -36,17 +36,32 @@ export const metadata = {
 };
 
 export default async function FrameGoodsPage() {
-  // Fetch frame-related products (using acrylic category and filtering for frame products)
-  const allProducts = await getProductsByCategory('아크릴');
-  const stats = await getProductStats(allProducts.map(p => p.id));
+  let displayProducts = [];
+  let stats = {};
 
-  // Filter for frame-related products (containing '액자' or 'holder') or take first 6
-  const frameProducts = allProducts.filter(p => 
-    p.nameKo?.includes('액자') || p.nameKo?.includes('홀더') || p.nameKo?.includes('포토')
-  ).slice(0, 6);
-  
-  // If no frame products found, use first 6 products
-  const displayProducts = frameProducts.length > 0 ? frameProducts : allProducts.slice(0, 6);
+  try {
+    // Fetch frame-related products (using acrylic category and filtering for frame products)
+    const allProducts = await getProductsByCategory('아크릴');
+    stats = await getProductStats(allProducts.map(p => p.id));
+
+    // Filter for frame-related products (containing '액자' or 'holder') or take first 6
+    const frameProducts = allProducts.filter(p => 
+      p.nameKo?.includes('액자') || p.nameKo?.includes('홀더') || p.nameKo?.includes('포토')
+    ).slice(0, 6);
+    
+    // If no frame products found, use first 6 products
+    displayProducts = frameProducts.length > 0 ? frameProducts : allProducts.slice(0, 6);
+  } catch (error) {
+    console.warn('Failed to fetch products for frame page during build:', error);
+    // Use fallback static data for build
+    displayProducts = [
+      { id: '1', nameKo: '아크릴 액자', imageUrl: '/images/sample-banner1.svg', priceKrw: 12000 },
+      { id: '2', nameKo: '포토 프레임', imageUrl: '/images/sample-banner2.svg', priceKrw: 8000 },
+      { id: '3', nameKo: '우드 액자', imageUrl: '/images/sample-banner3.svg', priceKrw: 15000 },
+      { id: '4', nameKo: '메탈 프레임', imageUrl: '/images/sample-banner4.svg', priceKrw: 18000 },
+    ];
+    stats = {};
+  }
   return (
     <StripBannerProvider>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
