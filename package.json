@@ -20,7 +20,6 @@
     "lint": "next lint --max-warnings=0",
     "format": "prettier --write .",
     "type-check": "tsc --noEmit",
-    "preinstall": "npx only-allow pnpm",
     "migrate:operator-ids": "tsx scripts/migrate-operator-ids.ts",
     "db:push": "prisma db push",
     "prisma:generate": "prisma generate"
