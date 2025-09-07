@@ -66,19 +66,9 @@ export const mainNavItems: MainCategory[] = [
     label: 'ALL',
     subnav: allSubNav
   },
-  { 
-    id: 'acrylic',
-    href: '/acrylic', 
-    label: '아크릴',
-    subnav: acrylicSubNav
-  },
+  { id: 'acrylic', href: '/acrylic', label: '아크릴' },
   { id: 'lanyard', href: '/lanyard', label: '랜야드' },
-  { 
-    id: 'paper-goods',
-    href: '/paper-goods', 
-    label: '지류',
-    subnav: paperSubNav
-  },
+  { id: 'paper-goods', href: '/paper-goods', label: '지류' },
   { id: 'sticker', href: '/sticker', label: '스티커' },
   { id: 'clothing', href: '/clothing', label: '의류' },
   { id: 'frame', href: '/frame', label: '액자' },
