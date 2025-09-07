@@ -9,6 +9,7 @@ import { Footer } from '@/components/footer';
 import { Toaster as RadixToaster } from '@/components/ui/toaster';
 import { Button } from '@/components/ui/button';
 import { Chatbot } from '@/components/chatbot';
+import { EditorButton } from '@/components/editor-button';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -37,6 +38,7 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+          <EditorButton />
           <Chatbot />
           <RadixToaster />
         </Providers>
