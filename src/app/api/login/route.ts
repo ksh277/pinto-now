@@ -1,37 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
 import bcrypt from 'bcryptjs';
+import { createConnection } from '@/lib/mysql';
 import { computeMaxAge, signToken, setSessionCookie, type AuthUser } from '@/lib/auth/jwt';
 
-function parseDb() {
-  const url = process.env.DATABASE_URL;
-  if (url) {
-    // SSL 설정 추가
-    const config: any = { url };
-    if (process.env.NODE_ENV === 'production' || url.includes('planetscale') || url.includes('cloud')) {
-      config.ssl = { rejectUnauthorized: true };
-    } else {
-      config.ssl = false;
-    }
-    return config;
-  }
-  const {
-    DB_HOST = 'localhost',
-    DB_PORT = '3306',
-    DB_USER = 'root',
-    DB_PASSWORD = '12345',
-    DB_NAME = 'pinto',
-  } = process.env as any;
-  const config = {
-    host: DB_HOST,
-    port: Number(DB_PORT),
-    user: DB_USER,
-    password: DB_PASSWORD,
-    database: DB_NAME,
-    ssl: false, // 로컬 개발환경에서는 SSL 비활성화
-  };
-  return config;
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,11 +10,7 @@ export async function POST(req: NextRequest) {
     if (!username || !password) {
       return NextResponse.json({ ok: false, error: '아이디와 비밀번호를 입력하세요.' }, { status: 400 });
     }
-    const db = parseDb();
-    const conn =
-      'url' in db
-        ? await mysql.createConnection((db as any).url)
-        : await mysql.createConnection(db as any);
+    const conn = await createConnection();
     try {
       const [rows] = await conn.execute(`
         SELECT u.id, u.username, u.nickname, up.name, u.password_hash, u.status, 

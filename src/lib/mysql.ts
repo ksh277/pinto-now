@@ -66,3 +66,8 @@ export async function query<T = RowDataPacket[]>(sql: string, params?: any[]): P
   const [rows] = await pool.query(sql, params);
   return rows as T;
 }
+
+export async function createConnection() {
+  const config = getConfig();
+  return mysql.createConnection(config);
+}
