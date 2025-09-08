@@ -74,6 +74,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const data = await req.json();
+    console.log('Received data:', JSON.stringify(data, null, 2));
 
     if (!data.title || !data.image_url) {
       return NextResponse.json(
@@ -86,6 +87,21 @@ export async function POST(req: Request) {
     const deviceType = data.device_type || 'all';
     const sortOrder = data.sort_order !== undefined ? parseInt(data.sort_order) : 0;
     const isActive = data.is_active !== undefined ? Boolean(data.is_active) : true;
+
+    console.log('About to insert with params:', [
+      data.title.trim(),
+      data.image_url.trim(),
+      data.href?.trim() || '#',
+      data.main_title?.trim() || '',
+      data.sub_title?.trim() || '',
+      data.more_button_link?.trim() || '',
+      bannerType,
+      deviceType,
+      isActive ? 1 : 0,
+      sortOrder,
+      data.start_at || new Date(),
+      data.end_at || new Date('2025-12-31')
+    ]);
 
     const insertResult = await query(
       `INSERT INTO banners (
