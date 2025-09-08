@@ -73,7 +73,30 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const data = await req.json();
+    const contentType = req.headers.get('content-type') || '';
+    console.log('Content-Type:', contentType);
+    
+    let data: any;
+    
+    if (contentType.includes('multipart/form-data')) {
+      // Handle file upload
+      const formData = await req.formData();
+      data = {};
+      
+      for (const [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          console.log(`File field ${key}:`, value.name, value.size, value.type);
+          // For now, just log the file - you'll need to implement GCS upload here
+          data[key] = `file:${value.name}`;
+        } else {
+          data[key] = value;
+        }
+      }
+    } else {
+      // Handle JSON
+      data = await req.json();
+    }
+    
     console.log('Received data:', JSON.stringify(data, null, 2));
 
     if (!data.title || !data.image_url) {
