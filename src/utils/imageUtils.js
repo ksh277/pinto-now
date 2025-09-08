@@ -114,12 +114,15 @@ export async function removeImageBackground(imageSrc, originalFile = null) {
           return result.imageData;
         }
       } catch (serverError) {
-        console.warn('Server API failed, falling back to client-side:', serverError);
+        console.warn('Server API failed:', serverError);
+        throw new Error('Remove.bg API 처리 실패. API 키를 확인해주세요.');
       }
     }
     
-    // 2. 클라이언트 사이드 처리로 폴백
-    return await clientSideBackgroundRemoval(imageSrc);
+    // 2. 클라이언트 사이드 처리로 폴백 (주석 처리됨)
+    // return await clientSideBackgroundRemoval(imageSrc);
+    
+    throw new Error('배경 제거할 이미지를 찾을 수 없습니다.');
     
   } catch (error) {
     console.error('Background removal failed:', error);
