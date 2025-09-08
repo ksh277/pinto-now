@@ -19,9 +19,14 @@ export function TopBanner() {
   useEffect(() => {
     async function loadBanners() {
       try {
+        console.log('TopBanner: Loading banners...');
         const data = await fetchBannersByType(BannerType.TOP_BANNER);
+        console.log('TopBanner: Received data:', data);
         if (data.length > 0) {
           setBanners(data);
+          console.log('TopBanner: Banners set:', data.length);
+        } else {
+          console.log('TopBanner: No banners found');
         }
       } catch (error) {
         console.error('Failed to load top banners:', error);
@@ -41,6 +46,20 @@ export function TopBanner() {
       clearInterval(autoplay);
     };
   }, [api]);
+
+  console.log('TopBanner: Rendering with banners count:', banners.length);
+
+  // 배너가 없을 때 기본 메시지 표시
+  if (banners.length === 0) {
+    return (
+      <div className="relative w-full h-[970px] overflow-hidden bg-gray-200 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-500 text-xl">배너를 불러오는 중...</p>
+          <p className="text-gray-400 text-sm mt-2">Loading banners...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full h-[970px] overflow-hidden">
