@@ -65,14 +65,19 @@ export async function fetchBanners(options?: {
     if (options?.deviceType) params.append('device_type', options.deviceType);
 
     const url = `/api/banners${params.toString() ? '?' + params.toString() : ''}`;
+    console.log('Fetching banners from:', url);
     const res = await fetch(url, { cache: 'no-store' });
     
+    console.log('Banner fetch response status:', res.status);
+    
     if (!res.ok) {
-      console.error('Failed to fetch banners:', res.status);
+      console.error('Failed to fetch banners:', res.status, res.statusText);
       return [];
     }
     
-    return await res.json();
+    const data = await res.json();
+    console.log('Banner fetch response data:', data);
+    return data;
   } catch (error) {
     console.error('Error fetching banners:', error);
     return [];
