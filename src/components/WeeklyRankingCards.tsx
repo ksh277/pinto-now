@@ -124,10 +124,10 @@ export default function WeeklyRankingCards({
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-bold">주간 랭킹 - {getSellerTypeLabel(sellerType)}</h2>
         </div>
-        <div className="md:grid md:grid-cols-4 md:gap-6 flex md:block overflow-x-auto md:overflow-visible gap-4 md:gap-0 pb-4 md:pb-0 scrollbar-hide px-4 md:px-0">
+        <div className="md:grid md:grid-cols-[repeat(auto-fit,minmax(350px,1fr))] md:gap-4 flex md:block overflow-x-auto md:overflow-visible gap-4 md:gap-0 pb-4 md:pb-0 scrollbar-hide px-4 md:px-0">
           {Array.from({ length: limit }).map((_, index) => (
             <div key={index} className="bg-white rounded-xl border p-3 md:p-4 animate-pulse w-[calc(100vw-3rem)] max-w-[300px] md:w-auto flex-shrink-0 md:flex-shrink">
-              <div className="w-full h-64 md:h-96 bg-gray-300 rounded-lg mb-3 md:mb-4"></div>
+              <div className="w-full h-64 md:h-80 bg-gray-300 rounded-lg mb-3 md:mb-4"></div>
               <div className="h-3 md:h-4 bg-gray-300 rounded mb-2"></div>
               <div className="h-2 md:h-3 bg-gray-300 rounded w-2/3 mb-1 md:mb-2"></div>
               <div className="h-2 md:h-3 bg-gray-300 rounded w-1/2"></div>
@@ -171,8 +171,8 @@ export default function WeeklyRankingCards({
         )}
       </div>
 
-      {/* Mobile: Horizontal scroll, Desktop: Grid */}
-      <div className="md:grid md:grid-cols-4 md:gap-6 flex md:block overflow-x-auto md:overflow-visible gap-4 md:gap-0 pb-4 md:pb-0 scrollbar-hide px-4 md:px-0">
+      {/* Mobile: Horizontal scroll, Desktop: Flex */}
+      <div className="md:grid md:grid-cols-[repeat(auto-fit,minmax(350px,1fr))] md:gap-4 flex md:block overflow-x-auto md:overflow-visible gap-4 md:gap-0 pb-4 md:pb-0 scrollbar-hide px-4 md:px-0">
         {rankings.map((product, index) => (
           <Link 
             key={product.product_id} 
@@ -180,14 +180,14 @@ export default function WeeklyRankingCards({
             onClick={() => handleProductClick(product.product_id)}
             className="block group"
           >
-            <div className="bg-white rounded-xl border-2 border-gray-100 p-3 md:p-5 hover:shadow-xl hover:border-blue-200 transition-all duration-300 relative w-[calc(100vw-3rem)] max-w-[300px] md:w-auto flex-shrink-0 md:flex-shrink">
+            <div className="bg-white rounded-xl border-2 border-gray-100 p-3 md:p-4 hover:shadow-xl hover:border-blue-200 transition-all duration-300 relative w-[calc(100vw-3rem)] max-w-[350px] md:w-auto flex-shrink-0 md:flex-shrink flex md:block gap-4 md:gap-0">
               {showRankNumbers && (
-                <div className={`absolute -top-2 -left-2 px-2 py-1 md:px-3 md:py-1 rounded-full flex items-center justify-center text-xs font-bold ${getRankBadgeColor(index + 1)} transform rotate-3`}>
+                <div className={`absolute -top-2 -left-2 px-2 py-1 md:px-3 md:py-1 rounded-full flex items-center justify-center text-xs font-bold ${getRankBadgeColor(index + 1)} transform rotate-3 z-10`}>
                   {getRankLabel(index + 1)}
                 </div>
               )}
 
-              <div className="relative w-full h-64 md:h-96 mb-3 md:mb-4 overflow-hidden rounded-xl bg-gray-100 shadow-md">
+              <div className="relative w-24 h-24 md:w-full md:h-80 flex-shrink-0 md:mb-3 overflow-hidden rounded-xl bg-gray-100 shadow-md">
                 {product.product_image ? (
                   <Image
                     src={product.product_image}

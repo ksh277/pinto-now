@@ -16,8 +16,7 @@ const copy = {
     { icon: '💼', title: '업무 효율', desc: '업무와 학습 효율을 높이는 기능성' }
   ],
   cta: {
-    primary: '문구 제작하기',
-    secondary: '대량 주문 문의'
+    primary: '문구 제작하기'
   },
   faq: [
     {
@@ -167,9 +166,6 @@ export default function StationeryGoodsPage() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700">
                     {copy.cta.primary}
-                  </Button>
-                  <Button variant="outline" size="lg">
-                    {copy.cta.secondary}
                   </Button>
                 </div>
               </div>

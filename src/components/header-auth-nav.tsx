@@ -44,7 +44,7 @@ export function HeaderAuthNav({ onMenuClose }: HeaderAuthNavProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-auto p-0 text-xs hover:bg-transparent">
-                {user.nickname}님
+                {user.nickname || (user.isAdmin && user.username === 'ha1045' ? '관리자' : user.username || '사용자')}님
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
