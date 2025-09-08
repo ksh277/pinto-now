@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { query } from '@/lib/mysql';
 
 export async function GET(req: Request) {
   try {
@@ -11,31 +11,41 @@ export async function GET(req: Request) {
     const bannerType = searchParams.get('banner_type');
     const deviceType = searchParams.get('device_type');
 
-
-    let whereClause: any = includeInactive ? {} : { is_active: true };
+    // Build SQL query
+    let sql = 'SELECT * FROM banners';
+    let params: any[] = [];
+    let conditions: string[] = [];
+    
+    if (!includeInactive) {
+      conditions.push('is_active = ?');
+      params.push(true);
+    }
     
     if (bannerType) {
-      whereClause.banner_type = bannerType;
+      conditions.push('banner_type = ?');
+      params.push(bannerType);
     }
     
     if (deviceType) {
-      whereClause.OR = [
-        { device_type: deviceType },
-        { device_type: 'all' }
-      ];
+      conditions.push('(device_type = ? OR device_type = ?)');
+      params.push(deviceType, 'all');
     }
+    
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    if (sortBy === 'sort_order') {
+      sql += ` ORDER BY sort_order ${sortOrder.toUpperCase()}, created_at DESC`;
+    } else {
+      sql += ` ORDER BY ${sortBy} ${sortOrder.toUpperCase()}`;
+    }
+    
+    sql += ` LIMIT ${Math.min(limit, 100)}`;
+    
+    const items = await query(sql, params);
 
-    const orderByClause = sortBy === 'sort_order' 
-      ? { sort_order: sortOrder as 'asc' | 'desc', created_at: 'desc' as const }
-      : { [sortBy]: sortOrder as 'asc' | 'desc' };
-
-    const items = await prisma.banners.findMany({
-      where: whereClause,
-      orderBy: orderByClause,
-      take: Math.min(limit, 100),
-    });
-
-    const transformedItems = items.map((item: any) => ({
+    const transformedItems = (items as any[]).map((item: any) => ({
       id: item.id.toString(),
       href: item.href || '#',
       imgSrc: item.image_url,
@@ -48,10 +58,10 @@ export async function GET(req: Request) {
       deviceType: item.device_type,
       isActive: item.is_active,
       sortOrder: item.sort_order,
-      startAt: item.start_at?.toISOString(),
-      endAt: item.end_at?.toISOString(),
-      createdAt: item.created_at?.toISOString(),
-      updatedAt: item.updated_at?.toISOString(),
+      startAt: item.start_at ? new Date(item.start_at).toISOString() : null,
+      endAt: item.end_at ? new Date(item.end_at).toISOString() : null,
+      createdAt: item.created_at ? new Date(item.created_at).toISOString() : null,
+      updatedAt: item.updated_at ? new Date(item.updated_at).toISOString() : null,
     }));
 
     return NextResponse.json(transformedItems, { status: 200 });
@@ -78,12 +88,11 @@ export async function POST(req: Request) {
     const isActive = data.is_active !== undefined ? Boolean(data.is_active) : true;
 
     // 배너 타입별 제한 확인
-    const existingCount = await prisma.banners.count({
-      where: { 
-        banner_type: bannerType,
-        is_active: true 
-      } as any
-    });
+    const countResult = await query(
+      'SELECT COUNT(*) as count FROM banners WHERE banner_type = ? AND is_active = ?',
+      [bannerType, true]
+    ) as any[];
+    const existingCount = countResult[0].count;
 
     const limits: { [key: string]: number } = {
       'TOP_BANNER': 8,
@@ -100,7 +109,30 @@ export async function POST(req: Request) {
       );
     }
 
-    const createData: any = {
+    const insertResult = await query(
+      `INSERT INTO banners 
+       (title, image_url, href, main_title, sub_title, more_button_link, banner_type, device_type, is_active, sort_order, start_at, end_at, created_at, updated_at) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        data.title.trim(),
+        data.image_url.trim(),
+        data.href?.trim() || '',
+        data.main_title?.trim() || '',
+        data.sub_title?.trim() || '',
+        data.more_button_link?.trim() || '',
+        bannerType,
+        deviceType,
+        isActive,
+        sortOrder,
+        data.start_at ? new Date(data.start_at).toISOString().slice(0, 19).replace('T', ' ') : new Date().toISOString().slice(0, 19).replace('T', ' '),
+        data.end_at ? new Date(data.end_at).toISOString().slice(0, 19).replace('T', ' ') : new Date('2025-12-31').toISOString().slice(0, 19).replace('T', ' '),
+        new Date().toISOString().slice(0, 19).replace('T', ' '),
+        new Date().toISOString().slice(0, 19).replace('T', ' ')
+      ]
+    ) as any;
+
+    const result = {
+      id: insertResult.insertId.toString(),
       title: data.title.trim(),
       image_url: data.image_url.trim(),
       href: data.href?.trim() || '',
@@ -111,17 +143,6 @@ export async function POST(req: Request) {
       device_type: deviceType,
       is_active: isActive,
       sort_order: sortOrder,
-      start_at: data.start_at ? new Date(data.start_at) : new Date(),
-      end_at: data.end_at ? new Date(data.end_at) : new Date('2025-12-31'),
-    };
-
-    const created = await prisma.banners.create({
-      data: createData,
-    });
-
-    const result = {
-      ...created,
-      id: created.id.toString(),
     };
 
     return NextResponse.json(result, { status: 201 });
@@ -134,12 +155,8 @@ export async function POST(req: Request) {
       stack: e.stack
     });
     
-    if (e.code === 'P2002') {
+    if (e.code === 'ER_DUP_ENTRY') {
       return NextResponse.json({ error: 'Duplicate entry' }, { status: 409 });
-    }
-    
-    if (e.name === 'ValidationError') {
-      return NextResponse.json({ error: 'Invalid data format' }, { status: 400 });
     }
     
     return NextResponse.json({ 

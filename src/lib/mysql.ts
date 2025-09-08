@@ -18,15 +18,13 @@ function parseDatabaseUrl(url: string) {
       user: m[1],
       password: m[2],
       database: m[5],
-      acquireTimeout: 60000,
-      timeout: 60000,
-      reconnect: true,
+      connectTimeout: 60000,
       connectionLimit: 10,
     };
     
-    // Google Cloud SQL의 경우 SSL이 필요하지 않을 수 있음
-    if (m[3].includes('planetscale')) {
-      config.ssl = { rejectUnauthorized: true };
+    // Google Cloud SQL의 경우 SSL 필수
+    if (process.env.NODE_ENV === 'production' || m[3].includes('planetscale') || m[3].includes('cloud') || !m[3].includes('localhost')) {
+      config.ssl = { rejectUnauthorized: false };
     }
     
     return config;
