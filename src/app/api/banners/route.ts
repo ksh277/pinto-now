@@ -87,32 +87,24 @@ export async function POST(req: Request) {
     const sortOrder = data.sort_order !== undefined ? parseInt(data.sort_order) : 0;
     const isActive = data.is_active !== undefined ? Boolean(data.is_active) : true;
 
-    // 테이블 생성 확인
-    await query(`CREATE TABLE IF NOT EXISTS banners (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      title VARCHAR(255) NOT NULL,
-      image_url TEXT NOT NULL,
-      href TEXT,
-      main_title VARCHAR(255),
-      sub_title VARCHAR(255),
-      more_button_link TEXT,
-      banner_type VARCHAR(50) DEFAULT 'IMAGE_BANNER',
-      device_type VARCHAR(20) DEFAULT 'all',
-      is_active BOOLEAN DEFAULT true,
-      sort_order INT DEFAULT 0,
-      start_at DATETIME,
-      end_at DATETIME,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-    )`);
-
     const insertResult = await query(
-      `INSERT INTO banners (title, image_url, start_at, end_at) VALUES (?, ?, ?, ?)`,
+      `INSERT INTO banners (
+        title, image_url, href, main_title, sub_title, more_button_link, 
+        banner_type, device_type, is_active, sort_order, start_at, end_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.title.trim(),
         data.image_url.trim(),
-        new Date(),
-        new Date('2025-12-31')
+        data.href?.trim() || '#',
+        data.main_title?.trim() || '',
+        data.sub_title?.trim() || '',
+        data.more_button_link?.trim() || '',
+        bannerType,
+        deviceType,
+        isActive,
+        sortOrder,
+        data.start_at || new Date(),
+        data.end_at || new Date('2025-12-31')
       ]
     ) as any;
 
