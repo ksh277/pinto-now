@@ -1,6 +1,11 @@
 module.exports = {
   images: {
-    domains: ['via.placeholder.com', 'placehold.co'],
+    domains: [
+      'via.placeholder.com', 
+      'placehold.co', 
+      'images.unsplash.com',
+      'storage.googleapis.com'
+    ],
     remotePatterns: [
       {
         protocol: 'https',
@@ -9,6 +14,14 @@ module.exports = {
       {
         protocol: 'https', 
         hostname: 'via.placeholder.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'storage.googleapis.com',
       },
     ],
   },
