@@ -28,7 +28,7 @@ export type Banner = {
 };
 
 export const BANNER_LIMITS = {
-  [BannerType.TOP_BANNER]: 1,
+  [BannerType.TOP_BANNER]: 8,
   [BannerType.STRIP_BANNER]: 1,
   [BannerType.HOME_SLIDER_PC]: 2,
   [BannerType.HOME_SLIDER_MOBILE]: 1,

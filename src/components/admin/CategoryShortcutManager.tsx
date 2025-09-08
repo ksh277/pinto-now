@@ -214,8 +214,8 @@ export default function CategoryShortcutManager() {
               
               {/* 이미지 미리보기 */}
               <div className="flex flex-col items-center justify-center">
-                <Label className="mb-2">미리보기 (160x160)</Label>
-                <div className="relative w-32 h-32 rounded-full bg-white border-2 border-gray-200 overflow-hidden" style={{ width: '120px', height: '120px' }}>
+                <Label className="mb-2">미리보기 (80x80)</Label>
+                <div className="relative rounded-full bg-white border-2 border-gray-200 overflow-hidden" style={{ width: '80px', height: '80px' }}>
                   {formData.image_url ? (
                     <Image
                       src={formData.image_url}

@@ -20,6 +20,9 @@ export function BannerAdmin() {
   const [banners, setBanners] = useState<BannerItem[]>([]);
   const [image, setImage] = useState<File | null>(null);
   const [title, setTitle] = useState('');
+  const [mainTitle, setMainTitle] = useState('');
+  const [subTitle, setSubTitle] = useState('');
+  const [moreButtonLink, setMoreButtonLink] = useState('');
   const [href, setHref] = useState('');
   const [bannerType, setBannerType] = useState<BannerType>(BannerType.IMAGE_BANNER);
   const [deviceType, setDeviceType] = useState<DeviceType>('all');
@@ -64,6 +67,9 @@ export function BannerAdmin() {
             imgSrc: e.target?.result as string, 
             alt: title.trim(),
             href: href.trim() || undefined,
+            mainTitle: mainTitle.trim() || undefined,
+            subTitle: subTitle.trim() || undefined,
+            moreButtonLink: moreButtonLink.trim() || undefined,
             bannerType,
             deviceType,
             startAt: startDate ? new Date(startDate) : undefined,
@@ -76,6 +82,9 @@ export function BannerAdmin() {
           // 폼 초기화
           setImage(null);
           setTitle('');
+          setMainTitle('');
+          setSubTitle('');
+          setMoreButtonLink('');
           setHref('');
           setBannerType(BannerType.IMAGE_BANNER);
           setDeviceType('all');
@@ -197,6 +206,50 @@ export function BannerAdmin() {
               />
             </div>
           </div>
+
+          {/* TOP_BANNER 전용 필드 */}
+          {bannerType === BannerType.TOP_BANNER && (
+            <div style={{ 
+              background: '#f0f8ff', 
+              padding: 16, 
+              borderRadius: 8, 
+              border: '1px solid #b3d9ff' 
+            }}>
+              <h4 style={{ margin: '0 0 12px 0', color: '#0066cc', fontSize: 14 }}>TOP 배너 전용 설정</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>대제목</label>
+                  <input
+                    type="text"
+                    placeholder="메인 타이틀을 입력하세요"
+                    value={mainTitle}
+                    onChange={(e) => setMainTitle(e.target.value)}
+                    style={{ width: '100%', padding: 12, borderRadius: 6, border: '1px solid #dee2e6' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>소제목</label>
+                  <input
+                    type="text"
+                    placeholder="서브 타이틀을 입력하세요"
+                    value={subTitle}
+                    onChange={(e) => setSubTitle(e.target.value)}
+                    style={{ width: '100%', padding: 12, borderRadius: 6, border: '1px solid #dee2e6' }}
+                  />
+                </div>
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>MORE 버튼 링크</label>
+                <input
+                  type="text"
+                  placeholder="MORE 버튼 클릭 시 이동할 URL"
+                  value={moreButtonLink}
+                  onChange={(e) => setMoreButtonLink(e.target.value)}
+                  style={{ width: '100%', padding: 12, borderRadius: 6, border: '1px solid #dee2e6' }}
+                />
+              </div>
+            </div>
+          )}
 
           {/* 배너 타입 및 디바이스 */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
