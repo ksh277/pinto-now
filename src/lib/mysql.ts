@@ -18,14 +18,11 @@ function parseDatabaseUrl(url: string) {
       user: m[1],
       password: m[2],
       database: m[5],
-      connectTimeout: 60000,
       connectionLimit: 10,
+      ssl: {
+        rejectUnauthorized: false
+      }
     };
-    
-    // Google Cloud SQL의 경우 SSL 필수
-    if (process.env.NODE_ENV === 'production' || m[3].includes('planetscale') || m[3].includes('cloud') || !m[3].includes('localhost')) {
-      config.ssl = { rejectUnauthorized: false };
-    }
     
     return config;
   } catch (e) {
@@ -45,11 +42,6 @@ function getConfig(): PoolOptions {
     password: process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD || '',
     database: process.env.MYSQL_DB || process.env.DB_NAME || 'pinto',
   };
-  
-  // 로컬 개발환경에서는 SSL 비활성화
-  if (config.host === 'localhost' || config.host === '127.0.0.1') {
-    // SSL 설정 제거 (로컬에서는 사용하지 않음)
-  }
   
   return config;
 }
