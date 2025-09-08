@@ -10,10 +10,11 @@ import Image from 'next/image';
 
 interface CategoryShortcut {
   id: string;
-  label: string;
-  imgSrc: string;
+  title: string;
+  image_url: string;
   href: string;
-  sortOrder?: number;
+  sort_order: number;
+  is_active: boolean;
 }
 
 interface CategoryForm {
@@ -128,8 +129,8 @@ export default function CategoryShortcutManager() {
   const startEdit = (category: CategoryShortcut) => {
     setEditingId(category.id);
     setFormData({
-      title: category.label,
-      image_url: category.imgSrc,
+      title: category.title,
+      image_url: category.image_url,
       href: category.href
     });
     setShowAddForm(true);
@@ -213,8 +214,8 @@ export default function CategoryShortcutManager() {
               
               {/* 이미지 미리보기 */}
               <div className="flex flex-col items-center justify-center">
-                <Label className="mb-2">미리보기</Label>
-                <div className="relative w-20 h-20 rounded-full bg-white border-2 border-gray-200 overflow-hidden">
+                <Label className="mb-2">미리보기 (160x160)</Label>
+                <div className="relative w-32 h-32 rounded-full bg-white border-2 border-gray-200 overflow-hidden" style={{ width: '120px', height: '120px' }}>
                   {formData.image_url ? (
                     <Image
                       src={formData.image_url}
@@ -245,15 +246,15 @@ export default function CategoryShortcutManager() {
               <div className="flex flex-col items-center space-y-3">
                 <div className="relative w-16 h-16 rounded-full bg-white border overflow-hidden">
                   <Image
-                    src={category.imgSrc}
-                    alt={category.label}
+                    src={category.image_url}
+                    alt={category.title}
                     fill
                     className="object-cover"
                   />
                 </div>
                 
                 <div className="text-center">
-                  <h3 className="font-medium text-sm">{category.label}</h3>
+                  <h3 className="font-medium text-sm">{category.title}</h3>
                   <p className="text-xs text-gray-500 mt-1">{category.href}</p>
                 </div>
                 

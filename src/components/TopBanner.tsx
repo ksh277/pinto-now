@@ -4,56 +4,32 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { CarouselApi } from '@/components/ui/carousel';
-import { fetchBanners, type Banner as HeroBanner } from '@/lib/banner';
+import { fetchBannersByType, BannerType, type Banner as HeroBanner } from '@/lib/banner';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
 } from '@/components/ui/carousel';
 
-function chunk<T>(arr: T[], size: number): T[][] {
-  const res: T[][] = [];
-  for (let i = 0; i < arr.length; i += size) {
-    res.push(arr.slice(i, i + size));
-  }
-  return res;
-}
 export function TopBanner() {
   const [api, setApi] = useState<CarouselApi>();
-  const [, setCurrent] = useState(0);
+  const [current, setCurrent] = useState(0);
   const [banners, setBanners] = useState<HeroBanner[]>([]);
 
   useEffect(() => {
-    // DB에서 배너를 가져오지 말고 직접 로컬 이미지 사용
-    setBanners([
-      {
-        id: 'banner1',
-        href: '/',
-        imgSrc: '/images/sample-banner1.svg',
-        alt: 'PINTO 배너 1',
-      },
-      {
-        id: 'banner2', 
-        href: '/akril-goods',
-        imgSrc: '/images/sample-banner2.svg',
-        alt: 'PINTO 배너 2',
-      },
-      {
-        id: 'banner3',
-        href: '/guide/order',
-        imgSrc: '/images/sample-banner3.svg',
-        alt: 'PINTO 배너 3',
-      },
-      {
-        id: 'banner4',
-        href: '/reviews',
-        imgSrc: '/images/sample-banner4.svg',
-        alt: 'PINTO 배너 4',
-      },
-    ]);
+    async function loadBanners() {
+      try {
+        const data = await fetchBannersByType(BannerType.TOP_BANNER);
+        if (data.length > 0) {
+          setBanners(data);
+        }
+      } catch (error) {
+        console.error('Failed to load top banners:', error);
+      }
+    }
+    
+    loadBanners();
   }, []);
-
-  const slides = chunk(banners, 2);
 
   useEffect(() => {
     if (!api) return;
@@ -67,32 +43,90 @@ export function TopBanner() {
   }, [api]);
 
   return (
-    <div className="relative">
-      <Carousel opts={{ loop: true }} setApi={setApi} className="w-full">
-        <CarouselContent>
-          {slides.map((group, idx) => (
-            <CarouselItem key={idx}>
-              <div className="grid grid-cols-1 md:grid-cols-2">
-                {group.map((b) => (
-                  <Link
-                    key={b.id}
-                    href={b.href}
-                    className="relative block w-full aspect-[4/3] overflow-hidden"
-                  >
-                    <Image
-                      src={b.imgSrc}
-                      alt={b.alt}
-                      fill
-                      sizes="(max-width:768px) 100vw, 50vw"
-                      className="object-cover"
-                    />
-                  </Link>
-                ))}
-              </div>
+    <div className="relative w-full h-[970px] overflow-hidden">
+      <Carousel opts={{ loop: true }} setApi={setApi} className="w-full h-full">
+        <CarouselContent className="h-full">
+          {banners.map((banner) => (
+            <CarouselItem key={banner.id} className="h-full">
+              <Link href={banner.href} className="relative block w-full h-full">
+                {/* 배경 이미지 - 화면 전체 꽉 참 */}
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    backgroundImage: `url('${banner.imgSrc}')`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    width: '100%',
+                    height: '100%', // 화면 전체 높이
+                    top: '0', // 여백 없음
+                  }}
+                />
+                
+                {/* 어두운 오버레이 */}
+                <div className="absolute inset-0 bg-black/20"></div>
+                
+                {/* 텍스트 콘텐츠 */}
+                <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4 z-10">
+                  {banner.mainTitle && (
+                    <h1 
+                      className="text-2xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight max-w-5xl"
+                      style={{ 
+                        fontFamily: "'Poppins', 'Noto Sans KR', sans-serif",
+                        textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
+                      }}
+                    >
+                      {banner.mainTitle}
+                    </h1>
+                  )}
+                  
+                  {banner.subTitle && (
+                    <p 
+                      className="text-lg md:text-2xl lg:text-3xl text-white/95 mb-8 max-w-4xl leading-relaxed"
+                      style={{ 
+                        fontFamily: "'Poppins', 'Noto Sans KR', sans-serif",
+                        textShadow: '1px 1px 3px rgba(0,0,0,0.7)'
+                      }}
+                    >
+                      {banner.subTitle}
+                    </p>
+                  )}
+                  
+                  {banner.moreButtonLink && (
+                    <Link
+                      href={banner.moreButtonLink}
+                      className="inline-flex items-center justify-center px-8 py-3 text-base font-medium text-white bg-black/30 hover:bg-black/50 rounded-full border border-white/30 hover:border-white/50 transition-all duration-300 backdrop-blur-sm"
+                      style={{ 
+                        fontFamily: "'Poppins', 'Noto Sans KR', sans-serif",
+                        textShadow: '1px 1px 2px rgba(0,0,0,0.5)'
+                      }}
+                    >
+                      MORE
+                    </Link>
+                  )}
+                </div>
+              </Link>
             </CarouselItem>
           ))}
         </CarouselContent>
       </Carousel>
+      
+      {/* 슬라이드 인디케이터 */}
+      {banners.length > 1 && (
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3 z-20">
+          {banners.map((_, index) => (
+            <button
+              key={index}
+              className={`w-4 h-4 rounded-full transition-all duration-300 ${
+                index === current 
+                  ? 'bg-white scale-110' 
+                  : 'bg-white/50 hover:bg-white/70'
+              }`}
+              onClick={() => api?.scrollTo(index)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

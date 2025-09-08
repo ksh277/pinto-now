@@ -11,7 +11,7 @@ export async function GET(req: Request) {
     const bannerType = searchParams.get('banner_type');
     const deviceType = searchParams.get('device_type');
 
-    const whereClause: any = includeInactive ? {} : { is_active: true };
+    let whereClause: any = includeInactive ? {} : { is_active: true };
     
     if (bannerType) {
       whereClause.banner_type = bannerType;
@@ -25,8 +25,8 @@ export async function GET(req: Request) {
     }
 
     const orderByClause = sortBy === 'sort_order' 
-      ? { sort_order: sortOrder, created_at: 'desc' }
-      : { [sortBy]: sortOrder };
+      ? { sort_order: sortOrder as 'asc' | 'desc', created_at: 'desc' as const }
+      : { [sortBy]: sortOrder as 'asc' | 'desc' };
 
     const items = await prisma.banners.findMany({
       where: whereClause,
@@ -40,6 +40,9 @@ export async function GET(req: Request) {
       imgSrc: item.image_url,
       alt: item.title,
       title: item.title,
+      mainTitle: item.main_title,
+      subTitle: item.sub_title,
+      moreButtonLink: item.more_button_link,
       bannerType: item.banner_type,
       deviceType: item.device_type,
       isActive: item.is_active,
@@ -73,16 +76,16 @@ export async function POST(req: Request) {
     const sortOrder = data.sort_order !== undefined ? parseInt(data.sort_order) : 0;
     const isActive = data.is_active !== undefined ? Boolean(data.is_active) : true;
 
-    // 배너 타입별 제한 확인 (여기서는 간단히 처리, 실제로는 더 정교한 로직 필요)
+    // 배너 타입별 제한 확인
     const existingCount = await prisma.banners.count({
       where: { 
         banner_type: bannerType,
         is_active: true 
-      }
+      } as any
     });
 
     const limits: { [key: string]: number } = {
-      'TOP_BANNER': 1,
+      'TOP_BANNER': 8,
       'STRIP_BANNER': 1,
       'HOME_SLIDER_PC': 2,
       'HOME_SLIDER_MOBILE': 1,
@@ -96,18 +99,23 @@ export async function POST(req: Request) {
       );
     }
 
+    const createData: any = {
+      title: data.title.trim(),
+      image_url: data.image_url.trim(),
+      href: data.href?.trim() || null,
+      main_title: data.main_title?.trim() || null,
+      sub_title: data.sub_title?.trim() || null,
+      more_button_link: data.more_button_link?.trim() || null,
+      banner_type: bannerType,
+      device_type: deviceType,
+      is_active: isActive,
+      sort_order: sortOrder,
+      start_at: data.start_at ? new Date(data.start_at) : new Date(),
+      end_at: data.end_at ? new Date(data.end_at) : new Date('2025-12-31'),
+    };
+
     const created = await prisma.banners.create({
-      data: {
-        title: data.title.trim(),
-        image_url: data.image_url.trim(),
-        href: data.href?.trim() || null,
-        banner_type: bannerType,
-        device_type: deviceType,
-        is_active: isActive,
-        sort_order: sortOrder,
-        start_at: data.start_at ? new Date(data.start_at) : new Date(),
-        end_at: data.end_at ? new Date(data.end_at) : new Date('2025-12-31'),
-      },
+      data: createData,
     });
 
     const result = {

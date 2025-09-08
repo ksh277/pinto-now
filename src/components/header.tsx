@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/language-context';
 import { useRouter } from 'next/navigation';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -28,6 +29,7 @@ export function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
   const { isAuthenticated } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
 
   const handleCategoryHover = (cat: string) => {
@@ -179,16 +181,16 @@ export function Header() {
   <div className={`sticky top-0 z-40 hidden md:flex h-14 items-center w-full justify-between bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60 ${scrolled ? 'shadow-sm' : ''}`}>
           <ul className="flex items-center gap-12 ml-16 list-none">
             {[
-              { id: 'all', label: 'ALL' },
-              { id: 'acrylic', label: '아크릴', href: '/acrylic' },
-              { id: 'paper', label: '지류', href: '/paper-goods' },
-              { id: 'sticker', label: '스티커', href: '/sticker-goods' },
-              { id: 'clothing', label: '의류', href: '/clothing-goods' },
-              { id: 'frame', label: '액자', href: '/frame-goods' },
-              { id: 'stationery', label: '문구/오피스', href: '/stationery-goods' },
-              { id: 'ipgoods', label: 'IP굿즈 상품개발', href: '/ip-goods-dev' },
-              { id: 'kit', label: '기업/웰컴 키트', href: '/brand-request' },
-              { id: 'group', label: '단체 판촉', href: '/promo-product-view' },
+              { id: 'all', label: t('nav.all') },
+              { id: 'acrylic', label: t('nav.acrylic'), href: '/acrylic' },
+              { id: 'paper', label: t('nav.paper'), href: '/paper-goods' },
+              { id: 'sticker', label: t('nav.sticker'), href: '/sticker-goods' },
+              { id: 'clothing', label: t('nav.clothing'), href: '/clothing-goods' },
+              { id: 'frame', label: t('nav.frame'), href: '/frame-goods' },
+              { id: 'stationery', label: t('nav.stationery'), href: '/stationery-goods' },
+              { id: 'ipgoods', label: t('nav.ipgoods'), href: '/ip-goods-dev' },
+              { id: 'kit', label: t('nav.kit'), href: '/brand-request' },
+              { id: 'group', label: t('nav.group'), href: '/promo-product-view' },
             ].map((item, index) => (
               <li key={index}>
                 <button
@@ -214,7 +216,7 @@ export function Header() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={handleSearchKeyPress}
-                placeholder="2,000여개의 커스텀 상품을 쉽게 찾아 보세요."
+                placeholder={t('header.search.placeholder')}
                 className="w-full rounded-full border-2 border-primary bg-background py-2 pl-10 pr-4 text-base"
               />
             </form>

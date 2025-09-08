@@ -41,6 +41,9 @@ export async function PUT(req: Request, { params }: Params) {
     if (data.title !== undefined) updateData.title = data.title;
     if (data.image_url !== undefined) updateData.image_url = data.image_url;
     if (data.href !== undefined) updateData.href = data.href;
+    if (data.main_title !== undefined) updateData.main_title = data.main_title;
+    if (data.sub_title !== undefined) updateData.sub_title = data.sub_title;
+    if (data.more_button_link !== undefined) updateData.more_button_link = data.more_button_link;
     if (data.banner_type !== undefined) updateData.banner_type = data.banner_type;
     if (data.device_type !== undefined) updateData.device_type = data.device_type;
     if (data.is_active !== undefined) updateData.is_active = Boolean(data.is_active);

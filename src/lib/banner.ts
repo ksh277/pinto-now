@@ -14,6 +14,9 @@ export type Banner = {
   imgSrc: string;
   alt: string;
   title?: string;
+  mainTitle?: string;  // 대제목
+  subTitle?: string;   // 소제목
+  moreButtonLink?: string; // More 버튼 링크
   bannerType?: BannerType;
   deviceType?: DeviceType;
   isActive?: boolean;
@@ -100,6 +103,9 @@ export async function addBanner(data: {
   imgSrc: string; 
   alt: string; 
   href?: string;
+  mainTitle?: string;
+  subTitle?: string;
+  moreButtonLink?: string;
   bannerType?: BannerType;
   deviceType?: DeviceType;
   isActive?: boolean;
@@ -123,6 +129,9 @@ export async function addBanner(data: {
         title: data.alt,
         image_url: data.imgSrc,
         href: data.href,
+        main_title: data.mainTitle,
+        sub_title: data.subTitle,
+        more_button_link: data.moreButtonLink,
         banner_type: data.bannerType || BannerType.IMAGE_BANNER,
         device_type: data.deviceType || 'all',
         is_active: data.isActive,
@@ -166,6 +175,9 @@ export async function updateBanner(id: string, data: {
   imgSrc?: string; 
   alt?: string; 
   href?: string;
+  mainTitle?: string;
+  subTitle?: string;
+  moreButtonLink?: string;
   bannerType?: BannerType;
   deviceType?: DeviceType;
   isActive?: boolean;
@@ -179,6 +191,9 @@ export async function updateBanner(id: string, data: {
     if (data.alt !== undefined) updateData.title = data.alt;
     if (data.imgSrc !== undefined) updateData.image_url = data.imgSrc;
     if (data.href !== undefined) updateData.href = data.href;
+    if (data.mainTitle !== undefined) updateData.main_title = data.mainTitle;
+    if (data.subTitle !== undefined) updateData.sub_title = data.subTitle;
+    if (data.moreButtonLink !== undefined) updateData.more_button_link = data.moreButtonLink;
     if (data.bannerType !== undefined) updateData.banner_type = data.bannerType;
     if (data.deviceType !== undefined) updateData.device_type = data.deviceType;
     if (data.isActive !== undefined) updateData.is_active = data.isActive;

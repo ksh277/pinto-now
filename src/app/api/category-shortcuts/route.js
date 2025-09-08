@@ -14,30 +14,18 @@ export async function GET() {
 
     const transformedShortcuts = shortcuts.map(shortcut => ({
       id: shortcut.id.toString(),
+      title: shortcut.title,
+      image_url: shortcut.image_url,
       href: shortcut.href,
-      label: shortcut.title,
-      imgSrc: shortcut.image_url,
-      sortOrder: shortcut.sort_order
+      sort_order: shortcut.sort_order,
+      is_active: shortcut.is_active
     }));
 
     return NextResponse.json(transformedShortcuts);
     
   } catch (error) {
     console.error('Category shortcuts API error:', error);
-    
-    // 데이터베이스 오류 시 기본 데이터 반환
-    const fallbackShortcuts = [
-      { id: '1', href: '/category/1만원이하굿즈', label: '1만원 이하 굿즈', imgSrc: 'https://placehold.co/100x100/FFB6C1/333?text=💰' },
-      { id: '2', href: '/category/야구굿즈', label: '야구 굿즈', imgSrc: 'https://placehold.co/100x100/87CEEB/333?text=⚾' },
-      { id: '3', href: '/category/여행굿즈', label: '여행 굿즈', imgSrc: 'https://placehold.co/100x100/98FB98/333?text=✈️' },
-      { id: '4', href: '/category/팬굿즈', label: '팬 굿즈', imgSrc: 'https://placehold.co/100x100/DDA0DD/333?text=💜' },
-      { id: '5', href: '/category/폰꾸미기', label: '폰꾸미기', imgSrc: 'https://placehold.co/100x100/FFE4B5/333?text=📱' },
-      { id: '6', href: '/category/반려동물굿즈', label: '반려동물 굿즈', imgSrc: 'https://placehold.co/100x100/F0E68C/333?text=🐾' },
-      { id: '7', href: '/category/선물추천', label: '선물 추천', imgSrc: 'https://placehold.co/100x100/F5DEB3/333?text=🎁' },
-      { id: '8', href: '/category/커스텀아이디어', label: '커스텀 아이디어', imgSrc: 'https://placehold.co/100x100/E6E6FA/333?text=💡' }
-    ];
-    
-    return NextResponse.json(fallbackShortcuts);
+    return NextResponse.json([]);
   }
 }
 
@@ -90,10 +78,11 @@ export async function POST(request) {
 
     return NextResponse.json({
       id: created.id.toString(),
+      title: created.title,
+      image_url: created.image_url,
       href: created.href,
-      label: created.title,
-      imgSrc: created.image_url,
-      sortOrder: created.sort_order
+      sort_order: created.sort_order,
+      is_active: created.is_active
     }, { status: 201 });
 
   } catch (error) {
@@ -146,10 +135,11 @@ export async function PUT(request) {
 
     return NextResponse.json({
       id: updated.id.toString(),
+      title: updated.title,
+      image_url: updated.image_url,
       href: updated.href,
-      label: updated.title,
-      imgSrc: updated.image_url,
-      sortOrder: updated.sort_order
+      sort_order: updated.sort_order,
+      is_active: updated.is_active
     });
 
   } catch (error) {

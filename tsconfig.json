@@ -15,7 +15,7 @@
     "incremental": true,
 
     // ✅ paths 사용 시 필수
-    "baseUrl": ".",                // <- 추가하세요
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },

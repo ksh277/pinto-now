@@ -61,14 +61,17 @@ export default async function HomePage() {
 
   return (
     <StripBannerProvider>
-      <div className="flex flex-col bg-slate-50 dark:bg-slate-900 min-h-screen px-8 md:px-16">
-        {/* HERO */}
-        <section className="pt-8">
+      <div className="flex flex-col bg-slate-50 dark:bg-slate-900 min-h-screen">
+        {/* HERO - 전체 화면 꽉 참, 여백 없음 */}
+        <section className="">
           <TopBanner />
         </section>
+        
+        {/* 나머지 콘텐츠에만 패딩 적용 */}
+        <div className="px-8 md:px-16">
 
-        {/* SHORTCUTS */}
-        <section className="py-12 md:py-16">
+        {/* SHORTCUTS - 데스크톱만 표시, 모바일에서는 숨김 */}
+        <section className="hidden md:block py-12 md:py-16">
           <CategoryShortcuts />
         </section>
 
@@ -141,6 +144,7 @@ export default async function HomePage() {
           <div className="text-[13px] leading-5 text-slate-500">
             구매별 등급이 나눠져 있으며 구매등급에 따라 월 할인 프로모션, 포인트 지급 등이 제공됩니다.
           </div>
+        </div>
         </div>
       </div>
     </StripBannerProvider>

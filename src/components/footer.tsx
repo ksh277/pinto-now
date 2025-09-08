@@ -1,8 +1,14 @@
 
 'use client';
 import Link from 'next/link';
+import { useLanguage } from '@/contexts/language-context';
 
 export function Footer() {
+  const { language, setLanguage, t } = useLanguage();
+
+  const handleLanguageChange = (lang: 'ko' | 'en' | 'ja' | 'zh') => {
+    setLanguage(lang);
+  };
 
   return (
     <footer className="border-t bg-secondary/50">
@@ -19,42 +25,66 @@ export function Footer() {
             </div>
           </div>
           <div>
-            <h3 className="mb-4 font-bold text-foreground">고객센터</h3>
+            <h3 className="mb-4 font-bold text-foreground">{t('footer.support')}</h3>
             <ul className="space-y-2">
-              <li><Link href="/support/notice" className="hover:underline">공지사항</Link></li>
-              <li><Link href="/support/faq" className="hover:underline">자주 묻는 질문</Link></li>
-              <li><Link href="/mypage/inquiries" className="hover:underline">1:1 문의</Link></li>
-              <li><Link href="/support/guide" className="hover:underline">이용 가이드</Link></li>
+              <li><Link href="/support/notice" className="hover:underline">{t('footer.notice')}</Link></li>
+              <li><Link href="/support/faq" className="hover:underline">{t('footer.faq')}</Link></li>
+              <li><Link href="/mypage/inquiries" className="hover:underline">{t('footer.inquiry')}</Link></li>
+              <li><Link href="/support/guide" className="hover:underline">{t('footer.guide')}</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="mb-4 font-bold text-foreground">회사정보</h3>
+            <h3 className="mb-4 font-bold text-foreground">{t('footer.company')}</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="hover:underline">회사소개</a></li>
-              <li><a href="#" className="hover:underline">이용약관</a></li>
-              <li><a href="#" className="hover:underline">개인정보처리방침</a></li>
+              <li><a href="#" className="hover:underline">{t('footer.about')}</a></li>
+              <li><a href="#" className="hover:underline">{t('footer.terms')}</a></li>
+              <li><a href="#" className="hover:underline">{t('footer.privacy')}</a></li>
             </ul>
           </div>
           <div>
-      <h3 className="font-bold text-foreground mb-4">Follow Us</h3>
+      <h3 className="font-bold text-foreground mb-4">{t('footer.follow')}</h3>
       <ul className="space-y-2">
         <li><a href="#" className="hover:underline">Instagram</a></li>
         <li><a href="#" className="hover:underline">Facebook</a></li>
         <li><a href="#" className="hover:underline">Twitter</a></li>
       </ul>
       <div className="mt-6">
-        <h4 className="font-semibold mb-2">언어 설정</h4>
+        <h4 className="font-semibold mb-2">{t('footer.language')}</h4>
         <div className="flex gap-2">
-          <button type="button" className="px-3 py-1 rounded bg-background border hover:bg-primary/10" onClick={() => window.localStorage.setItem('locale', 'ko')}>한국어</button>
-          <button type="button" className="px-3 py-1 rounded bg-background border hover:bg-primary/10" onClick={() => window.localStorage.setItem('locale', 'en')}>English</button>
-          <button type="button" className="px-3 py-1 rounded bg-background border hover:bg-primary/10" onClick={() => window.localStorage.setItem('locale', 'ja')}>日本語</button>
-          <button type="button" className="px-3 py-1 rounded bg-background border hover:bg-primary/10" onClick={() => window.localStorage.setItem('locale', 'zh')}>中文</button>
+          <button 
+            type="button" 
+            className={`px-3 py-1 rounded border hover:bg-primary/10 ${language === 'ko' ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
+            onClick={() => handleLanguageChange('ko')}
+          >
+            한국어
+          </button>
+          <button 
+            type="button" 
+            className={`px-3 py-1 rounded border hover:bg-primary/10 ${language === 'en' ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
+            onClick={() => handleLanguageChange('en')}
+          >
+            English
+          </button>
+          <button 
+            type="button" 
+            className={`px-3 py-1 rounded border hover:bg-primary/10 ${language === 'ja' ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
+            onClick={() => handleLanguageChange('ja')}
+          >
+            日本語
+          </button>
+          <button 
+            type="button" 
+            className={`px-3 py-1 rounded border hover:bg-primary/10 ${language === 'zh' ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
+            onClick={() => handleLanguageChange('zh')}
+          >
+            中文
+          </button>
         </div>
       </div>
           </div>
         </div>
         <div className="mt-8 border-t pt-8 text-center">
-            <p>&copy; {new Date().getFullYear()} Pinto. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Pinto. {t('footer.copyright')}</p>
         </div>
       </div>
     </footer>
