@@ -126,6 +126,12 @@ export async function POST(req: Request) {
     return NextResponse.json(result, { status: 201 });
   } catch (e: any) {
     console.error('Banner POST Error:', e);
+    console.error('Error details:', {
+      code: e.code,
+      name: e.name,
+      message: e.message,
+      stack: e.stack
+    });
     
     if (e.code === 'P2002') {
       return NextResponse.json({ error: 'Duplicate entry' }, { status: 409 });
@@ -135,6 +141,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid data format' }, { status: 400 });
     }
     
-    return NextResponse.json({ error: 'Failed to create banner' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to create banner', 
+      details: e.message 
+    }, { status: 500 });
   }
 }

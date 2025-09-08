@@ -26,6 +26,7 @@ export function CategoryShortcuts() {
         }
       } catch (error) {
         console.error('Failed to fetch category shortcuts:', error);
+        setCategories([]); // 에러 시 빈 배열로 설정
       }
     }
 

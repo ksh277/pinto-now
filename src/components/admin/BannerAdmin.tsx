@@ -92,7 +92,8 @@ export function BannerAdmin() {
           setEndDate('');
           
         } catch (error: any) {
-          setError(error.message || '배너 등록에 실패했습니다.');
+          console.error('Banner creation error:', error);
+          setError('배너 등록 실패: ' + (error.message || '알 수 없는 오류'));
         } finally {
           setLoading(false);
         }
