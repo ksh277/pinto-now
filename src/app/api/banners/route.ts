@@ -88,10 +88,9 @@ export async function POST(req: Request) {
         if (value instanceof File) {
           console.log(`File field ${key}:`, value.name, value.size, value.type);
           
-          // Upload to Google Cloud Storage
+          // Upload to Google Cloud Storage with HMAC
           const storage = new Storage({
             projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
-            keyFilename: process.env.GOOGLE_CLOUD_KEY_FILE, // or use GOOGLE_APPLICATION_CREDENTIALS
           });
           
           const bucketName = process.env.GOOGLE_CLOUD_BUCKET_NAME || 'pinto-images';
