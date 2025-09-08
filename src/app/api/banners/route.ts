@@ -101,7 +101,7 @@ export async function POST(req: Request) {
         data.more_button_link?.trim() || '',
         bannerType,
         deviceType,
-        isActive,
+        isActive ? 1 : 0,
         sortOrder,
         data.start_at || new Date(),
         data.end_at || new Date('2025-12-31')
