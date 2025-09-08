@@ -11,6 +11,7 @@ export async function GET(req: Request) {
     const bannerType = searchParams.get('banner_type');
     const deviceType = searchParams.get('device_type');
 
+
     let whereClause: any = includeInactive ? {} : { is_active: true };
     
     if (bannerType) {
@@ -102,10 +103,10 @@ export async function POST(req: Request) {
     const createData: any = {
       title: data.title.trim(),
       image_url: data.image_url.trim(),
-      href: data.href?.trim() || null,
-      main_title: data.main_title?.trim() || null,
-      sub_title: data.sub_title?.trim() || null,
-      more_button_link: data.more_button_link?.trim() || null,
+      href: data.href?.trim() || '',
+      main_title: data.main_title?.trim() || '',
+      sub_title: data.sub_title?.trim() || '',
+      more_button_link: data.more_button_link?.trim() || '',
       banner_type: bannerType,
       device_type: deviceType,
       is_active: isActive,

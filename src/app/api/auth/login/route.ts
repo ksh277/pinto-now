@@ -26,9 +26,6 @@ export async function POST(req: NextRequest) {
             { email: username }
           ]
         },
-        include: {
-          user_profiles: true
-        }
       });
 
       if (!dbUser) {
@@ -61,7 +58,7 @@ export async function POST(req: NextRequest) {
         id: dbUser.id.toString(),
         username: dbUser.username || '',
         role,
-        nickname: dbUser.user_profiles?.nickname || undefined,
+        nickname: dbUser.nickname || undefined,
       };
 
       const maxAge = computeMaxAge(user, !!rememberMe);

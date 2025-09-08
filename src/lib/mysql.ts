@@ -18,13 +18,15 @@ function parseDatabaseUrl(url: string) {
       user: m[1],
       password: m[2],
       database: m[5],
+      acquireTimeout: 60000,
+      timeout: 60000,
+      reconnect: true,
+      connectionLimit: 10,
     };
     
-    // SSL 설정 추가
-    if (process.env.NODE_ENV === 'production' || m[3].includes('planetscale') || m[3].includes('cloud')) {
+    // Google Cloud SQL의 경우 SSL이 필요하지 않을 수 있음
+    if (m[3].includes('planetscale')) {
       config.ssl = { rejectUnauthorized: true };
-    } else {
-      config.ssl = false;
     }
     
     return config;
@@ -48,7 +50,7 @@ function getConfig(): PoolOptions {
   
   // 로컬 개발환경에서는 SSL 비활성화
   if (config.host === 'localhost' || config.host === '127.0.0.1') {
-    config.ssl = false;
+    // SSL 설정 제거 (로컬에서는 사용하지 않음)
   }
   
   return config;
