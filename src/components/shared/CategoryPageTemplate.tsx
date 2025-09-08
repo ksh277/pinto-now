@@ -65,56 +65,56 @@ export default function CategoryPageTemplate({
 }: CategoryPageTemplateProps) {
   const isServicePage = mapping.type === 'service';
   const isBoardPage = mapping.type === 'board';
+  const displayProducts = mapping.sampleProducts || products;
 
   return (
     <StripBannerProvider>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-
-        {/* Products Grid - Only for category pages */}
-        {!isServicePage && !isBoardPage && (
-          <section className="py-8">
-            <div className="max-w-7xl mx-auto px-6">
-              
-              <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4">
-                {products.slice(0, 8).map((product) => (
-                  <Card key={product.id} className="group overflow-hidden hover:shadow-lg transition-shadow">
-                    <div className="relative aspect-square overflow-hidden bg-gray-100">
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
-                      />
+        
+        {/* Products Grid */}
+        <section className="py-16">
+          <div className="max-w-7xl mx-auto px-6">
+            <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
+              {mapping.categoryKo}
+            </h2>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4">
+              {displayProducts.slice(0, 8).map((product) => (
+                <Card key={product.id} className="group overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="relative aspect-square overflow-hidden bg-gray-100">
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+                    />
+                  </div>
+                  <CardContent className="p-5">
+                    <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-3 line-clamp-2">
+                      {product.name}
+                    </h3>
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {product.tags.map((tag) => (
+                        <Badge key={tag} variant="secondary" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
                     </div>
-                    <CardContent className="p-5">
-                      <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-3 line-clamp-2">
-                        {product.name}
-                      </h3>
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {product.tags.map((tag) => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-lg font-bold text-blue-600">
-                          {product.price.toLocaleString()}원~
-                        </span>
-                        <Link href={`/product/${product.id}`} className="text-sm text-gray-500 hover:text-gray-700 flex items-center">
-                          자세히 보기
-                          <ChevronRight className="w-4 h-4 ml-1" />
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg font-bold text-blue-600">
+                        {product.price.toLocaleString()}원~
+                      </span>
+                      <Link href={`/product/${product.id}`} className="text-sm text-gray-500 hover:text-gray-700 flex items-center">
+                        자세히 보기
+                        <ChevronRight className="w-4 h-4 ml-1" />
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-          </section>
-        )}
-
+          </div>
+        </section>
 
       </div>
     </StripBannerProvider>

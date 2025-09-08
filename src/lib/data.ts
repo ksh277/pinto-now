@@ -48,6 +48,16 @@ const MOCK_PRODUCTS_RAW = [
   { id: '54', category_ko: '아크릴', subCategory_ko: 'holder', name_ko: '포카홀더 키링', price: 2800, reviews: 0, likes: 0, image: '/images/sample-banner1.svg' },
   { id: '55', category_ko: '아크릴', subCategory_ko: 'holder', name_ko: '홀더 부착형 증사홀더', price: 2000, reviews: 0, likes: 0, image: '/images/sample-banner1.svg' },
   { id: '56', category_ko: '아크릴', subCategory_ko: 'holder', name_ko: '포토액자 하프미러 아크릴', price: 2300, reviews: 0, likes: 0, image: '/images/sample-banner1.svg' },
+  
+  // Weekly ranking products (ID 1001~1008)
+  { id: '1001', category_ko: '아크릴', subCategory_ko: 'keyring', name_ko: '커스텀 아크릴 키링', price: 8500, reviews: 12, likes: 45, image: 'https://placehold.co/600x600/FFB6C1/333?text=🔑' },
+  { id: '1002', category_ko: '아크릴', subCategory_ko: 'stand', name_ko: '개인맞춤 아크릴 스탠드', price: 12000, reviews: 8, likes: 38, image: 'https://placehold.co/600x600/87CEEB/333?text=🖼️' },
+  { id: '1003', category_ko: '핸드폰케이스', subCategory_ko: 'case', name_ko: '나만의 휴대폰 케이스', price: 15000, reviews: 15, likes: 32, image: 'https://placehold.co/600x600/98FB98/333?text=📱' },
+  { id: '1004', category_ko: '아크릴', subCategory_ko: 'coaster', name_ko: '커스텀 코스터', price: 6500, reviews: 5, likes: 28, image: 'https://placehold.co/600x600/DDA0DD/333?text=☕' },
+  { id: '1005', category_ko: '배지', subCategory_ko: 'badge', name_ko: '개인맞춤 배지', price: 4500, reviews: 9, likes: 24, image: 'https://placehold.co/600x600/FFE4B5/333?text=🏷️' },
+  { id: '1006', category_ko: '아크릴', subCategory_ko: 'smarttok', name_ko: '맞춤형 스마트톡', price: 9000, reviews: 6, likes: 21, image: 'https://placehold.co/600x600/F0E68C/333?text=📲' },
+  { id: '1007', category_ko: '파우치', subCategory_ko: 'pouch', name_ko: '개인 굿즈 파우치', price: 11500, reviews: 7, likes: 18, image: 'https://placehold.co/600x600/F5DEB3/333?text=👛' },
+  { id: '1008', category_ko: '문구', subCategory_ko: 'stationery', name_ko: '맞춤 문구용품', price: 7500, reviews: 4, likes: 15, image: 'https://placehold.co/600x600/E6E6FA/333?text=✏️' },
   { id: '57', category_ko: '아크릴', subCategory_ko: 'holder', name_ko: '포카홀더 고정형 템플릿', price: 3000, reviews: 0, likes: 0, image: '/images/sample-banner1.svg' },
   { id: '58', category_ko: '아크릴', subCategory_ko: 'holder', name_ko: '포토액자 투명아크릴', price: 1500, reviews: 0, likes: 0, image: '/images/sample-banner1.svg' },
   { id: '61', category_ko: '아크릴', subCategory_ko: 'shaker', name_ko: 'DIY 오픈 스냅 리벳 키링', price: 2900, reviews: 0, likes: 0, image: '/images/sample-banner1.svg' },

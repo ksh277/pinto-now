@@ -124,7 +124,7 @@ export default function WeeklyRankingCards({
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-bold">주간 랭킹 - {getSellerTypeLabel(sellerType)}</h2>
         </div>
-        <div className="md:grid md:grid-cols-[repeat(auto-fit,minmax(350px,1fr))] md:gap-4 flex md:block overflow-x-auto md:overflow-visible gap-4 md:gap-0 pb-4 md:pb-0 scrollbar-hide px-4 md:px-0">
+        <div className="md:grid md:grid-cols-[repeat(auto-fit,minmax(420px,1fr))] md:gap-2 flex md:block overflow-x-auto md:overflow-visible gap-4 md:gap-0 pb-4 md:pb-0 scrollbar-hide px-4 md:px-0">
           {Array.from({ length: limit }).map((_, index) => (
             <div key={index} className="bg-white rounded-xl border p-3 md:p-4 animate-pulse w-[calc(100vw-3rem)] max-w-[300px] md:w-auto flex-shrink-0 md:flex-shrink">
               <div className="w-full h-64 md:h-80 bg-gray-300 rounded-lg mb-3 md:mb-4"></div>
@@ -172,7 +172,7 @@ export default function WeeklyRankingCards({
       </div>
 
       {/* Mobile: Horizontal scroll, Desktop: Flex */}
-      <div className="md:grid md:grid-cols-[repeat(auto-fit,minmax(350px,1fr))] md:gap-4 flex md:block overflow-x-auto md:overflow-visible gap-4 md:gap-0 pb-4 md:pb-0 scrollbar-hide px-4 md:px-0">
+      <div className="md:grid md:grid-cols-[repeat(auto-fit,minmax(420px,1fr))] md:gap-2 flex md:block overflow-x-auto md:overflow-visible gap-4 md:gap-0 pb-4 md:pb-0 scrollbar-hide px-4 md:px-0">
         {rankings.map((product, index) => (
           <Link 
             key={product.product_id} 

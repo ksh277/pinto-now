@@ -20,6 +20,7 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [scrolled, setScrolled] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 4);
     onScroll();
@@ -65,6 +66,19 @@ export function Header() {
 
   const subNavToShow = mainNavItems.find(item => item.id === activeSubNav)?.subnav;
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
+  const handleSearch = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleSearchKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
 
 
@@ -194,13 +208,16 @@ export function Header() {
           </ul>
 
           <div className="flex-shrink-0 w-[600px] max-w-[600px] mr-8">
-            <div className="relative">
+            <form onSubmit={handleSearch} className="relative">
               <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
               <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={handleSearchKeyPress}
                 placeholder="2,000여개의 커스텀 상품을 쉽게 찾아 보세요."
                 className="w-full rounded-full border-2 border-primary bg-background py-2 pl-10 pr-4 text-base"
               />
-            </div>
+            </form>
           </div>
         </div>
       </div>

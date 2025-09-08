@@ -136,54 +136,6 @@ export default function StationeryGoodsPage() {
     <StripBannerProvider>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
         
-        {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-cyan-50 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800">
-          <div className="container mx-auto px-4 py-16 md:py-24">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div className="text-center lg:text-left">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-                  {copy.title}
-                </h1>
-                <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-4">
-                  {copy.subtitle}
-                </p>
-                <p className="text-lg text-gray-500 dark:text-gray-400 mb-8">
-                  {copy.description}
-                </p>
-                
-                {/* USP Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                  {copy.usp.map((item, index) => (
-                    <div key={index} className="bg-white/80 dark:bg-slate-800/80 p-4 rounded-lg shadow-sm">
-                      <div className="text-2xl mb-2">{item.icon}</div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{item.title}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p>
-                    </div>
-                  ))}
-                </div>
-                
-                {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700">
-                    {copy.cta.primary}
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="relative">
-                <div className="relative h-[400px] md:h-[500px] w-full">
-                  <Image
-                    src="/components/img/placeholder-product.jpg"
-                    alt="문구/오피스 굿즈 모음"
-                    fill
-                    className="object-contain"
-                    priority
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* Products Grid */}
         <section className="py-16 md:py-24">
