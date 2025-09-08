@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/mysql';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
+import { put } from '@vercel/blob';
 
 export async function GET(req: Request) {
   try {
@@ -90,28 +88,20 @@ export async function POST(req: Request) {
         if (value instanceof File) {
           console.log(`File field ${key}:`, value.name, value.size, value.type);
           
-          // Save file to public/uploads/banners
-          const bytes = await value.arrayBuffer();
-          const buffer = Buffer.from(bytes);
-          
-          const uploadDir = join(process.cwd(), 'public/uploads/banners');
-          if (!existsSync(uploadDir)) {
-            await mkdir(uploadDir, { recursive: true });
-          }
-          
+          // Upload to Vercel Blob
           const timestamp = Date.now();
-          const filename = `${timestamp}-${value.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-          const filepath = join(uploadDir, filename);
+          const filename = `banners/${timestamp}-${value.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
           
-          await writeFile(filepath, buffer);
+          const blob = await put(filename, value, {
+            access: 'public',
+          });
           
-          const imageUrl = `/uploads/banners/${filename}`;
-          console.log(`File uploaded to: ${imageUrl}`);
+          console.log(`File uploaded to Vercel Blob: ${blob.url}`);
           
           if (key === 'image' || key === 'file') {
-            data['image_url'] = imageUrl;
+            data['image_url'] = blob.url;
           } else {
-            data[key] = imageUrl;
+            data[key] = blob.url;
           }
         } else {
           data[key] = value;
