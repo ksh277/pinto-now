@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/mysql';
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
+import { existsSync } from 'fs';
 
 export async function GET(req: Request) {
   try {
@@ -86,8 +89,30 @@ export async function POST(req: Request) {
       for (const [key, value] of formData.entries()) {
         if (value instanceof File) {
           console.log(`File field ${key}:`, value.name, value.size, value.type);
-          // For now, just log the file - you'll need to implement GCS upload here
-          data[key] = `file:${value.name}`;
+          
+          // Save file to public/uploads/banners
+          const bytes = await value.arrayBuffer();
+          const buffer = Buffer.from(bytes);
+          
+          const uploadDir = join(process.cwd(), 'public/uploads/banners');
+          if (!existsSync(uploadDir)) {
+            await mkdir(uploadDir, { recursive: true });
+          }
+          
+          const timestamp = Date.now();
+          const filename = `${timestamp}-${value.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+          const filepath = join(uploadDir, filename);
+          
+          await writeFile(filepath, buffer);
+          
+          const imageUrl = `/uploads/banners/${filename}`;
+          console.log(`File uploaded to: ${imageUrl}`);
+          
+          if (key === 'image' || key === 'file') {
+            data['image_url'] = imageUrl;
+          } else {
+            data[key] = imageUrl;
+          }
         } else {
           data[key] = value;
         }
