@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/mysql';
-import { put } from '@vercel/blob';
+import { Storage } from '@google-cloud/storage';
 
 export async function GET(req: Request) {
   try {
@@ -88,20 +88,41 @@ export async function POST(req: Request) {
         if (value instanceof File) {
           console.log(`File field ${key}:`, value.name, value.size, value.type);
           
-          // Upload to Vercel Blob
+          // Upload to Google Cloud Storage
+          const storage = new Storage({
+            projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
+            keyFilename: process.env.GOOGLE_CLOUD_KEY_FILE, // or use GOOGLE_APPLICATION_CREDENTIALS
+          });
+          
+          const bucketName = process.env.GOOGLE_CLOUD_BUCKET_NAME || 'pinto-images';
+          const bucket = storage.bucket(bucketName);
+          
           const timestamp = Date.now();
           const filename = `banners/${timestamp}-${value.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
           
-          const blob = await put(filename, value, {
-            access: 'public',
+          const file = bucket.file(filename);
+          const stream = file.createWriteStream({
+            metadata: {
+              contentType: value.type,
+            },
+            public: true,
           });
           
-          console.log(`File uploaded to Vercel Blob: ${blob.url}`);
+          const buffer = Buffer.from(await value.arrayBuffer());
+          
+          await new Promise((resolve, reject) => {
+            stream.on('error', reject);
+            stream.on('finish', resolve);
+            stream.end(buffer);
+          });
+          
+          const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
+          console.log(`File uploaded to GCS: ${publicUrl}`);
           
           if (key === 'image' || key === 'file') {
-            data['image_url'] = blob.url;
+            data['image_url'] = publicUrl;
           } else {
-            data[key] = blob.url;
+            data[key] = publicUrl;
           }
         } else {
           data[key] = value;
