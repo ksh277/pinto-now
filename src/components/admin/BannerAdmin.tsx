@@ -1,23 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { addBanner, fetchBanners, removeBanner, BannerType, DeviceType, BANNER_LIMITS, checkBannerLimit } from '@/lib/banner';
-
-interface BannerItem {
-  id: string;
-  imgSrc: string;
-  alt: string;
-  href: string;
-  bannerType?: BannerType;
-  deviceType?: DeviceType;
-  isActive?: boolean;
-  sortOrder?: number;
-  startAt?: string;
-  endAt?: string;
-}
+import { addBanner, fetchBanners, removeBanner, BannerType, DeviceType, BANNER_LIMITS, checkBannerLimit, type Banner } from '@/lib/banner';
 
 export function BannerAdmin() {
-  const [banners, setBanners] = useState<BannerItem[]>([]);
+  const [banners, setBanners] = useState<Banner[]>([]);
   const [image, setImage] = useState<File | null>(null);
   const [title, setTitle] = useState('');
   const [mainTitle, setMainTitle] = useState('');
@@ -61,60 +48,59 @@ export function BannerAdmin() {
       }
 
       // 직접 FormData로 API 호출
-      try {
-        const formData = new FormData();
-        formData.append('image', image);
-        formData.append('title', title.trim());
-        if (href.trim()) formData.append('href', href.trim());
-        if (mainTitle.trim()) formData.append('main_title', mainTitle.trim());
-        if (subTitle.trim()) formData.append('sub_title', subTitle.trim());
-        if (moreButtonLink.trim()) formData.append('more_button_link', moreButtonLink.trim());
-        formData.append('banner_type', bannerType);
-        formData.append('device_type', deviceType);
-        formData.append('is_active', 'true');
-        formData.append('sort_order', '0');
-        if (startDate) {
-          // Convert datetime-local format to MySQL format
-          const mysqlStartDate = startDate.replace('T', ' ') + ':00';
-          formData.append('start_at', mysqlStartDate);
-        }
-        if (endDate) {
-          // Convert datetime-local format to MySQL format  
-          const mysqlEndDate = endDate.replace('T', ' ') + ':00';
-          formData.append('end_at', mysqlEndDate);
-        }
-
-        const response = await fetch('/api/banners', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'Failed to create banner');
-        }
-          
-        const items = await fetchBanners({ includeInactive: true });
-        setBanners(items);
-        
-        // 폼 초기화
-        setImage(null);
-        setTitle('');
-        setMainTitle('');
-        setSubTitle('');
-        setMoreButtonLink('');
-        setHref('');
-        setBannerType(BannerType.IMAGE_BANNER);
-        setDeviceType('all');
-        setStartDate('');
-        setEndDate('');
-        
-      } catch (error: any) {
-        console.error('Banner creation error:', error);
-        setError('배너 등록 실패: ' + (error.message || '알 수 없는 오류'));
-      } finally {
-        setLoading(false);
+      const formData = new FormData();
+      formData.append('image', image);
+      formData.append('title', title.trim());
+      if (href.trim()) formData.append('href', href.trim());
+      if (mainTitle.trim()) formData.append('main_title', mainTitle.trim());
+      if (subTitle.trim()) formData.append('sub_title', subTitle.trim());
+      if (moreButtonLink.trim()) formData.append('more_button_link', moreButtonLink.trim());
+      formData.append('banner_type', bannerType);
+      formData.append('device_type', deviceType);
+      formData.append('is_active', 'true');
+      formData.append('sort_order', '0');
+      if (startDate) {
+        // Convert datetime-local format to MySQL format
+        const mysqlStartDate = startDate.replace('T', ' ') + ':00';
+        formData.append('start_at', mysqlStartDate);
       }
+      if (endDate) {
+        // Convert datetime-local format to MySQL format  
+        const mysqlEndDate = endDate.replace('T', ' ') + ':00';
+        formData.append('end_at', mysqlEndDate);
+      }
+
+      const response = await fetch('/api/banners', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create banner');
+      }
+        
+      const items = await fetchBanners({ includeInactive: true });
+      setBanners(items);
+      
+      // 폼 초기화
+      setImage(null);
+      setTitle('');
+      setMainTitle('');
+      setSubTitle('');
+      setMoreButtonLink('');
+      setHref('');
+      setBannerType(BannerType.IMAGE_BANNER);
+      setDeviceType('all');
+      setStartDate('');
+      setEndDate('');
+      
+    } catch (error: any) {
+      console.error('Banner creation error:', error);
+      setError('배너 등록 실패: ' + (error.message || '알 수 없는 오류'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRemove = async (id: string) => {
