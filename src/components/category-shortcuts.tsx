@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
 
 interface ShortcutCategory {
   id: string;
@@ -14,24 +13,17 @@ interface ShortcutCategory {
 }
 
 export function CategoryShortcuts() {
-  const [categories, setCategories] = useState<ShortcutCategory[]>([]);
-
-  useEffect(() => {
-    async function fetchCategoryShortcuts() {
-      try {
-        const response = await fetch('/api/category-shortcuts');
-        if (response.ok) {
-          const data = await response.json();
-          setCategories(data.slice(0, 12)); // 최대 12개만 표시
-        }
-      } catch (error) {
-        console.error('Failed to fetch category shortcuts:', error);
-        setCategories([]); // 에러 시 빈 배열로 설정
-      }
-    }
-
-    fetchCategoryShortcuts();
-  }, []);
+  // 구글 클라우드 스토리지에 업로드된 카테고리 이미지 사용
+  const categories: ShortcutCategory[] = [
+    { id: '1', title: '아크릴 굿즈', image_url: 'https://storage.googleapis.com/pinto-images-bucket/banners/1757413953162-1.png', href: '/category/acrylic', sort_order: 1, is_active: true },
+    { id: '2', title: '포토카드', image_url: 'https://storage.googleapis.com/pinto-images-bucket/banners/1757413956225-2.png', href: '/category/photocard', sort_order: 2, is_active: true },
+    { id: '3', title: '티셔츠 인쇄', image_url: 'https://storage.googleapis.com/pinto-images-bucket/banners/1757413957789-3.png', href: '/category/tshirt', sort_order: 3, is_active: true },
+    { id: '4', title: '컵 만들기', image_url: 'https://storage.googleapis.com/pinto-images-bucket/banners/1757413960744-4.png', href: '/category/cup', sort_order: 4, is_active: true },
+    { id: '5', title: '다꾸 만들기', image_url: 'https://storage.googleapis.com/pinto-images-bucket/banners/1757413962976-5.png', href: '/category/diary', sort_order: 5, is_active: true },
+    { id: '6', title: '반려동물 굿즈', image_url: 'https://storage.googleapis.com/pinto-images-bucket/banners/1757413964567-6.png', href: '/category/pet', sort_order: 6, is_active: true },
+    { id: '7', title: '단체 판촉물', image_url: 'https://storage.googleapis.com/pinto-images-bucket/banners/1757413966128-7.png', href: '/category/promotion', sort_order: 7, is_active: true },
+    { id: '8', title: '광고, 사인물', image_url: 'https://storage.googleapis.com/pinto-images-bucket/banners/1757413967653-8.png', href: '/category/sign', sort_order: 8, is_active: true }
+  ];
 
   return (
     <div className="hidden md:flex justify-center w-full overflow-x-auto">
