@@ -72,9 +72,14 @@ export function TopBanner() {
                 <img 
                   src={banner.imgSrc}
                   alt={banner.alt}
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-cover z-0"
                   onError={(e) => console.error('Image failed to load:', banner.imgSrc)}
                   onLoad={() => console.log('Image loaded successfully:', banner.imgSrc)}
+                  style={{
+                    display: 'block',
+                    visibility: 'visible',
+                    opacity: 1
+                  }}
                 />
                 
                 {/* 디버그: 이미지 URL 확인 */}
@@ -83,10 +88,10 @@ export function TopBanner() {
                 </div>
                 
                 {/* 어두운 오버레이 */}
-                <div className="absolute inset-0 bg-black/20"></div>
+                <div className="absolute inset-0 bg-black/20 z-10"></div>
                 
                 {/* 텍스트 콘텐츠 */}
-                <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4 z-10">
+                <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4 z-20">
                   {banner.mainTitle && (
                     <h1 
                       className="text-2xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight max-w-5xl"
