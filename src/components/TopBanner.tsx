@@ -82,6 +82,11 @@ export function TopBanner() {
                   }}
                 />
                 
+                {/* 디버그: 이미지 URL 확인 */}
+                <div className="absolute top-4 left-4 bg-black text-white p-2 text-xs z-50">
+                  Image: {banner.imgSrc}
+                </div>
+                
                 {/* 어두운 오버레이 */}
                 <div className="absolute inset-0 bg-black/20"></div>
                 
