@@ -49,10 +49,14 @@ export function TopBanner() {
 
   return (
     <div className="relative w-full h-[970px] overflow-hidden">
-      {/* Banner link wrapper */}
-      <a 
-        href={currentBanner.href || '#'} 
-        className="block relative w-full h-full"
+      {/* Banner wrapper */}
+      <div 
+        className="block relative w-full h-full cursor-pointer"
+        onClick={() => {
+          if (currentBanner.href && currentBanner.href !== '#') {
+            window.location.href = currentBanner.href;
+          }
+        }}
       >
         {/* Banner image */}
         <img
@@ -108,14 +112,14 @@ export function TopBanner() {
                 href={currentBanner.moreButtonLink}
                 className="inline-block bg-[#F1F2F4] px-16 py-1.5 rounded-full font-semibold text-lg hover:bg-gray-300 transition-colors shadow-sm"
                 style={{ color: '#505050', width: 'auto', textAlign: 'center' }}
-                onClick={(e) => e.stopPropagation()} // Prevent conflict with banner link
+                onClick={(e) => e.stopPropagation()} // Prevent conflict with banner click
               >
                 MORE
               </a>
             )}
           </div>
         </div>
-      </a>
+      </div>
       
       {/* Indicators for multiple banners */}
       {banners.length > 1 && (

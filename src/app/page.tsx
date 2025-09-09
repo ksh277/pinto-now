@@ -11,6 +11,7 @@ import { StripBannerProvider } from '@/contexts/StripBannerContext';
 import MainBannerSection from '@/components/main/MainBannerSection';
 import InfoCardsCarousel from '@/components/InfoCardsCarousel';
 import WeeklyRankingCards from '@/components/WeeklyRankingCards';
+import { PlatformBanner } from '@/components/PlatformBanner';
 
 // Define Rankable type if not imported
 type Rankable = {
@@ -71,7 +72,7 @@ export default async function HomePage() {
         <div className="px-8 md:px-16">
 
         {/* SHORTCUTS - 데스크톱만 표시, 모바일에서는 숨김 */}
-        <section className="hidden md:block py-12 md:py-16">
+        <section className="hidden md:block py-4 md:py-6">
           <CategoryShortcuts />
         </section>
 
@@ -90,6 +91,9 @@ export default async function HomePage() {
         <section className="pt-6 pb-4">
           <MainBannerSection />
         </section>
+
+        {/* 창작자, 작가 참여 플랫폼 배너 */}
+        <PlatformBanner />
 
         {/* ✅ 주간 랭킹 4카드 — CTA 아래로 이동 */}
         <section className="pt-6 pb-10 md:pt-8 md:pb-14">

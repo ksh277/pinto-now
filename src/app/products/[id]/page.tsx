@@ -23,7 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { useLanguage } from '@/hooks/useLanguage';
+import { useLanguage } from '@/contexts/language-context';
 import Image from 'next/image';
 
 export default function ProductDetail() {
@@ -31,7 +31,7 @@ export default function ProductDetail() {
   const router = useRouter();
   const id = params?.id ? String(params.id) : '';
   const { toast } = useToast();
-  const { locale: language } = useLanguage();
+  const { language, t, translateText } = useLanguage();
   const { getProductById, isProductsLoading } = useProductContext();
   const { addToCart } = useCartContext();
 
@@ -378,7 +378,7 @@ export default function ProductDetail() {
               )}
               
               <div>
-                <Label className="text-base font-medium mb-3 block text-gray-900 dark:text-white">📏 사이즈</Label>
+                <Label className="text-base font-medium mb-3 block text-gray-900 dark:text-white">📏 {t('product.size')}</Label>
                 {hasAdvancedPricingSystem && advancedPricing ? (
                   // 고급 가격 시스템: 새로운 사이즈 옵션
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -531,7 +531,7 @@ export default function ProductDetail() {
               </div>
 
               <div>
-                <Label className="text-base font-medium mb-3 block text-gray-900 dark:text-white">✅ 수량 선택</Label>
+                <Label className="text-base font-medium mb-3 block text-gray-900 dark:text-white">✅ {t('product.quantity')}</Label>
                 <div className="flex items-center gap-4 mb-3">
                   <div className="flex items-center border dark:border-gray-700 rounded-lg">
                     <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-l-lg text-gray-900 dark:text-gray-100"><Minus className="w-4 h-4" /></button>
@@ -591,13 +591,13 @@ export default function ProductDetail() {
             </Link>
 
             <div className="grid grid-cols-2 gap-3">
-              <Button onClick={() => handleCartAction('addToCart')} disabled={!selectedSize || !selectedBase} size="lg" variant="outline" className="text-lg">
+              <Button onClick={() => handleCartAction('addToCart')} disabled={!selectedSize || !selectedBase || (!uploadedFile && activeTab === 'pdf')} size="lg" variant="outline" className="text-lg">
                   <ShoppingCart className="w-5 h-5 mr-2" />
-                  장바구니
+                  {t('product.addToCart')}
               </Button>
-               <Button onClick={() => handleCartAction('buyNow')} disabled={!selectedSize || !selectedBase} size="lg" className="text-lg">
+               <Button onClick={() => handleCartAction('buyNow')} disabled={!selectedSize || !selectedBase || (!uploadedFile && activeTab === 'pdf')} size="lg" className="text-lg">
                   <CreditCard className="w-5 h-5 mr-2" />
-                  바로 구매
+                  {t('product.buyNow')}
               </Button>
             </div>
           </div>
@@ -619,8 +619,8 @@ export default function ProductDetail() {
         <div className="mt-12">
           <Tabs defaultValue="description" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="description">상품 상세</TabsTrigger>
-              <TabsTrigger value="qna">상품 문의</TabsTrigger>
+              <TabsTrigger value="description">{t('product.details')}</TabsTrigger>
+              <TabsTrigger value="qna">{t('product.inquiry')}</TabsTrigger>
             </TabsList>
             <TabsContent value="description" className="mt-8">
                 <Image src="https://placehold.co/1200x800.png" alt="상품 상세 이미지" width={1200} height={800} className="w-full rounded-lg" />

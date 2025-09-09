@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카테고리 이미지 Blob 업로드</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+        }
+        .file-input {
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #007bff;
+            transition: width 0.3s;
+        }
+        .image-preview {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+        .image-preview img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ddd;
+        }
+        .category-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ 카테고리 이미지 Blob 업로드</h1>
+        
+        <div class="upload-section">
+            <h3>1단계: 카테고리 이미지 파일 선택</h3>
+            <p>카테고리 이미지 8개를 선택해주세요 (1.png ~ 8.png)</p>
+            
+            <div class="category-list">
+                <div class="image-preview">
+                    <div>카테고리 1<br>아크릴 굿즈</div>
+                    <input type="file" id="category1" accept="image/*" class="file-input">
+                    <img id="preview1" style="display:none;">
+                </div>
+                <div class="image-preview">
+                    <div>카테고리 2<br>포토카드</div>
+                    <input type="file" id="category2" accept="image/*" class="file-input">
+                    <img id="preview2" style="display:none;">
+                </div>
+                <div class="image-preview">
+                    <div>카테고리 3<br>티셔츠 인쇄</div>
+                    <input type="file" id="category3" accept="image/*" class="file-input">
+                    <img id="preview3" style="display:none;">
+                </div>
+                <div class="image-preview">
+                    <div>카테고리 4<br>컵 만들기</div>
+                    <input type="file" id="category4" accept="image/*" class="file-input">
+                    <img id="preview4" style="display:none;">
+                </div>
+                <div class="image-preview">
+                    <div>카테고리 5<br>다꾸 만들기</div>
+                    <input type="file" id="category5" accept="image/*" class="file-input">
+                    <img id="preview5" style="display:none;">
+                </div>
+                <div class="image-preview">
+                    <div>카테고리 6<br>반려동물 굿즈</div>
+                    <input type="file" id="category6" accept="image/*" class="file-input">
+                    <img id="preview6" style="display:none;">
+                </div>
+                <div class="image-preview">
+                    <div>카테고리 7<br>단체 판촉물</div>
+                    <input type="file" id="category7" accept="image/*" class="file-input">
+                    <img id="preview7" style="display:none;">
+                </div>
+                <div class="image-preview">
+                    <div>카테고리 8<br>광고, 사인물</div>
+                    <input type="file" id="category8" accept="image/*" class="file-input">
+                    <img id="preview8" style="display:none;">
+                </div>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <h3>2단계: Blob 업로드</h3>
+            <button onclick="uploadAllImages()" id="uploadBtn">
+                📤 모든 이미지 Blob에 업로드
+            </button>
+            
+            <div class="progress" style="display:none;" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <h3>3단계: 카테고리 데이터베이스 등록</h3>
+            <button onclick="registerCategories()" id="registerBtn" disabled>
+                💾 카테고리 데이터베이스에 등록
+            </button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const categories = [
+            { id: 1, title: '아크릴 굿즈', href: '/category/acrylic' },
+            { id: 2, title: '포토카드', href: '/category/photocard' },
+            { id: 3, title: '티셔츠 인쇄', href: '/category/tshirt' },
+            { id: 4, title: '컵 만들기', href: '/category/cup' },
+            { id: 5, title: '다꾸 만들기', href: '/category/diary' },
+            { id: 6, title: '반려동물 굿즈', href: '/category/pet' },
+            { id: 7, title: '단체 판촉물', href: '/category/promotion' },
+            { id: 8, title: '광고, 사인물', href: '/category/sign' }
+        ];
+
+        let uploadedUrls = {};
+
+        // 이미지 미리보기
+        for (let i = 1; i <= 8; i++) {
+            document.getElementById(`category${i}`).addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById(`preview${i}`);
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        async function uploadAllImages() {
+            const uploadBtn = document.getElementById('uploadBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const results = document.getElementById('results');
+            
+            uploadBtn.disabled = true;
+            progressContainer.style.display = 'block';
+            results.innerHTML = '';
+
+            let completed = 0;
+            const total = 8;
+
+            for (let i = 1; i <= 8; i++) {
+                const fileInput = document.getElementById(`category${i}`);
+                const file = fileInput.files[0];
+                
+                if (!file) {
+                    results.innerHTML += `<div class="result error">카테고리 ${i} 이미지가 선택되지 않았습니다.</div>`;
+                    continue;
+                }
+
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    const response = await fetch('/api/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        uploadedUrls[i] = data.url;
+                        results.innerHTML += `<div class="result success">카테고리 ${i} 업로드 성공: ${data.url}</div>`;
+                    } else {
+                        const error = await response.json();
+                        results.innerHTML += `<div class="result error">카테고리 ${i} 업로드 실패: ${error.error}</div>`;
+                    }
+                } catch (error) {
+                    results.innerHTML += `<div class="result error">카테고리 ${i} 업로드 오류: ${error.message}</div>`;
+                }
+
+                completed++;
+                progressBar.style.width = `${(completed / total) * 100}%`;
+            }
+
+            uploadBtn.disabled = false;
+            progressContainer.style.display = 'none';
+            
+            if (Object.keys(uploadedUrls).length > 0) {
+                document.getElementById('registerBtn').disabled = false;
+                results.innerHTML += `<div class="result success">✅ ${Object.keys(uploadedUrls).length}개 이미지 업로드 완료! 이제 데이터베이스에 등록하세요.</div>`;
+            }
+        }
+
+        async function registerCategories() {
+            const registerBtn = document.getElementById('registerBtn');
+            const results = document.getElementById('results');
+            
+            registerBtn.disabled = true;
+            
+            results.innerHTML += `<div class="result">📝 카테고리 데이터베이스 등록 중...</div>`;
+
+            for (let i = 1; i <= 8; i++) {
+                if (!uploadedUrls[i]) continue;
+
+                const category = categories[i - 1];
+                
+                try {
+                    const response = await fetch('/api/category-shortcuts', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title: category.title,
+                            image_url: uploadedUrls[i],
+                            href: category.href,
+                            sort_order: i,
+                            is_active: true
+                        })
+                    });
+
+                    if (response.ok) {
+                        results.innerHTML += `<div class="result success">✅ ${category.title} 데이터베이스 등록 성공</div>`;
+                    } else {
+                        const error = await response.json();
+                        results.innerHTML += `<div class="result error">❌ ${category.title} 데이터베이스 등록 실패: ${error.error}</div>`;
+                    }
+                } catch (error) {
+                    results.innerHTML += `<div class="result error">❌ ${category.title} 등록 오류: ${error.message}</div>`;
+                }
+            }
+
+            results.innerHTML += `<div class="result success">🎉 카테고리 등록 완료! 홈페이지를 새로고침하여 확인하세요.</div>`;
+            registerBtn.disabled = false;
+        }
+    </script>
+</body>
+</html>

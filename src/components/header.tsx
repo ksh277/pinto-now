@@ -29,7 +29,7 @@ export function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
   const { isAuthenticated } = useAuth();
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const router = useRouter();
 
   const handleCategoryHover = (cat: string) => {
@@ -150,7 +150,7 @@ export function Header() {
                         <AccordionItem value={item.id} key={item.id}>
                           <AccordionTrigger className="text-base font-semibold py-3 hover:no-underline">
                             <Link href={item.href} onClick={!item.subnav ? closeMobileMenu : (e) => e.preventDefault()} className="flex-1 text-left">
-                              {item.label}
+                              {t(`nav.${item.id}`) || item.label}
                             </Link>
                           </AccordionTrigger>
                           {item.subnav && (
@@ -166,9 +166,9 @@ export function Header() {
                           )}
                         </AccordionItem>
                       ))}
-                      <div className="border-t"><Link href="/reviews" onClick={closeMobileMenu} className="flex items-center text-base font-semibold py-3">리뷰</Link></div>
-                      <div className="border-t"><Link href="/support/faq" onClick={closeMobileMenu} className="flex items-center text-base font-semibold py-3">고객센터</Link></div>
-                      <div className="border-t"><Link href="/support/notice" onClick={closeMobileMenu} className="flex items-center text-base font-semibold py-3">공지사항</Link></div>
+                      <div className="border-t"><Link href="/reviews" onClick={closeMobileMenu} className="flex items-center text-base font-semibold py-3">{t('nav.reviews')}</Link></div>
+                      <div className="border-t"><Link href="/support/faq" onClick={closeMobileMenu} className="flex items-center text-base font-semibold py-3">{t('nav.support')}</Link></div>
+                      <div className="border-t"><Link href="/support/notice" onClick={closeMobileMenu} className="flex items-center text-base font-semibold py-3">{t('nav.notice')}</Link></div>
                     </Accordion>
                   </nav>
                 </div>

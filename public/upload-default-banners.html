@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기본 배너 이미지 Blob 업로드</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+        }
+        .banner-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .banner-item {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        .banner-preview {
+            width: 100%;
+            height: 150px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9f9f9;
+        }
+        .banner-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #007bff;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 기본 배너 이미지 Blob 업로드</h1>
+        
+        <div class="upload-section">
+            <h3>1단계: 배너 이미지 파일 선택</h3>
+            <p>배너로 사용할 이미지들을 선택해주세요</p>
+            
+            <div class="banner-grid" id="bannerGrid">
+                <!-- 동적으로 생성됩니다 -->
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <h3>2단계: Blob 업로드</h3>
+            <button onclick="uploadAllBanners()" id="uploadBtn">
+                📤 모든 배너 이미지 Blob에 업로드
+            </button>
+            
+            <div class="progress" style="display:none;" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <h3>3단계: 배너 데이터베이스 등록</h3>
+            <button onclick="registerBanners()" id="registerBtn" disabled>
+                💾 배너 데이터베이스에 등록
+            </button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const bannerTypes = [
+            { 
+                type: 'TOP_BANNER',
+                title: 'TOP 배너 1',
+                description: '메인 페이지 상단 대형 배너',
+                mainTitle: '창작자, 작가 모두가 참여하는 플랫폼',
+                subTitle: '핀토에서 나만의 굿즈를 만들어보세요',
+                moreButtonLink: 'https://pinto-now.vercel.app/editor'
+            },
+            { 
+                type: 'TOP_BANNER',
+                title: 'TOP 배너 2',
+                description: '메인 페이지 상단 대형 배너',
+                mainTitle: '소량 제작부터 대량 주문까지',
+                subTitle: '다양한 굿즈 제작 서비스를 만나보세요'
+            },
+            { 
+                type: 'HOME_SLIDER_PC',
+                title: 'PC 슬라이더 배너 1',
+                description: '홈페이지 중간 슬라이더 배너',
+                href: '/creator'
+            },
+            { 
+                type: 'HOME_SLIDER_PC',
+                title: 'PC 슬라이더 배너 2',
+                description: '홈페이지 중간 슬라이더 배너',
+                href: '/products'
+            },
+            { 
+                type: 'PLATFORM_BANNER',
+                title: '플랫폼 배너',
+                description: '창작자 참여 플랫폼 안내 배너',
+                mainTitle: '창작자, 작가 모두가 참여하는 플랫폼',
+                subTitle: '다양한 창작자와 작가들이 함께 만드는 특별한 굿즈를 만나보세요',
+                href: '/market'
+            }
+        ];
+
+        let uploadedBanners = [];
+
+        // 배너 그리드 생성
+        function createBannerGrid() {
+            const grid = document.getElementById('bannerGrid');
+            bannerTypes.forEach((banner, index) => {
+                const item = document.createElement('div');
+                item.className = 'banner-item';
+                item.innerHTML = `
+                    <h4>${banner.title}</h4>
+                    <p style="font-size: 12px; color: #666;">${banner.description}</p>
+                    <input type="file" id="banner${index}" accept="image/*" onchange="previewBanner(${index})">
+                    <div class="banner-preview" id="preview${index}">
+                        <span style="color: #999;">이미지를 선택하세요</span>
+                    </div>
+                `;
+                grid.appendChild(item);
+            });
+        }
+
+        function previewBanner(index) {
+            const fileInput = document.getElementById(`banner${index}`);
+            const preview = document.getElementById(`preview${index}`);
+            const file = fileInput.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="미리보기">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function uploadAllBanners() {
+            const uploadBtn = document.getElementById('uploadBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const results = document.getElementById('results');
+            
+            uploadBtn.disabled = true;
+            progressContainer.style.display = 'block';
+            results.innerHTML = '';
+
+            let completed = 0;
+            const total = bannerTypes.length;
+            uploadedBanners = [];
+
+            for (let i = 0; i < bannerTypes.length; i++) {
+                const fileInput = document.getElementById(`banner${i}`);
+                const file = fileInput.files[0];
+                const banner = bannerTypes[i];
+                
+                if (!file) {
+                    results.innerHTML += `<div class="result error">${banner.title} 이미지가 선택되지 않았습니다.</div>`;
+                    completed++;
+                    continue;
+                }
+
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    const response = await fetch('/api/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        uploadedBanners.push({
+                            ...banner,
+                            imgSrc: data.url,
+                            index: i
+                        });
+                        results.innerHTML += `<div class="result success">${banner.title} 업로드 성공: ${data.url}</div>`;
+                    } else {
+                        const error = await response.json();
+                        results.innerHTML += `<div class="result error">${banner.title} 업로드 실패: ${error.error}</div>`;
+                    }
+                } catch (error) {
+                    results.innerHTML += `<div class="result error">${banner.title} 업로드 오류: ${error.message}</div>`;
+                }
+
+                completed++;
+                progressBar.style.width = `${(completed / total) * 100}%`;
+            }
+
+            uploadBtn.disabled = false;
+            progressContainer.style.display = 'none';
+            
+            if (uploadedBanners.length > 0) {
+                document.getElementById('registerBtn').disabled = false;
+                results.innerHTML += `<div class="result success">✅ ${uploadedBanners.length}개 배너 업로드 완료! 이제 데이터베이스에 등록하세요.</div>`;
+            }
+        }
+
+        async function registerBanners() {
+            const registerBtn = document.getElementById('registerBtn');
+            const results = document.getElementById('results');
+            
+            registerBtn.disabled = true;
+            
+            results.innerHTML += `<div class="result">📝 배너 데이터베이스 등록 중...</div>`;
+
+            for (const banner of uploadedBanners) {
+                try {
+                    const bannerData = {
+                        title: banner.title,
+                        image_url: banner.imgSrc,
+                        href: banner.href || '#',
+                        main_title: banner.mainTitle,
+                        sub_title: banner.subTitle,
+                        more_button_link: banner.moreButtonLink,
+                        banner_type: banner.type,
+                        device_type: 'all',
+                        is_active: true,
+                        sort_order: banner.index + 1,
+                        start_at: null,
+                        end_at: null
+                    };
+
+                    const response = await fetch('/api/banners', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(bannerData)
+                    });
+
+                    if (response.ok) {
+                        results.innerHTML += `<div class="result success">✅ ${banner.title} 데이터베이스 등록 성공</div>`;
+                    } else {
+                        const error = await response.json();
+                        results.innerHTML += `<div class="result error">❌ ${banner.title} 데이터베이스 등록 실패: ${error.error}</div>`;
+                    }
+                } catch (error) {
+                    results.innerHTML += `<div class="result error">❌ ${banner.title} 등록 오류: ${error.message}</div>`;
+                }
+            }
+
+            results.innerHTML += `<div class="result success">🎉 배너 등록 완료! 홈페이지를 새로고침하여 확인하세요.</div>`;
+            registerBtn.disabled = false;
+        }
+
+        // 페이지 로드 시 배너 그리드 생성
+        createBannerGrid();
+    </script>
+</body>
+</html>

@@ -8,6 +8,7 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
+  translateText: (text: string, targetLang?: Language) => Promise<string>;
 }
 
 const translations = {
@@ -55,6 +56,43 @@ const translations = {
     'common.price_from': '부터',
     'common.won': '원',
     'common.loading': '로딩 중...',
+    
+    // Product
+    'product.details': '상품 상세',
+    'product.price': '가격',
+    'product.size': '사이즈',
+    'product.color': '색상',
+    'product.quantity': '수량',
+    'product.addToCart': '장바구니',
+    'product.buyNow': '바로 구매',
+    'product.description': '상품 설명',
+    'product.reviews': '리뷰',
+    'product.inquiry': '상품 문의',
+    
+    // Homepage
+    'home.main_description': '온, 오프라인 어디에서나 쉽고 빠르게 만들 수 있어요!',
+    'home.weekly_ranking_title': '창작자, 작가 참여 마켓 주간 랭킹보기',
+    'home.more': '더보기',
+    'home.benefits_title': '함께 성장해요. 고객별 혜택 확인하기',
+    'home.creator_market': '창작마켓',
+    'home.creator_market_desc': 'B2C 참여하기',
+    'home.b2b_title': '관공서, 기업, 대량',
+    'home.b2b_desc': 'B2B 문의하기',
+    'home.personal_title': '개인',
+    'home.personal_desc': 'B2C 문의하기',
+    'home.creator_benefit': '나만의 창작물로 굿즈를 제작, 등록하여 판매를 할 수 있습니다.\n창작물 판매자에게는 소량제작 할인혜택 입점 수수료가 할인이 됩니다.',
+    'home.b2b_benefit': '환경디자인,행사,축제,교육,대량 굿즈 제작이 가능합니다. 핀토는 자체 공장과 다양한 포트폴리오를 보유하고 있어 전문 상담가가 함께 합니다.',
+    'home.personal_benefit': '구매별 등급이 나눠져 있으며 구매등급에 따라 월 할인 프로모션, 포인트 지급 등이 제공됩니다.',
+    
+    // Weekly Rankings
+    'ranking.weekly_title': '주간 랭킹',
+    'ranking.creator': '창작자',
+    'ranking.author': '작가',
+    'ranking.individual': '개인',
+    'ranking.loading_failed': '랭킹을 불러오는데 실패했습니다',
+    'ranking.retry': '다시 시도',
+    'ranking.no_rankings': '이번 주 {type} 랭킹이 없습니다.',
+    'ranking.from_price': '부터',
   },
   en: {
     // Header
@@ -100,6 +138,43 @@ const translations = {
     'common.price_from': 'from',
     'common.won': '',
     'common.loading': 'Loading...',
+    
+    // Product
+    'product.details': 'Product Details',
+    'product.price': 'Price',
+    'product.size': 'Size',
+    'product.color': 'Color',
+    'product.quantity': 'Quantity',
+    'product.addToCart': 'Add to Cart',
+    'product.buyNow': 'Buy Now',
+    'product.description': 'Description',
+    'product.reviews': 'Reviews',
+    'product.inquiry': 'Product Inquiry',
+    
+    // Homepage
+    'home.main_description': 'Create easily and quickly, online or offline!',
+    'home.weekly_ranking_title': 'Creator, Author Market Weekly Ranking',
+    'home.more': 'More',
+    'home.benefits_title': 'Let\'s grow together. Check customer benefits',
+    'home.creator_market': 'Creator Market',
+    'home.creator_market_desc': 'Join B2C',
+    'home.b2b_title': 'Government, Corporate, Bulk',
+    'home.b2b_desc': 'B2B Inquiry',
+    'home.personal_title': 'Individual',
+    'home.personal_desc': 'B2C Inquiry',
+    'home.creator_benefit': 'You can create, register and sell goods with your own creations.\nCreative sellers get small batch production discounts and reduced entry fees.',
+    'home.b2b_benefit': 'Environmental design, events, festivals, education, and bulk goods production are possible. Pinto has its own factory and various portfolios, with professional consultants.',
+    'home.personal_benefit': 'Purchase grades are divided according to purchase level, providing monthly discount promotions, points, etc.',
+    
+    // Weekly Rankings
+    'ranking.weekly_title': 'Weekly Ranking',
+    'ranking.creator': 'Creator',
+    'ranking.author': 'Author',
+    'ranking.individual': 'Individual',
+    'ranking.loading_failed': 'Failed to load rankings',
+    'ranking.retry': 'Retry',
+    'ranking.no_rankings': 'No {type} rankings for this week.',
+    'ranking.from_price': 'from',
   },
   ja: {
     // Header
@@ -145,6 +220,43 @@ const translations = {
     'common.price_from': 'から',
     'common.won': '円',
     'common.loading': 'ローディング中...',
+    
+    // Product
+    'product.details': '商品詳細',
+    'product.price': '価格',
+    'product.size': 'サイズ',
+    'product.color': 'カラー',
+    'product.quantity': '数量',
+    'product.addToCart': 'カートに追加',
+    'product.buyNow': '今すぐ購入',
+    'product.description': '商品説明',
+    'product.reviews': 'レビュー',
+    'product.inquiry': '商品お問い合わせ',
+    
+    // Homepage
+    'home.main_description': 'オンラインでもオフラインでも簡単に素早く作れます！',
+    'home.weekly_ranking_title': 'クリエイター・作家参加マーケット週間ランキング',
+    'home.more': '詳細',
+    'home.benefits_title': '一緒に成長しましょう。お客様別特典確認',
+    'home.creator_market': 'クリエイターマーケット',
+    'home.creator_market_desc': 'B2C参加',
+    'home.b2b_title': '官公庁・企業・大量',
+    'home.b2b_desc': 'B2Bお問い合わせ',
+    'home.personal_title': '個人',
+    'home.personal_desc': 'B2Cお問い合わせ',
+    'home.creator_benefit': '自分だけの創作物でグッズを制作・登録して販売できます。\nクリエイター販売者には少量製作割引特典入店手数料が割引されます。',
+    'home.b2b_benefit': '環境デザイン、イベント、祭り、教育、大量グッズ製作が可能です。ピントは自社工場と多様なポートフォリオを保有し、専門相談員が一緒にサポートします。',
+    'home.personal_benefit': '購入別グレードが分かれており、購入グレードに応じて月割引プロモーション、ポイント支給などが提供されます。',
+    
+    // Weekly Rankings
+    'ranking.weekly_title': '週間ランキング',
+    'ranking.creator': 'クリエイター',
+    'ranking.author': '作家',
+    'ranking.individual': '個人',
+    'ranking.loading_failed': 'ランキングの読み込みに失敗しました',
+    'ranking.retry': '再試行',
+    'ranking.no_rankings': '今週の{type}ランキングはありません。',
+    'ranking.from_price': 'から',
   },
   zh: {
     // Header
@@ -190,6 +302,43 @@ const translations = {
     'common.price_from': '起',
     'common.won': '元',
     'common.loading': '加载中...',
+    
+    // Product
+    'product.details': '产品详情',
+    'product.price': '价格',
+    'product.size': '尺寸',
+    'product.color': '颜色',
+    'product.quantity': '数量',
+    'product.addToCart': '加入购物车',
+    'product.buyNow': '立即购买',
+    'product.description': '产品描述',
+    'product.reviews': '评价',
+    'product.inquiry': '产品咨询',
+    
+    // Homepage
+    'home.main_description': '线上线下都能轻松快速制作！',
+    'home.weekly_ranking_title': '创作者、作家参与市场周排行榜',
+    'home.more': '更多',
+    'home.benefits_title': '一起成长。查看客户福利',
+    'home.creator_market': '创作市场',
+    'home.creator_market_desc': 'B2C参与',
+    'home.b2b_title': '政府机构、企业、大量',
+    'home.b2b_desc': 'B2B咨询',
+    'home.personal_title': '个人',
+    'home.personal_desc': 'B2C咨询',
+    'home.creator_benefit': '您可以用自己的创作物制作、注册并销售商品。\n创作销售者享有小批量制作折扣优惠，入驻手续费折扣。',
+    'home.b2b_benefit': '可进行环境设计、活动、节庆、教育、大批量商品制作。Pinto拥有自己的工厂和丰富的作品集，专业顾问将与您合作。',
+    'home.personal_benefit': '按购买等级划分，根据购买等级提供月度折扣促销、积分奖励等。',
+    
+    // Weekly Rankings
+    'ranking.weekly_title': '周排行榜',
+    'ranking.creator': '创作者',
+    'ranking.author': '作家',
+    'ranking.individual': '个人',
+    'ranking.loading_failed': '排行榜加载失败',
+    'ranking.retry': '重试',
+    'ranking.no_rankings': '本周没有{type}排行榜。',
+    'ranking.from_price': '起',
   },
 };
 
@@ -215,8 +364,42 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return translations[language][key as keyof typeof translations[typeof language]] || key;
   };
 
+  // 간단한 자동 번역 함수 (실제로는 번역 API를 사용)
+  const translateText = async (text: string, targetLang?: Language): Promise<string> => {
+    const lang = targetLang || language;
+    
+    // 한국어면 원문 그대로 반환
+    if (lang === 'ko') return text;
+    
+    // 간단한 키워드 기반 번역 (실제로는 Google Translate API 등 사용)
+    const simpleTranslations: Record<string, Record<Language, string>> = {
+      '상품': { en: 'Product', ja: '商品', zh: '产品', ko: '상품' },
+      '가격': { en: 'Price', ja: '価格', zh: '价格', ko: '가격' },
+      '수량': { en: 'Quantity', ja: '数量', zh: '数量', ko: '수량' },
+      '사이즈': { en: 'Size', ja: 'サイズ', zh: '尺寸', ko: '사이즈' },
+      '색상': { en: 'Color', ja: 'カラー', zh: '颜色', ko: '색상' },
+      '장바구니': { en: 'Cart', ja: 'カート', zh: '购物车', ko: '장바구니' },
+      '바로 구매': { en: 'Buy Now', ja: '今すぐ購入', zh: '立即购买', ko: '바로 구매' },
+      '상품 상세': { en: 'Product Details', ja: '商品詳細', zh: '产品详情', ko: '상품 상세' },
+      '리뷰': { en: 'Reviews', ja: 'レビュー', zh: '评价', ko: '리뷰' },
+      '문의': { en: 'Inquiry', ja: 'お問い合わせ', zh: '咨询', ko: '문의' },
+      '원': { en: '', ja: '円', zh: '元', ko: '원' },
+      '부터': { en: 'from', ja: 'から', zh: '起', ko: '부터' },
+    };
+
+    // 간단한 키워드 치환
+    let translated = text;
+    Object.entries(simpleTranslations).forEach(([korean, translations]) => {
+      if (translated.includes(korean)) {
+        translated = translated.replace(new RegExp(korean, 'g'), translations[lang] || korean);
+      }
+    });
+
+    return translated;
+  };
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage, t, translateText }}>
       {children}
     </LanguageContext.Provider>
   );

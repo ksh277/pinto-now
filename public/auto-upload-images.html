@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로컬 이미지 자동 Blob 업로드</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            text-align: center;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .step {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .url-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 로컬 이미지 자동 Blob 업로드</h1>
+        
+        <div class="info">
+            <strong>📋 업로드할 이미지들:</strong><br>
+            • /public/images/1.png ~ 8.png (배너 이미지)<br>
+            • /public/category/1.png ~ 8.png (카테고리 이미지)<br><br>
+            <strong>⚠️ 주의:</strong> 이 작업은 서버의 로컬 파일을 Vercel Blob에 업로드합니다.
+        </div>
+
+        <div class="upload-section">
+            <h3>🎯 1단계: 로컬 이미지 Blob 업로드</h3>
+            <p>서버의 images 폴더와 category 폴더에 있는 모든 이미지를 Blob에 업로드합니다.</p>
+            <button onclick="uploadLocalImages()" id="uploadBtn">
+                📤 로컬 이미지 전체 업로드
+            </button>
+        </div>
+
+        <div class="upload-section">
+            <h3>🎯 2단계: 배너 데이터베이스 등록</h3>
+            <p>업로드된 이미지로 기본 배너들을 데이터베이스에 등록합니다.</p>
+            <button onclick="registerDefaultBanners()" id="bannerBtn" disabled>
+                💾 기본 배너 데이터베이스 등록
+            </button>
+        </div>
+
+        <div class="upload-section">
+            <h3>🎯 3단계: 카테고리 데이터베이스 등록</h3>
+            <p>업로드된 이미지로 카테고리 숏컷을 데이터베이스에 등록합니다.</p>
+            <button onclick="registerDefaultCategories()" id="categoryBtn" disabled>
+                💾 기본 카테고리 데이터베이스 등록
+            </button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        let uploadedUrls = {};
+        
+        const categories = [
+            { title: '아크릴 굿즈', href: '/category/acrylic' },
+            { title: '포토카드', href: '/category/photocard' },
+            { title: '티셔츠 인쇄', href: '/category/tshirt' },
+            { title: '컵 만들기', href: '/category/cup' },
+            { title: '다꾸 만들기', href: '/category/diary' },
+            { title: '반려동물 굿즈', href: '/category/pet' },
+            { title: '단체 판촉물', href: '/category/promotion' },
+            { title: '광고, 사인물', href: '/category/sign' }
+        ];
+
+        const banners = [
+            {
+                type: 'TOP_BANNER',
+                title: 'TOP 배너 1 - 메인 창작 플랫폼',
+                href: 'https://pinto-now.vercel.app/editor',
+                main_title: '창작자, 작가 모두가 참여하는 플랫폼',
+                sub_title: '핀토에서 나만의 굿즈를 만들어보세요',
+                more_button_link: 'https://pinto-now.vercel.app/editor',
+                device_type: 'all',
+                sort_order: 1
+            },
+            {
+                type: 'TOP_BANNER',
+                title: 'TOP 배너 2 - 제작 서비스',
+                href: '/products',
+                main_title: '소량 제작부터 대량 주문까지',
+                sub_title: '다양한 굿즈 제작 서비스를 만나보세요',
+                more_button_link: '/products',
+                device_type: 'all',
+                sort_order: 2
+            },
+            {
+                type: 'TOP_BANNER',
+                title: 'TOP 배너 3 - 반려동물 굿즈',
+                href: '/category/pet',
+                main_title: '반려동물과 함께하는 특별한 순간',
+                sub_title: '사랑하는 반려동물을 위한 맞춤 굿즈를 만들어보세요',
+                more_button_link: '/category/pet',
+                device_type: 'all',
+                sort_order: 3
+            },
+            {
+                type: 'HOME_SLIDER_PC',
+                title: 'PC 슬라이더 배너 1',
+                href: '/creator-join',
+                device_type: 'pc',
+                sort_order: 1
+            },
+            {
+                type: 'HOME_SLIDER_PC',
+                title: 'PC 슬라이더 배너 2',
+                href: '/products/popular',
+                device_type: 'pc',
+                sort_order: 2
+            },
+            {
+                type: 'PLATFORM_BANNER',
+                title: '창작자 참여 플랫폼 배너',
+                href: '/creator-market',
+                main_title: '창작자, 작가 모두가 참여하는 플랫폼',
+                sub_title: '다양한 창작자와 작가들이 함께 만드는 특별한 굿즈를 만나보세요',
+                device_type: 'all',
+                sort_order: 1
+            }
+        ];
+
+        async function uploadLocalImages() {
+            const uploadBtn = document.getElementById('uploadBtn');
+            const results = document.getElementById('results');
+            
+            uploadBtn.disabled = true;
+            results.innerHTML = '<div class="loading"><div class="spinner"></div><p>로컬 이미지들을 Blob에 업로드 중...</p></div>';
+
+            try {
+                const response = await fetch('/api/upload-local-images', {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    uploadedUrls = data.urls;
+                    results.innerHTML = `
+                        <div class="result success">
+                            ✅ ${data.message}
+                            
+                            <div class="url-list">
+                                <strong>업로드된 URL들:</strong><br>
+                                ${Object.entries(uploadedUrls).map(([key, url]) => `${key}: ${url}`).join('<br>')}
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 다음 단계 버튼 활성화
+                    document.getElementById('bannerBtn').disabled = false;
+                    document.getElementById('categoryBtn').disabled = false;
+                } else {
+                    results.innerHTML = `<div class="result error">❌ 업로드 실패: ${data.error}</div>`;
+                }
+            } catch (error) {
+                results.innerHTML = `<div class="result error">❌ 업로드 오류: ${error.message}</div>`;
+            } finally {
+                uploadBtn.disabled = false;
+            }
+        }
+
+        async function registerDefaultBanners() {
+            const bannerBtn = document.getElementById('bannerBtn');
+            const results = document.getElementById('results');
+            
+            bannerBtn.disabled = true;
+            results.innerHTML += '<div class="result">📝 기본 배너 데이터베이스 등록 중...</div>';
+
+            let successCount = 0;
+            
+            for (let i = 0; i < banners.length; i++) {
+                const banner = banners[i];
+                const imageKey = `image${Math.min(i + 1, 8)}`; // 이미지 1~8 순환 사용
+                
+                try {
+                    const bannerData = {
+                        title: banner.title,
+                        image_url: uploadedUrls[imageKey] || '',
+                        href: banner.href || '#',
+                        main_title: banner.main_title,
+                        sub_title: banner.sub_title,
+                        more_button_link: banner.more_button_link,
+                        banner_type: banner.type,
+                        device_type: banner.device_type,
+                        is_active: true,
+                        sort_order: banner.sort_order
+                    };
+
+                    const response = await fetch('/api/banners', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(bannerData)
+                    });
+
+                    if (response.ok) {
+                        results.innerHTML += `<div class="result success">✅ ${banner.title} 등록 성공</div>`;
+                        successCount++;
+                    } else {
+                        const error = await response.json();
+                        results.innerHTML += `<div class="result error">❌ ${banner.title} 등록 실패: ${error.error}</div>`;
+                    }
+                } catch (error) {
+                    results.innerHTML += `<div class="result error">❌ ${banner.title} 등록 오류: ${error.message}</div>`;
+                }
+            }
+
+            results.innerHTML += `<div class="result success">🎉 배너 등록 완료! (${successCount}/${banners.length})</div>`;
+            bannerBtn.disabled = false;
+        }
+
+        async function registerDefaultCategories() {
+            const categoryBtn = document.getElementById('categoryBtn');
+            const results = document.getElementById('results');
+            
+            categoryBtn.disabled = true;
+            results.innerHTML += '<div class="result">📝 기본 카테고리 데이터베이스 등록 중...</div>';
+
+            let successCount = 0;
+            
+            for (let i = 0; i < categories.length; i++) {
+                const category = categories[i];
+                const imageKey = `category${i + 1}`;
+                
+                try {
+                    const categoryData = {
+                        title: category.title,
+                        image_url: uploadedUrls[imageKey] || '',
+                        href: category.href,
+                        sort_order: i + 1,
+                        is_active: true
+                    };
+
+                    const response = await fetch('/api/category-shortcuts', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(categoryData)
+                    });
+
+                    if (response.ok) {
+                        results.innerHTML += `<div class="result success">✅ ${category.title} 카테고리 등록 성공</div>`;
+                        successCount++;
+                    } else {
+                        const error = await response.json();
+                        results.innerHTML += `<div class="result error">❌ ${category.title} 카테고리 등록 실패: ${error.error}</div>`;
+                    }
+                } catch (error) {
+                    results.innerHTML += `<div class="result error">❌ ${category.title} 카테고리 등록 오류: ${error.message}</div>`;
+                }
+            }
+
+            results.innerHTML += `<div class="result success">🎉 카테고리 등록 완료! (${successCount}/${categories.length})</div>`;
+            results.innerHTML += `<div class="result success">✨ 모든 작업 완료! 홈페이지를 새로고침하여 확인하세요.</div>`;
+            categoryBtn.disabled = false;
+        }
+    </script>
+</body>
+</html>

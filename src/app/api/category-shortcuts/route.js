@@ -7,10 +7,6 @@ import { query } from '@/lib/mysql';
  */
 export async function GET() {
   try {
-    // 임시로 하드코딩된 데이터 제거 (관리자가 직접 추가할 예정)
-    return NextResponse.json([]);
-    
-    /* 원래 코드 - 데이터베이스 연결 후 사용
     const shortcuts = await query(
       'SELECT * FROM category_shortcuts WHERE is_active = ? ORDER BY sort_order ASC',
       [1]
@@ -26,7 +22,6 @@ export async function GET() {
     }));
 
     return NextResponse.json(transformedShortcuts);
-    */
     
   } catch (error) {
     console.error('Category shortcuts API error:', error);

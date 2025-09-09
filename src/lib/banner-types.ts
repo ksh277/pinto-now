@@ -4,7 +4,8 @@ export enum BannerType {
   STRIP_BANNER = 'STRIP_BANNER', 
   HOME_SLIDER_PC = 'HOME_SLIDER_PC',
   HOME_SLIDER_MOBILE = 'HOME_SLIDER_MOBILE',
-  IMAGE_BANNER = 'IMAGE_BANNER'
+  IMAGE_BANNER = 'IMAGE_BANNER',
+  PLATFORM_BANNER = 'PLATFORM_BANNER'
 }
 
 export type DeviceType = 'pc' | 'mobile' | 'all';
@@ -33,7 +34,8 @@ export const BANNER_LIMITS = {
   [BannerType.STRIP_BANNER]: 1,
   [BannerType.HOME_SLIDER_PC]: 2,
   [BannerType.HOME_SLIDER_MOBILE]: 1,
-  [BannerType.IMAGE_BANNER]: 12
+  [BannerType.IMAGE_BANNER]: 12,
+  [BannerType.PLATFORM_BANNER]: 1
 } as const;
 
 export type StripBannerData = {

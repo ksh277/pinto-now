@@ -122,6 +122,7 @@ export function BannerAdmin() {
       [BannerType.HOME_SLIDER_PC]: 'PC 슬라이더',
       [BannerType.HOME_SLIDER_MOBILE]: '모바일 슬라이더',
       [BannerType.IMAGE_BANNER]: '이미지 배너',
+      [BannerType.PLATFORM_BANNER]: '플랫폼 배너',
     };
     return labels[type];
   };
@@ -133,6 +134,7 @@ export function BannerAdmin() {
       [BannerType.HOME_SLIDER_PC]: '#45b7d1',
       [BannerType.HOME_SLIDER_MOBILE]: '#96ceb4',
       [BannerType.IMAGE_BANNER]: '#feca57',
+      [BannerType.PLATFORM_BANNER]: '#F4F4F4',
     };
     return colors[type] || '#95a5a6';
   };
@@ -249,6 +251,40 @@ export function BannerAdmin() {
                   onChange={(e) => setMoreButtonLink(e.target.value)}
                   style={{ width: '100%', padding: 12, borderRadius: 6, border: '1px solid #dee2e6' }}
                 />
+              </div>
+            </div>
+          )}
+
+          {/* PLATFORM_BANNER 전용 필드 */}
+          {bannerType === BannerType.PLATFORM_BANNER && (
+            <div style={{ 
+              background: '#f4f4f4', 
+              padding: 16, 
+              borderRadius: 8, 
+              border: '1px solid #ddd' 
+            }}>
+              <h4 style={{ margin: '0 0 12px 0', color: '#505050', fontSize: 14 }}>플랫폼 배너 전용 설정</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>대제목</label>
+                  <input
+                    type="text"
+                    placeholder="예: 창작자, 작가 모두가 참여하는 플랫폼"
+                    value={mainTitle}
+                    onChange={(e) => setMainTitle(e.target.value)}
+                    style={{ width: '100%', padding: 12, borderRadius: 6, border: '1px solid #dee2e6' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>소제목</label>
+                  <input
+                    type="text"
+                    placeholder="예: 다양한 창작자와 작가들이 함께 만드는 특별한 굿즈"
+                    value={subTitle}
+                    onChange={(e) => setSubTitle(e.target.value)}
+                    style={{ width: '100%', padding: 12, borderRadius: 6, border: '1px solid #dee2e6' }}
+                  />
+                </div>
               </div>
             </div>
           )}

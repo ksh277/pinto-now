@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useLanguage } from '@/contexts/language-context';
 
 interface WeeklyRankingProduct {
   product_id: number;
@@ -30,6 +31,7 @@ export default function WeeklyRankingCards({
   showRankNumbers = true,
   className = '' 
 }: WeeklyRankingCardsProps) {
+  const { t } = useLanguage();
   const [rankings, setRankings] = useState<WeeklyRankingProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -93,9 +95,9 @@ export default function WeeklyRankingCards({
 
   const getSellerTypeLabel = (type: string) => {
     switch (type) {
-      case 'CREATOR': return '창작자';
-      case 'AUTHOR': return '작가';
-      case 'INDIVIDUAL': return '개인';
+      case 'CREATOR': return t('ranking.creator');
+      case 'AUTHOR': return t('ranking.author');
+      case 'INDIVIDUAL': return t('ranking.individual');
       default: return type;
     }
   };
@@ -122,7 +124,7 @@ export default function WeeklyRankingCards({
     return (
       <div className={`space-y-4 ${className}`}>
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold">주간 랭킹 - {getSellerTypeLabel(sellerType)}</h2>
+          <h2 className="text-xl font-bold">{t('ranking.weekly_title')} - {getSellerTypeLabel(sellerType)}</h2>
         </div>
         <div className="md:grid md:grid-cols-4 md:gap-4 flex md:block overflow-x-auto md:overflow-visible gap-4 md:gap-0 pb-4 md:pb-0 scrollbar-hide px-4 md:px-0">
           {Array.from({ length: limit }).map((_, index) => (
@@ -141,12 +143,12 @@ export default function WeeklyRankingCards({
   if (error) {
     return (
       <div className={`text-center py-8 ${className}`}>
-        <p className="text-red-500 mb-4">랭킹을 불러오는데 실패했습니다: {error}</p>
+        <p className="text-red-500 mb-4">{t('ranking.loading_failed')}: {error}</p>
         <button
           onClick={fetchWeeklyRankings}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
-          다시 시도
+          {t('ranking.retry')}
         </button>
       </div>
     );
@@ -155,7 +157,7 @@ export default function WeeklyRankingCards({
   if (rankings.length === 0) {
     return (
       <div className={`text-center py-8 ${className}`}>
-        <p className="text-gray-500">이번 주 {getSellerTypeLabel(sellerType)} 랭킹이 없습니다.</p>
+        <p className="text-gray-500">{t('ranking.no_rankings').replace('{type}', getSellerTypeLabel(sellerType))}</p>
       </div>
     );
   }
@@ -163,7 +165,7 @@ export default function WeeklyRankingCards({
   return (
     <div className={`space-y-4 ${className}`}>
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">주간 랭킹 - {getSellerTypeLabel(sellerType)}</h2>
+        <h2 className="text-xl font-bold">{t('ranking.weekly_title')} - {getSellerTypeLabel(sellerType)}</h2>
         {weekRange && (
           <span className="text-sm text-gray-500">
             {weekRange.start} ~ {weekRange.end}
@@ -225,7 +227,7 @@ export default function WeeklyRankingCards({
                   <span className="font-bold text-blue-600 text-base md:text-lg">
                     {formatPrice(product.product_price)}
                   </span>
-                  <span className="text-xs text-gray-500 ml-1">부터</span>
+                  <span className="text-xs text-gray-500 ml-1">{t('ranking.from_price')}</span>
                 </div>
               </div>
             </div>
