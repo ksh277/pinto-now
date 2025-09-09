@@ -23,7 +23,7 @@ export async function fetchBanners(options?: {
 
     // Use absolute URL for server-side rendering, relative URL for client-side
     const baseUrl = typeof window === 'undefined' 
-      ? process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3010'
+      ? process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
       : '';
     const url = `${baseUrl}/api/banners${params.toString() ? '?' + params.toString() : ''}`;
     console.log('Fetching banners from:', url);
