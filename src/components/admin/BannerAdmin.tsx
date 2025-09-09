@@ -78,7 +78,9 @@ export function BannerAdmin() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to create banner');
+        const errorMessage = error.error || 'Failed to create banner';
+        console.error('Banner creation failed:', errorMessage);
+        throw new Error(errorMessage);
       }
         
       const items = await fetchBanners({ includeInactive: true });

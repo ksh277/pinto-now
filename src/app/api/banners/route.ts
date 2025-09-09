@@ -88,9 +88,30 @@ export async function POST(req: Request) {
         if (value instanceof File) {
           console.log(`File field ${key}:`, value.name, value.size, value.type);
           
+          // Validate file size (max 5MB)
+          if (value.size > 5 * 1024 * 1024) {
+            return NextResponse.json(
+              { error: '파일 크기는 5MB를 초과할 수 없습니다.' },
+              { status: 400 }
+            );
+          }
+          
+          // Validate file type
+          if (!value.type.startsWith('image/')) {
+            return NextResponse.json(
+              { error: '이미지 파일만 업로드 가능합니다.' },
+              { status: 400 }
+            );
+          }
+          
           // Upload to Vercel Blob Storage
           try {
             console.log('Attempting to upload to Vercel Blob...');
+            
+            // Check if Vercel Blob is configured
+            if (!process.env.BLOB_READ_WRITE_TOKEN) {
+              throw new Error('BLOB_READ_WRITE_TOKEN is not configured');
+            }
             
             const timestamp = Date.now();
             const sanitizedName = value.name.replace(/[^a-zA-Z0-9.-]/g, '_');
@@ -111,16 +132,11 @@ export async function POST(req: Request) {
           } catch (uploadError: any) {
             console.error('❌ Vercel Blob Upload failed:', uploadError?.message || 'Unknown error');
             
-            // Fallback to placeholder for now
-            const timestamp = Date.now();
-            const placeholderUrl = `https://via.placeholder.com/1200x400/FF6B6B/FFFFFF?text=BANNER+${timestamp}`;
-            console.log(`Using placeholder instead: ${placeholderUrl}`);
-            
-            if (key === 'image' || key === 'file') {
-              data['image_url'] = placeholderUrl;
-            } else {
-              data[key] = placeholderUrl;
-            }
+            // Return error instead of using placeholder
+            return NextResponse.json(
+              { error: `이미지 업로드에 실패했습니다: ${uploadError?.message || '알 수 없는 오류'}` },
+              { status: 500 }
+            );
           }
         } else {
           data[key] = value;
