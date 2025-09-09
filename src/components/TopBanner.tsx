@@ -39,7 +39,7 @@ export function TopBanner() {
   const currentBanner = banners[currentIndex];
 
   return (
-    <div className="relative w-full h-[970px] overflow-hidden">
+    <div className="relative w-full h-[700px] overflow-hidden">
       {/* 핵심 패치: Next/Image 완전 OFF, 원본 그대로 */}
       <a 
         href={currentBanner.href || '#'} 
