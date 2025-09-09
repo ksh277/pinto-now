@@ -4,7 +4,8 @@ module.exports = {
       'via.placeholder.com', 
       'placehold.co', 
       'images.unsplash.com',
-      'storage.googleapis.com'
+      'storage.googleapis.com',
+      'sz7jnwkajix1gylf.public.blob.vercel-storage.com'
     ],
     remotePatterns: [
       {
@@ -30,6 +31,10 @@ module.exports = {
       {
         protocol: 'https',
         hostname: 'blob.vercel-storage.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'sz7jnwkajix1gylf.public.blob.vercel-storage.com',
       },
     ],
   },

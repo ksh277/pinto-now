@@ -70,10 +70,7 @@ export default async function HomePage() {
         {/* 나머지 콘텐츠에만 패딩 적용 */}
         <div className="px-8 md:px-16">
 
-        {/* SHORTCUTS - 데스크톱만 표시, 모바일에서는 숨김 */}
-        <section className="hidden md:block py-12 md:py-16">
-          <CategoryShortcuts />
-        </section>
+        {/* SHORTCUTS는 TopBanner 컴포넌트 내에서 처리됨 */}
 
         {/* INFO CARDS — 작은 캡션 + 회색 박스 (글자 더 아래 / 박스 더 큼) */}
         <section className="pt-12 md:pt-14">
