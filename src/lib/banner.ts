@@ -1,3 +1,5 @@
+import { query } from '@/lib/mysql';
+
 export enum BannerType {
   TOP_BANNER = 'TOP_BANNER',
   STRIP_BANNER = 'STRIP_BANNER', 
@@ -21,10 +23,10 @@ export type Banner = {
   deviceType?: DeviceType;
   isActive?: boolean;
   sortOrder?: number;
-  startAt?: string;
-  endAt?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  startAt?: string | null;
+  endAt?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
 };
 
 export const BANNER_LIMITS = {
@@ -64,7 +66,11 @@ export async function fetchBanners(options?: {
     if (options?.bannerType) params.append('banner_type', options.bannerType);
     if (options?.deviceType) params.append('device_type', options.deviceType);
 
-    const url = `/api/banners${params.toString() ? '?' + params.toString() : ''}`;
+    // Use absolute URL for server-side rendering, relative URL for client-side
+    const baseUrl = typeof window === 'undefined' 
+      ? process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3010'
+      : '';
+    const url = `${baseUrl}/api/banners${params.toString() ? '?' + params.toString() : ''}`;
     console.log('Fetching banners from:', url);
     const res = await fetch(url, { cache: 'no-store' });
     
@@ -84,7 +90,93 @@ export async function fetchBanners(options?: {
   }
 }
 
+// Server-side function to fetch banners directly from database
+export async function fetchBannersFromDB(options?: {
+  includeInactive?: boolean;
+  sort?: string;
+  order?: 'asc' | 'desc';
+  limit?: number;
+  bannerType?: BannerType;
+  deviceType?: DeviceType;
+}): Promise<Banner[]> {
+  try {
+    let sql = 'SELECT * FROM banners';
+    let params: any[] = [];
+    let conditions: string[] = [];
+    
+    if (!options?.includeInactive) {
+      conditions.push('is_active = ?');
+      params.push(true);
+    }
+    
+    if (options?.bannerType) {
+      conditions.push('banner_type = ?');
+      params.push(options.bannerType);
+    }
+    
+    if (options?.deviceType) {
+      conditions.push('(device_type = ? OR device_type = ?)');
+      params.push(options.deviceType, 'all');
+    }
+    
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    const sortBy = options?.sort || 'created_at';
+    const sortOrder = options?.order === 'asc' ? 'asc' : 'desc';
+    
+    if (sortBy === 'sort_order') {
+      sql += ` ORDER BY sort_order ${sortOrder.toUpperCase()}, created_at DESC`;
+    } else {
+      sql += ` ORDER BY ${sortBy} ${sortOrder.toUpperCase()}`;
+    }
+    
+    const limit = Math.min(options?.limit || 50, 100);
+    sql += ` LIMIT ${limit}`;
+    
+    console.log('Executing banner query:', sql, params);
+    const items = await query(sql, params);
+
+    const transformedItems = (items as any[]).map((item: any) => ({
+      id: item.id.toString(),
+      href: item.href || '#',
+      imgSrc: item.image_url,
+      alt: item.title,
+      title: item.title,
+      mainTitle: item.main_title,
+      subTitle: item.sub_title,
+      moreButtonLink: item.more_button_link,
+      bannerType: item.banner_type,
+      deviceType: item.device_type,
+      isActive: item.is_active,
+      sortOrder: item.sort_order,
+      startAt: item.start_at ? new Date(item.start_at).toISOString() : null,
+      endAt: item.end_at ? new Date(item.end_at).toISOString() : null,
+      createdAt: item.created_at ? new Date(item.created_at).toISOString() : null,
+      updatedAt: item.updated_at ? new Date(item.updated_at).toISOString() : null,
+    }));
+
+    console.log(`Found ${transformedItems.length} banners from DB`);
+    return transformedItems;
+  } catch (error) {
+    console.error('Error fetching banners from DB:', error);
+    return [];
+  }
+}
+
 export async function fetchBannersByType(bannerType: BannerType, deviceType?: DeviceType): Promise<Banner[]> {
+  // Use database function if running on server
+  if (typeof window === 'undefined') {
+    return fetchBannersFromDB({ 
+      bannerType, 
+      deviceType,
+      sort: 'sort_order',
+      order: 'asc' 
+    });
+  }
+  
+  // Use API call if running on client
   return fetchBanners({ 
     bannerType, 
     deviceType,

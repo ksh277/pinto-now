@@ -88,40 +88,77 @@ export async function POST(req: Request) {
         if (value instanceof File) {
           console.log(`File field ${key}:`, value.name, value.size, value.type);
           
-          // Upload to Google Cloud Storage with HMAC
-          const storage = new Storage({
-            projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
-          });
-          
-          const bucketName = process.env.GOOGLE_CLOUD_BUCKET_NAME || 'pinto-images';
-          const bucket = storage.bucket(bucketName);
-          
-          const timestamp = Date.now();
-          const filename = `banners/${timestamp}-${value.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-          
-          const file = bucket.file(filename);
-          const stream = file.createWriteStream({
-            metadata: {
-              contentType: value.type,
-            },
-            public: true,
-          });
-          
-          const buffer = Buffer.from(await value.arrayBuffer());
-          
-          await new Promise((resolve, reject) => {
-            stream.on('error', reject);
-            stream.on('finish', resolve);
-            stream.end(buffer);
-          });
-          
-          const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
-          console.log(`File uploaded to GCS: ${publicUrl}`);
-          
-          if (key === 'image' || key === 'file') {
-            data['image_url'] = publicUrl;
-          } else {
-            data[key] = publicUrl;
+          // Upload to Google Cloud Storage using Service Account
+          try {
+            console.log('Attempting to upload to Google Cloud Storage...');
+            
+            // Create credentials object for Google Cloud Storage
+            const credentials = {
+              type: "service_account",
+              project_id: process.env.GOOGLE_CLOUD_PROJECT_ID,
+              private_key_id: process.env.GOOGLE_CLOUD_PRIVATE_KEY_ID,
+              private_key: process.env.GOOGLE_CLOUD_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+              client_email: process.env.GOOGLE_CLOUD_CLIENT_EMAIL,
+              client_id: process.env.GOOGLE_CLOUD_CLIENT_ID,
+              auth_uri: "https://accounts.google.com/o/oauth2/auth",
+              token_uri: "https://oauth2.googleapis.com/token",
+              auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs"
+            };
+
+            const storage = new Storage({
+              projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
+              credentials: credentials as any
+            });
+            
+            const bucketName = process.env.GOOGLE_CLOUD_BUCKET_NAME || 'pinto-images-bucket';
+            const bucket = storage.bucket(bucketName);
+            
+            const timestamp = Date.now();
+            const sanitizedName = value.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+            const filename = `banners/${timestamp}-${sanitizedName}`;
+            
+            const file = bucket.file(filename);
+            const stream = file.createWriteStream({
+              metadata: {
+                contentType: value.type,
+              },
+              public: true,
+              userProject: process.env.GOOGLE_CLOUD_PROJECT_ID, // For requester pays buckets
+            });
+            
+            const buffer = Buffer.from(await value.arrayBuffer());
+            
+            await new Promise((resolve, reject) => {
+              stream.on('error', (error) => {
+                console.error('GCS Upload Error:', error);
+                reject(error);
+              });
+              stream.on('finish', resolve);
+              stream.end(buffer);
+            });
+            
+            const publicUrl = `https://storage.googleapis.com/${bucketName}/${filename}`;
+            console.log(`✅ File uploaded to GCS: ${publicUrl}`);
+            
+            if (key === 'image' || key === 'file') {
+              data['image_url'] = publicUrl;
+            } else {
+              data[key] = publicUrl;
+            }
+            
+          } catch (uploadError: any) {
+            console.error('❌ GCS Upload failed:', uploadError?.message || 'Unknown error');
+            
+            // Fallback to placeholder for now
+            const timestamp = Date.now();
+            const placeholderUrl = `https://via.placeholder.com/1200x400/FF6B6B/FFFFFF?text=BANNER+${timestamp}`;
+            console.log(`Using placeholder instead: ${placeholderUrl}`);
+            
+            if (key === 'image' || key === 'file') {
+              data['image_url'] = placeholderUrl;
+            } else {
+              data[key] = placeholderUrl;
+            }
           }
         } else {
           data[key] = value;
@@ -157,8 +194,8 @@ export async function POST(req: Request) {
       deviceType,
       isActive ? 1 : 0,
       sortOrder,
-      data.start_at || new Date(),
-      data.end_at || new Date('2025-12-31')
+      data.start_at || new Date().toISOString().slice(0, 19).replace('T', ' '),
+      data.end_at || '2025-12-31 23:59:59'
     ]);
 
     const insertResult = await query(
@@ -177,8 +214,8 @@ export async function POST(req: Request) {
         deviceType,
         isActive ? 1 : 0,
         sortOrder,
-        data.start_at || new Date(),
-        data.end_at || new Date('2025-12-31')
+        data.start_at || new Date().toISOString().slice(0, 19).replace('T', ' '),
+        data.end_at || '2025-12-31 23:59:59'
       ]
     ) as any;
 

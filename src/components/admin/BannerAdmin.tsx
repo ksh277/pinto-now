@@ -60,49 +60,61 @@ export function BannerAdmin() {
         return;
       }
 
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        try {
-          await addBanner({ 
-            imgSrc: e.target?.result as string, 
-            alt: title.trim(),
-            href: href.trim() || undefined,
-            mainTitle: mainTitle.trim() || undefined,
-            subTitle: subTitle.trim() || undefined,
-            moreButtonLink: moreButtonLink.trim() || undefined,
-            bannerType,
-            deviceType,
-            startAt: startDate ? new Date(startDate) : undefined,
-            endAt: endDate ? new Date(endDate) : undefined,
-          });
-          
-          const items = await fetchBanners({ includeInactive: true });
-          setBanners(items);
-          
-          // 폼 초기화
-          setImage(null);
-          setTitle('');
-          setMainTitle('');
-          setSubTitle('');
-          setMoreButtonLink('');
-          setHref('');
-          setBannerType(BannerType.IMAGE_BANNER);
-          setDeviceType('all');
-          setStartDate('');
-          setEndDate('');
-          
-        } catch (error: any) {
-          console.error('Banner creation error:', error);
-          setError('배너 등록 실패: ' + (error.message || '알 수 없는 오류'));
-        } finally {
-          setLoading(false);
+      // 직접 FormData로 API 호출
+      try {
+        const formData = new FormData();
+        formData.append('image', image);
+        formData.append('title', title.trim());
+        if (href.trim()) formData.append('href', href.trim());
+        if (mainTitle.trim()) formData.append('main_title', mainTitle.trim());
+        if (subTitle.trim()) formData.append('sub_title', subTitle.trim());
+        if (moreButtonLink.trim()) formData.append('more_button_link', moreButtonLink.trim());
+        formData.append('banner_type', bannerType);
+        formData.append('device_type', deviceType);
+        formData.append('is_active', 'true');
+        formData.append('sort_order', '0');
+        if (startDate) {
+          // Convert datetime-local format to MySQL format
+          const mysqlStartDate = startDate.replace('T', ' ') + ':00';
+          formData.append('start_at', mysqlStartDate);
         }
-      };
-      reader.readAsDataURL(image);
-    } catch (error: any) {
-      setError(error.message || '배너 등록에 실패했습니다.');
-      setLoading(false);
-    }
+        if (endDate) {
+          // Convert datetime-local format to MySQL format  
+          const mysqlEndDate = endDate.replace('T', ' ') + ':00';
+          formData.append('end_at', mysqlEndDate);
+        }
+
+        const response = await fetch('/api/banners', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to create banner');
+        }
+          
+        const items = await fetchBanners({ includeInactive: true });
+        setBanners(items);
+        
+        // 폼 초기화
+        setImage(null);
+        setTitle('');
+        setMainTitle('');
+        setSubTitle('');
+        setMoreButtonLink('');
+        setHref('');
+        setBannerType(BannerType.IMAGE_BANNER);
+        setDeviceType('all');
+        setStartDate('');
+        setEndDate('');
+        
+      } catch (error: any) {
+        console.error('Banner creation error:', error);
+        setError('배너 등록 실패: ' + (error.message || '알 수 없는 오류'));
+      } finally {
+        setLoading(false);
+      }
   };
 
   const handleRemove = async (id: string) => {
