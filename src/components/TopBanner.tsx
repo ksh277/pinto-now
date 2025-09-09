@@ -62,7 +62,7 @@ export function TopBanner() {
   }
 
   return (
-    <div className="relative w-full h-[400px] overflow-hidden bg-red-500">
+    <div className="relative w-full h-[970px] overflow-hidden bg-red-500">
       {/* 강제 디버그 텍스트 */}
       <div className="absolute top-4 left-4 bg-yellow-400 text-black p-4 text-lg z-[999]">
         배너 개수: {banners.length}
