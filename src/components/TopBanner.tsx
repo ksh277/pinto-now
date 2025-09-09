@@ -68,24 +68,37 @@ export function TopBanner() {
           {banners.map((banner) => (
             <CarouselItem key={banner.id} className="h-full">
               <Link href={banner.href} className="relative block w-full h-full">
-                {/* 배경 이미지 - img 태그 사용 */}
-                <img 
-                  src={banner.imgSrc}
-                  alt={banner.alt}
-                  className="absolute inset-0 w-full h-full object-cover z-0"
-                  onError={(e) => console.error('Image failed to load:', banner.imgSrc)}
-                  onLoad={() => console.log('Image loaded successfully:', banner.imgSrc)}
+                {/* 배경 이미지 - 직접 스타일 사용 */}
+                <div 
+                  className="absolute inset-0 w-full h-full z-0"
                   style={{
+                    backgroundImage: `url("${banner.imgSrc}")`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
                     display: 'block',
                     visibility: 'visible',
                     opacity: 1
                   }}
+                  onLoad={() => console.log('Background loaded:', banner.imgSrc)}
                 />
                 
                 {/* 디버그: 이미지 URL 확인 */}
                 <div className="absolute top-4 left-4 bg-black text-white p-2 text-xs z-50">
                   Image: {banner.imgSrc}
                 </div>
+                
+                {/* 테스트용 하드코딩 이미지 */}
+                <div 
+                  className="absolute inset-0 w-full h-full z-5"
+                  style={{
+                    backgroundImage: 'url("https://images.unsplash.com/photo-1557683316-973673baf926?w=1200&h=600&fit=crop&q=80")',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    opacity: 0.8
+                  }}
+                />
                 
                 {/* 어두운 오버레이 */}
                 <div className="absolute inset-0 bg-black/20 z-10"></div>
