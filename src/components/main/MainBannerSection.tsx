@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { fetchBanners, type Banner } from '@/lib/banner';
+import { fetchBanners, BannerType, type Banner } from '@/lib/banner';
 
 export default function MainBannerSection() {
   const [banners, setBanners] = useState<Banner[]>([]);
@@ -14,7 +14,7 @@ export default function MainBannerSection() {
     async function loadBanners() {
       try {
         const data = await fetchBanners({
-          bannerType: 'HOME_SLIDER_PC',
+          bannerType: BannerType.HOME_SLIDER_PC,
           sort: 'sort_order',
           order: 'asc'
         });
