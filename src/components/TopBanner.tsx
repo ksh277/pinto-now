@@ -88,15 +88,25 @@ export function TopBanner() {
                   Image: {banner.imgSrc}
                 </div>
                 
-                {/* 테스트용 하드코딩 이미지 */}
+                {/* 테스트용 작은 이미지들 */}
                 <div 
                   className="absolute inset-0 w-full h-full z-5"
                   style={{
-                    backgroundImage: 'url("https://images.unsplash.com/photo-1557683316-973673baf926?w=1200&h=600&fit=crop&q=80")',
+                    backgroundImage: 'url("https://via.placeholder.com/800x400/FF0000/FFFFFF?text=TEST")',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
                     opacity: 0.8
+                  }}
+                />
+                
+                {/* 실제 배너 이미지 강제 표시 */}
+                <div 
+                  className="absolute top-16 left-4 w-32 h-16 border-2 border-white z-50"
+                  style={{
+                    backgroundImage: `url("${banner.imgSrc}")`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
                   }}
                 />
                 
