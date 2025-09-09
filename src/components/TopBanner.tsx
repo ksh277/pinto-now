@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { CarouselApi } from '@/components/ui/carousel';
-import { fetchBannersByType, BannerType, type Banner as HeroBanner } from '@/lib/banner';
+import { fetchBannersByType, BannerType } from '@/lib/banner';
+import type { Banner as HeroBanner } from '@/lib/banner-types';
 import {
   Carousel,
   CarouselContent,

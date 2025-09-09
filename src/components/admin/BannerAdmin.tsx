@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { addBanner, fetchBanners, removeBanner, BannerType, DeviceType, BANNER_LIMITS, checkBannerLimit, type Banner } from '@/lib/banner';
+import { addBanner, fetchBanners, removeBanner, BannerType, BANNER_LIMITS, checkBannerLimit } from '@/lib/banner';
+import type { Banner, DeviceType } from '@/lib/banner-types';
 
 export function BannerAdmin() {
   const [banners, setBanners] = useState<Banner[]>([]);

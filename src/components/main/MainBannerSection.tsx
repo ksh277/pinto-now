@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { fetchBanners, BannerType, type Banner } from '@/lib/banner';
+import { fetchBanners, BannerType } from '@/lib/banner';
+import type { Banner } from '@/lib/banner-types';
 
 export default function MainBannerSection() {
   const [banners, setBanners] = useState<Banner[]>([]);
