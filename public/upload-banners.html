@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>배너 이미지 일괄 업로드</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .status { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .progress { margin: 20px 0; }
+        .preview { display: flex; gap: 10px; flex-wrap: wrap; margin: 20px 0; }
+        .preview img { width: 120px; height: 80px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 배너 이미지 일괄 업로드</h1>
+        <p>images/1.png ~ 8.png를 TOP_BANNER로 일괄 업로드합니다. (1번이 왼쪽부터 순서대로)</p>
+        
+        <div class="preview" id="preview"></div>
+        
+        <button id="uploadBtn" onclick="uploadAllBanners()">📤 배너 일괄 업로드 시작</button>
+        <button id="clearBtn" onclick="clearExisting()" style="background: #dc3545; margin-left: 10px;">🗑️ 기존 배너 삭제</button>
+        
+        <div class="progress" id="progress"></div>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        let isUploading = false;
+
+        // 미리보기 이미지 로드
+        window.onload = function() {
+            const preview = document.getElementById('preview');
+            for (let i = 1; i <= 8; i++) {
+                const img = document.createElement('img');
+                img.src = `/banners/${i}.png`;
+                img.alt = `Banner ${i}`;
+                img.title = `Top Banner ${i}`;
+                preview.appendChild(img);
+            }
+        };
+
+        function addStatus(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = message;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function setProgress(text) {
+            document.getElementById('progress').textContent = text;
+        }
+
+        function setButtonsDisabled(disabled) {
+            document.getElementById('uploadBtn').disabled = disabled;
+            document.getElementById('clearBtn').disabled = disabled;
+        }
+
+        async function clearExisting() {
+            if (isUploading) return;
+            
+            if (!confirm('기존 TOP_BANNER를 모두 삭제하시겠습니까?')) return;
+            
+            isUploading = true;
+            setButtonsDisabled(true);
+            addStatus('🗑️ 기존 배너 조회 중...');
+            
+            try {
+                const response = await fetch('/api/banners?banner_type=TOP_BANNER&include_inactive=true');
+                const banners = await response.json();
+                
+                addStatus(`찾은 기존 배너: ${banners.length}개`);
+                
+                for (const banner of banners) {
+                    try {
+                        const deleteResponse = await fetch(`/api/banners/${banner.id}`, {
+                            method: 'DELETE'
+                        });
+                        
+                        if (deleteResponse.ok) {
+                            addStatus(`✅ 삭제됨: ${banner.title}`, 'success');
+                        } else {
+                            addStatus(`❌ 삭제 실패: ${banner.title}`, 'error');
+                        }
+                    } catch (error) {
+                        addStatus(`❌ 삭제 오류: ${banner.title} - ${error.message}`, 'error');
+                    }
+                }
+                
+                addStatus('🎉 기존 배너 삭제 완료!', 'success');
+            } catch (error) {
+                addStatus(`❌ 오류: ${error.message}`, 'error');
+            }
+            
+            isUploading = false;
+            setButtonsDisabled(false);
+        }
+
+        async function uploadAllBanners() {
+            if (isUploading) return;
+            
+            isUploading = true;
+            setButtonsDisabled(true);
+            setProgress('');
+            addStatus('🚀 배너 업로드 시작!');
+
+            for (let i = 1; i <= 8; i++) {
+                try {
+                    setProgress(`📤 배너 ${i}/8 업로드 중...`);
+                    addStatus(`처리 중: Banner ${i}`);
+
+                    // Fetch the image from public folder
+                    const imageResponse = await fetch(`/banners/${i}.png`);
+                    if (!imageResponse.ok) {
+                        throw new Error(`이미지 ${i}.png를 찾을 수 없습니다`);
+                    }
+                    
+                    const imageBlob = await imageResponse.blob();
+                    
+                    // Create form data
+                    const formData = new FormData();
+                    formData.append('image', imageBlob, `${i}.png`);
+                    formData.append('title', `Top Banner ${i}`);
+                    formData.append('banner_type', 'TOP_BANNER');
+                    formData.append('device_type', 'all');
+                    formData.append('is_active', 'true');
+                    formData.append('sort_order', (i - 1).toString()); // 0-based, 1번이 왼쪽부터
+                    
+                    // Upload banner
+                    const uploadResponse = await fetch('/api/banners', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (uploadResponse.ok) {
+                        const result = await uploadResponse.json();
+                        addStatus(`✅ Banner ${i} 업로드 성공! ID: ${result.id}`, 'success');
+                    } else {
+                        const error = await uploadResponse.json();
+                        addStatus(`❌ Banner ${i} 업로드 실패: ${error.error}`, 'error');
+                    }
+                    
+                } catch (error) {
+                    addStatus(`❌ Banner ${i} 처리 오류: ${error.message}`, 'error');
+                }
+            }
+            
+            setProgress('');
+            addStatus('🎉 모든 배너 업로드 완료!', 'success');
+            
+            // 결과 확인
+            try {
+                const verifyResponse = await fetch('/api/banners?banner_type=TOP_BANNER&sort=sort_order&order=asc');
+                const banners = await verifyResponse.json();
+                addStatus(`📊 등록된 TOP_BANNER: ${banners.length}개`, 'info');
+                banners.forEach((banner, index) => {
+                    addStatus(`   ${index + 1}. ${banner.title} (순서: ${banner.sortOrder})`, 'info');
+                });
+            } catch (error) {
+                addStatus(`결과 확인 오류: ${error.message}`, 'error');
+            }
+            
+            isUploading = false;
+            setButtonsDisabled(false);
+        }
+    </script>
+</body>
+</html>
