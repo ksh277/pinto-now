@@ -68,7 +68,7 @@ export function TopBanner() {
           {banners.map((banner) => (
             <CarouselItem key={banner.id} className="h-full">
               <Link href={banner.href} className="relative block w-full h-full">
-                {/* 배경 이미지 - 화면 전체 꽉 참 */}
+                {/* 배경 이미지 - CSS로 직접 사용 */}
                 <div 
                   className="absolute inset-0"
                   style={{
@@ -77,8 +77,8 @@ export function TopBanner() {
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
                     width: '100%',
-                    height: '100%', // 화면 전체 높이
-                    top: '0', // 여백 없음
+                    height: '100%',
+                    top: '0',
                   }}
                 />
                 
