@@ -62,7 +62,7 @@ export function TopBanner() {
   }
 
   return (
-    <div className="relative w-full h-[970px] overflow-hidden">
+    <div className="relative w-full h-[970px] overflow-hidden bg-red-500">
       <Carousel opts={{ loop: true }} setApi={setApi} className="w-full h-full">
         <CarouselContent className="h-full">
           {banners.map((banner) => (
