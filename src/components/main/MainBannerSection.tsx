@@ -10,21 +10,23 @@ export default function MainBannerSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
-    // 임시로 테스트 배너 사용
-    setBanners([
-      {
-        id: '1',
-        imgSrc: 'https://placehold.co/800x400/4f46e5/ffffff?text=Test+Banner+1',
-        alt: '테스트 배너 1',
-        href: '/',
-      },
-      {
-        id: '2', 
-        imgSrc: 'https://placehold.co/800x400/7c3aed/ffffff?text=Test+Banner+2',
-        alt: '테스트 배너 2',
-        href: '/',
+    // API에서 배너 데이터 로드
+    async function loadBanners() {
+      try {
+        const data = await fetchBanners({
+          bannerType: 'HOME_SLIDER_PC',
+          sort: 'sort_order',
+          order: 'asc'
+        });
+        if (data.length > 0) {
+          setBanners(data);
+        }
+      } catch (error) {
+        console.error('Failed to load main banners:', error);
       }
-    ]);
+    }
+    
+    loadBanners();
   }, []);
 
   useEffect(() => {
