@@ -26,7 +26,7 @@ export function CategoryShortcuts() {
   ];
 
   return (
-    <div className="hidden md:flex justify-center w-full overflow-x-auto">
+    <div className="hidden md:flex justify-center w-full">
       <div 
         className="flex justify-center items-start flex-nowrap"
         style={{ 
