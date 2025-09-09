@@ -38,10 +38,11 @@ export function PlatformBanner() {
   };
 
   return (
-    <section className="pt-6 pb-4">
+    <section className="pt-6 pb-4 w-screen">
       <div 
-        className="bg-[#F4F4F4] rounded-2xl p-8 text-center cursor-pointer hover:bg-[#EEEEEE] transition-colors"
+        className="w-full bg-[#F4F4F4] rounded-2xl py-20 px-8 text-center cursor-pointer hover:bg-[#EEEEEE] transition-colors"
         onClick={handleBannerClick}
+        style={{ margin: 0, paddingLeft: 0 }}
       >
         {banner.mainTitle && (
           <h2 className="text-xl font-bold text-gray-800 mb-2">

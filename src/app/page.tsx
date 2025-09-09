@@ -67,7 +67,7 @@ export default async function HomePage() {
         <section className="">
           <TopBanner />
         </section>
-        
+
         {/* 나머지 콘텐츠에만 패딩 적용 */}
         <div className="px-8 md:px-16">
 
@@ -93,7 +93,9 @@ export default async function HomePage() {
         </section>
 
         {/* 창작자, 작가 참여 플랫폼 배너 */}
-        <PlatformBanner />
+        <section className="-mx-8 md:-mx-16">
+          <PlatformBanner />
+        </section>
 
         {/* ✅ 주간 랭킹 4카드 — CTA 아래로 이동 */}
         <section className="pt-6 pb-10 md:pt-8 md:pb-14">
