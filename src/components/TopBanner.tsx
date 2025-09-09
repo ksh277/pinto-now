@@ -68,18 +68,13 @@ export function TopBanner() {
           {banners.map((banner) => (
             <CarouselItem key={banner.id} className="h-full">
               <Link href={banner.href} className="relative block w-full h-full">
-                {/* 배경 이미지 - CSS로 직접 사용 */}
-                <div 
-                  className="absolute inset-0"
-                  style={{
-                    backgroundImage: `url('${banner.imgSrc}')`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                    width: '100%',
-                    height: '100%',
-                    top: '0',
-                  }}
+                {/* 배경 이미지 - img 태그 사용 */}
+                <img 
+                  src={banner.imgSrc}
+                  alt={banner.alt}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  onError={(e) => console.error('Image failed to load:', banner.imgSrc)}
+                  onLoad={() => console.log('Image loaded successfully:', banner.imgSrc)}
                 />
                 
                 {/* 디버그: 이미지 URL 확인 */}
