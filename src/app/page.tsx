@@ -98,7 +98,7 @@ export default async function HomePage() {
         </section>
 
         {/* ✅ 주간 랭킹 4카드 — CTA 아래로 이동 */}
-        <section className="pt-6 pb-10 md:pt-8 md:pb-14">
+        <section className="pt-[55px] pb-10 md:pt-8 md:pb-14">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-[15px] font-semibold text-slate-700">
               창작자, 작가 참여 마켓 주간 랭킹보기
