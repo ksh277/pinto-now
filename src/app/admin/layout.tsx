@@ -8,14 +8,14 @@ import { Package, FileText, HelpCircle, MessageSquare, BookOpen, Image as ImageI
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/admin/banners', label: 'Banners', icon: ImageIcon },
-  { href: '/admin/product-shelf-banners', label: 'Product Shelf Banners', icon: ImageIcon },
-  { href: '/admin/info-cards', label: 'Info Cards', icon: CreditCard },
-  { href: '/admin/products', label: 'Products', icon: Package },
-  { href: '/admin/notice', label: 'Notices', icon: FileText },
+  { href: '/admin/banners', label: '배너 관리', icon: ImageIcon },
+  { href: '/admin/product-shelf-banners', label: '상품진열 배너', icon: ImageIcon },
+  { href: '/admin/info-cards', label: '정보 카드', icon: CreditCard },
+  { href: '/admin/products', label: '상품 관리', icon: Package },
+  { href: '/admin/notice', label: '공지사항', icon: FileText },
   { href: '/admin/faq', label: 'FAQ', icon: HelpCircle },
-  { href: '/admin/guide', label: 'Guides', icon: BookOpen },
-  { href: '/admin/inquiries', label: 'Inquiries', icon: MessageSquare },
+  { href: '/admin/guide', label: '가이드', icon: BookOpen },
+  { href: '/admin/inquiries', label: '문의사항', icon: MessageSquare },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {

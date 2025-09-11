@@ -74,6 +74,7 @@ export default function AdminNoticesPage() {
       alert('Failed to delete notice');
     }
   };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
@@ -111,37 +112,38 @@ export default function AdminNoticesPage() {
               </TableRow>
             ) : (
               notices.map(notice => (
-              <TableRow key={notice.id}>
-                <TableCell className="font-medium">{notice.title}</TableCell>
-                <TableCell>{notice.isPublished ? '게시' : '숨김'}</TableCell>
-                <TableCell>{notice.pinned ? 'Y' : 'N'}</TableCell>
-                <TableCell>{notice.author.name}</TableCell>
-                <TableCell>{notice.views}</TableCell>
-                <TableCell>{notice.createdAt.toLocaleDateString()}</TableCell>
-                <TableCell className="text-right space-x-2">
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href={`/admin/notice/edit/${notice.id}`}>수정</Link>
-                  </Button>
-                   <AlertDialog>
-                    <AlertDialogTrigger asChild>
+                <TableRow key={notice.id}>
+                  <TableCell className="font-medium">{notice.title}</TableCell>
+                  <TableCell>{notice.isPublished ? '게시' : '숨김'}</TableCell>
+                  <TableCell>{notice.pinned ? 'Y' : 'N'}</TableCell>
+                  <TableCell>{notice.author.name}</TableCell>
+                  <TableCell>{notice.views}</TableCell>
+                  <TableCell>{notice.createdAt.toLocaleDateString()}</TableCell>
+                  <TableCell className="text-right space-x-2">
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={`/admin/notice/edit/${notice.id}`}>수정</Link>
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
                         <Button variant="destructive" size="sm">삭제</Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          이 작업은 되돌릴 수 없으며 공지사항이 영구적으로 삭제됩니다.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>취소</AlertDialogCancel>
-                        <AlertDialogAction>삭제</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </TableCell>
-              </TableRow>
-            ))}
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            이 작업은 되돌릴 수 없으며 공지사항이 영구적으로 삭제됩니다.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>취소</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => deleteNotice(notice.id)}>삭제</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
