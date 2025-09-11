@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/admin/banners', label: 'Banners', icon: ImageIcon },
+  { href: '/admin/product-shelf-banners', label: 'Product Shelf Banners', icon: ImageIcon },
   { href: '/admin/info-cards', label: 'Info Cards', icon: CreditCard },
   { href: '/admin/products', label: 'Products', icon: Package },
   { href: '/admin/notice', label: 'Notices', icon: FileText },

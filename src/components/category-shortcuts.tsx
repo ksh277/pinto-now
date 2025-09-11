@@ -69,13 +69,13 @@ export function CategoryShortcuts() {
             href={category.href}
             key={category.id}
             className="group flex flex-col items-center text-center flex-shrink-0"
-            style={{ width: '100px' }} // 전체 너비를 100px로 줄임
+            style={{ width: '156px' }}
           >
             <div 
               className="relative flex items-center justify-center rounded-full bg-white transition-shadow group-hover:shadow-lg dark:bg-secondary overflow-hidden mb-2"
               style={{ 
-                width: '80px',  // 원형 크기를 80px로 줄임 (160px → 80px)
-                height: '80px',
+                width: '156px',
+                height: '156px',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
               }}
             >
@@ -84,14 +84,14 @@ export function CategoryShortcuts() {
                 alt={category.title}
                 fill
                 className="object-cover"
-                sizes="80px"
+                sizes="156px"
               />
             </div>
             <span 
               className="font-medium text-foreground group-hover:text-primary text-center leading-tight"
               style={{ 
-                fontSize: '12px', // 폰트 크기도 줄임
-                maxWidth: '100px',
+                fontSize: '14px',
+                maxWidth: '156px',
                 wordBreak: 'keep-all',
                 lineHeight: '1.2'
               }}
