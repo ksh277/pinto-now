@@ -33,7 +33,7 @@ export function CategoryShortcuts() {
         console.error('Failed to fetch category shortcuts:', error);
         // 에러 시 기본 데이터 사용
         setCategories([
-          { id: '1', title: '아크릴 굿즈', image_url: '/category/1.png', href: '/category/acrylic', sort_order: 1, is_active: true },
+          { id: '1', title: '아크릴 굿즈', image_url: '/category/1.png', href: '/akril-goods', sort_order: 1, is_active: true },
           { id: '2', title: '포토카드', image_url: '/category/2.png', href: '/category/photocard', sort_order: 2, is_active: true },
           { id: '3', title: '티셔츠 인쇄', image_url: '/category/3.png', href: '/category/tshirt', sort_order: 3, is_active: true },
           { id: '4', title: '컵 만들기', image_url: '/category/4.png', href: '/category/cup', sort_order: 4, is_active: true },

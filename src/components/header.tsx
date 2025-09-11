@@ -50,7 +50,7 @@ export function Header() {
     // href가 있는 경우 해당 페이지로 이동
     const categoryItem = [
       { id: 'all', label: 'ALL' },
-      { id: 'acrylic', label: '아크릴', href: '/acrylic' },
+      { id: 'acrylic', label: '아크릴', href: '/akril-goods' },
       { id: 'paper', label: '지류', href: '/paper-goods' },
       { id: 'sticker', label: '스티커', href: '/sticker-goods' },
       { id: 'clothing', label: '의류', href: '/clothing-goods' },
