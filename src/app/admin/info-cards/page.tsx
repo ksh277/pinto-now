@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Trash2, Edit, Plus, Save, X } from 'lucide-react';
+import { Trash2, Edit, Plus, Save, X, Upload, Image as ImageIcon } from 'lucide-react';
+import Image from 'next/image';
 
 type InfoCard = {
   id: string;
@@ -25,6 +26,8 @@ export default function InfoCardsAdmin() {
   const [loading, setLoading] = useState(true);
   const [editingCard, setEditingCard] = useState<FormData | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchCards();
@@ -32,7 +35,7 @@ export default function InfoCardsAdmin() {
 
   const fetchCards = async () => {
     try {
-      const response = await fetch('/api/info-cards');
+      const response = await fetch('/api/info-cards?includeInactive=true');
       if (response.ok) {
         const data = await response.json();
         setCards(data.infoCards);
@@ -126,6 +129,44 @@ export default function InfoCardsAdmin() {
     setIsCreating(false);
   };
 
+  const handleImageUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const token = localStorage.getItem('authToken');
+      const response = await fetch('/api/upload/image', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (editingCard) {
+          setEditingCard({ ...editingCard, imageUrl: data.url });
+        }
+      } else {
+        alert('이미지 업로드에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      alert('이미지 업로드 중 오류가 발생했습니다.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleImageUpload(file);
+    }
+  };
+
   if (loading) {
     return <div className="p-6">로딩 중...</div>;
   }
@@ -156,13 +197,43 @@ export default function InfoCardsAdmin() {
               />
             </div>
             <div>
-              <Label htmlFor="imageUrl">이미지 URL</Label>
-              <Input
-                id="imageUrl"
-                value={editingCard.imageUrl || ''}
-                onChange={(e) => setEditingCard({ ...editingCard, imageUrl: e.target.value })}
-                placeholder="이미지 URL (선택사항)"
-              />
+              <Label htmlFor="imageUrl">이미지</Label>
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <Input
+                    id="imageUrl"
+                    value={editingCard.imageUrl || ''}
+                    onChange={(e) => setEditingCard({ ...editingCard, imageUrl: e.target.value })}
+                    placeholder="이미지 URL을 직접 입력하거나 파일을 업로드하세요"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={uploading}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    {uploading ? '업로드 중...' : '업로드'}
+                  </Button>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+                {editingCard.imageUrl && (
+                  <div className="relative w-32 h-32 rounded-lg overflow-hidden border">
+                    <Image
+                      src={editingCard.imageUrl}
+                      alt="미리보기"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
             <div className="md:col-span-2">
               <Label htmlFor="description">설명</Label>
@@ -230,6 +301,18 @@ export default function InfoCardsAdmin() {
                 </Button>
               </div>
             </div>
+            
+            {card.imageUrl && (
+              <div className="relative w-full h-32 rounded-lg overflow-hidden mb-2">
+                <Image
+                  src={card.imageUrl}
+                  alt={card.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
+            
             <p className="text-sm text-gray-600 mb-2 line-clamp-3">
               {card.description}
             </p>

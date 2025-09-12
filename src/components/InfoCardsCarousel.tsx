@@ -1,12 +1,14 @@
 'use client';
 
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 
 type InfoCard = {
   id: string;
   title: string;
   description: string;
+  imageUrl?: string | null;
 };
 
 type InfoCardsCarouselProps = {
@@ -15,32 +17,85 @@ type InfoCardsCarouselProps = {
 
 export default function InfoCardsCarousel({ cards }: InfoCardsCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  
+  // 최대 8개로 제한
+  const displayCards = cards.slice(0, 8);
+  
+  // 무한 스크롤을 위해 앞뒤로 카드 복제
+  const infiniteCards = displayCards.length > 0 ? [
+    ...displayCards.slice(-1), // 마지막 카드를 앞에 복제
+    ...displayCards,
+    ...displayCards.slice(0, 1)  // 첫 번째 카드를 뒤에 복제
+  ] : [];
 
   const scrollLeft = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+    if (scrollRef.current && displayCards.length > 0) {
+      const container = scrollRef.current;
+      const itemWidth = container.scrollWidth / infiniteCards.length;
+      const currentScroll = container.scrollLeft;
+      const targetScroll = currentScroll - itemWidth;
+      
+      container.scrollTo({ left: targetScroll, behavior: 'smooth' });
+      
+      // 첫 번째 복제본에 도달했으면 실제 마지막으로 점프
+      setTimeout(() => {
+        if (container.scrollLeft <= 0) {
+          container.scrollLeft = itemWidth * displayCards.length;
+        }
+      }, 300);
     }
   };
 
   const scrollRight = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+    if (scrollRef.current && displayCards.length > 0) {
+      const container = scrollRef.current;
+      const itemWidth = container.scrollWidth / infiniteCards.length;
+      const currentScroll = container.scrollLeft;
+      const targetScroll = currentScroll + itemWidth;
+      
+      container.scrollTo({ left: targetScroll, behavior: 'smooth' });
+      
+      // 마지막 복제본에 도달했으면 실제 첫 번째로 점프
+      setTimeout(() => {
+        const maxScroll = itemWidth * (displayCards.length + 1);
+        if (container.scrollLeft >= maxScroll) {
+          container.scrollLeft = itemWidth;
+        }
+      }, 300);
     }
   };
 
-  if (cards.length <= 4) {
+  // 초기 위치를 첫 번째 실제 카드로 설정
+  React.useEffect(() => {
+    if (scrollRef.current && displayCards.length > 0) {
+      const itemWidth = scrollRef.current.scrollWidth / infiniteCards.length;
+      scrollRef.current.scrollLeft = itemWidth; // 첫 번째 실제 카드 위치
+    }
+  }, [displayCards.length, infiniteCards.length]);
+
+  if (displayCards.length <= 4) {
     return (
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 px-2 md:px-8">
-        {cards.map(card => (
+      <div className="grid grid-cols-1 gap-[55px] sm:grid-cols-2 lg:grid-cols-4">
+        {displayCards.map(card => (
           <div
             key={card.id}
-            className="min-h-[300px] md:min-h-[340px] rounded-2xl bg-neutral-200/80 dark:bg-neutral-800/70 flex flex-col justify-end p-6"
+            className="min-h-[300px] md:min-h-[340px] rounded-2xl overflow-hidden bg-neutral-200/80 dark:bg-neutral-800/70 relative flex flex-col justify-end"
           >
-            <div className="space-y-3">
-              <h3 className="text-[15px] font-semibold leading-6 text-neutral-900 dark:text-neutral-100 break-keep">
+            {card.imageUrl && (
+              <Image
+                src={card.imageUrl}
+                alt={card.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+              />
+            )}
+            <div className="absolute inset-0 bg-black/20" />
+            <div className="relative z-10 p-6 space-y-3">
+              <h3 className="text-[15px] font-semibold leading-6 text-white break-keep">
                 {card.title}
               </h3>
-              <p className="text-[12px] leading-6 text-neutral-600 dark:text-neutral-300 break-keep">
+              <p className="text-[12px] leading-6 text-white/90 break-keep">
                 {card.description}
               </p>
             </div>
@@ -51,22 +106,37 @@ export default function InfoCardsCarousel({ cards }: InfoCardsCarouselProps) {
   }
 
   return (
-    <div className="relative px-2 md:px-8">
+    <div className="relative">
       <div 
         ref={scrollRef}
-        className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-4 scrollbar-hide"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        className="flex overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide"
+        style={{ 
+          scrollbarWidth: 'none', 
+          msOverflowStyle: 'none',
+          gap: '55px'
+        }}
       >
-        {cards.map(card => (
+        {infiniteCards.map((card, index) => (
           <div
-            key={card.id}
-            className="flex-shrink-0 w-[280px] md:w-[320px] snap-start min-h-[300px] md:min-h-[340px] rounded-2xl bg-neutral-200/80 dark:bg-neutral-800/70 flex flex-col justify-end p-6"
+            key={`${card.id}-${index}`}
+            className="flex-shrink-0 snap-start min-h-[300px] md:min-h-[340px] rounded-2xl overflow-hidden bg-neutral-200/80 dark:bg-neutral-800/70 relative flex flex-col justify-end"
+            style={{ width: 'calc(25% - 41.25px)' }} // 4개 표시를 위한 계산된 너비
           >
-            <div className="space-y-3">
-              <h3 className="text-[15px] font-semibold leading-6 text-neutral-900 dark:text-neutral-100 break-keep">
+            {card.imageUrl && (
+              <Image
+                src={card.imageUrl}
+                alt={card.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 25vw"
+              />
+            )}
+            <div className="absolute inset-0 bg-black/20" />
+            <div className="relative z-10 p-6 space-y-3">
+              <h3 className="text-[15px] font-semibold leading-6 text-white break-keep">
                 {card.title}
               </h3>
-              <p className="text-[12px] leading-6 text-neutral-600 dark:text-neutral-300 break-keep">
+              <p className="text-[12px] leading-6 text-white/90 break-keep">
                 {card.description}
               </p>
             </div>

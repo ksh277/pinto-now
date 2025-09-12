@@ -40,7 +40,11 @@ export async function GET() {
       description: row.description,
       imageUrl: row.image_url,
       sortOrder: row.sort_order,
-      products: row.products ? JSON.parse(row.products).filter((p: any) => p !== null) : []
+      products: row.products ? 
+        (typeof row.products === 'string' ? 
+          JSON.parse(row.products).filter((p: any) => p !== null) : 
+          Array.isArray(row.products) ? row.products.filter((p: any) => p !== null) : []
+        ) : []
     }));
 
     return NextResponse.json({ banners });
@@ -63,8 +67,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const decoded = verifyToken(token);
-    if (!decoded || !decoded.isAdmin) {
+    const decoded = await verifyToken(token);
+    if (!decoded || decoded.role !== 'admin') {
       return NextResponse.json(
         { error: 'Admin access required' },
         { status: 403 }

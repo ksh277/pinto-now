@@ -2,14 +2,21 @@ import { NextResponse } from 'next/server';
 import { query } from '@/lib/mysql';
 import { verifyToken } from '@/lib/auth/jwt';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const sql = `
-      SELECT id, title, description, image_url, sort_order
+    const { searchParams } = new URL(request.url);
+    const includeInactive = searchParams.get('includeInactive') === 'true';
+
+    let sql = `
+      SELECT id, title, description, image_url, sort_order, is_active
       FROM info_cards 
-      WHERE is_active = 1 
-      ORDER BY sort_order ASC, id ASC
     `;
+    
+    if (!includeInactive) {
+      sql += ` WHERE is_active = 1 `;
+    }
+    
+    sql += ` ORDER BY sort_order ASC, id ASC`;
     
     const results = await query(sql) as any[];
     
@@ -18,7 +25,8 @@ export async function GET() {
       title: row.title,
       description: row.description,
       imageUrl: row.image_url,
-      sortOrder: row.sort_order
+      sortOrder: row.sort_order,
+      isActive: Boolean(row.is_active)
     }));
 
     return NextResponse.json({ infoCards });
@@ -41,8 +49,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const decoded = verifyToken(token);
-    if (!decoded || !decoded.isAdmin) {
+    const decoded = await verifyToken(token);
+    if (!decoded || decoded.role !== 'admin') {
       return NextResponse.json(
         { error: 'Admin access required' },
         { status: 403 }

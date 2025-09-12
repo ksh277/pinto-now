@@ -55,8 +55,8 @@ export async function PUT(
       );
     }
 
-    const decoded = verifyToken(token);
-    if (!decoded || !decoded.isAdmin) {
+    const decoded = await verifyToken(token);
+    if (!decoded || decoded.role !== 'admin') {
       return NextResponse.json(
         { error: 'Admin access required' },
         { status: 403 }
@@ -124,8 +124,8 @@ export async function DELETE(
       );
     }
 
-    const decoded = verifyToken(token);
-    if (!decoded || !decoded.isAdmin) {
+    const decoded = await verifyToken(token);
+    if (!decoded || decoded.role !== 'admin') {
       return NextResponse.json(
         { error: 'Admin access required' },
         { status: 403 }
