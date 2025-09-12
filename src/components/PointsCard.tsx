@@ -56,7 +56,6 @@ export default function PointsCard() {
         setPoints(result.data);
         setError(null);
       } else {
-        console.warn('Points API error:', result.error);
         // API 에러가 있어도 기본값 표시
         setPoints({
           currentBalance: 0,
@@ -67,7 +66,6 @@ export default function PointsCard() {
         setError(null); // 에러를 숨기고 기본값 표시
       }
     } catch (err) {
-      console.warn('Points fetch error:', err);
       // 네트워크 에러가 있어도 기본값 표시
       setPoints({
         currentBalance: 0,

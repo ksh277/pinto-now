@@ -18,12 +18,10 @@ export function TopBanner() {
     // Fetch banners of type TOP_BANNER from the API
     async function loadBanners() {
       try {
-        console.log('Loading TOP_BANNER data...');
         const data = await fetchBannersByType(BannerType.TOP_BANNER);
-        console.log('Loaded banners:', data);
         setBanners(data);
       } catch (error) {
-        console.error('Failed to load top banners:', error);
+        // Failed to load banners, will show empty state
       }
     }
     
@@ -70,9 +68,7 @@ export function TopBanner() {
             margin: 'auto' // Center the image within the container
           }}
           loading="eager" // Load the image eagerly
-          onLoad={() => console.log(`✅ Banner loaded: ${currentBanner.imgSrc}`)}
           onError={(e) => {
-            console.error(`❌ Failed to load: ${currentBanner.imgSrc}`);
             const target = e.target as HTMLImageElement;
             target.src = 'data:image/svg+xml;base64,...'; // Fallback image
           }}

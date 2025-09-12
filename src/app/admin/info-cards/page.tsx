@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Trash2, Edit, Plus, Save, X, Upload, Image as ImageIcon } from 'lucide-react';
+import { Trash2, Edit, Plus, Save, X, Upload } from 'lucide-react';
 import Image from 'next/image';
 
 type InfoCard = {
@@ -41,7 +41,7 @@ export default function InfoCardsAdmin() {
         setCards(data.infoCards);
       }
     } catch (error) {
-      console.error('Failed to fetch cards:', error);
+      // Failed to fetch cards, will show empty state
     } finally {
       setLoading(false);
     }
@@ -79,7 +79,6 @@ export default function InfoCardsAdmin() {
         alert(error.error || 'Failed to save card');
       }
     } catch (error) {
-      console.error('Failed to save card:', error);
       alert('Failed to save card');
     }
   };
@@ -103,7 +102,6 @@ export default function InfoCardsAdmin() {
         alert(error.error || 'Failed to delete card');
       }
     } catch (error) {
-      console.error('Failed to delete card:', error);
       alert('Failed to delete card');
     }
   };
@@ -153,7 +151,6 @@ export default function InfoCardsAdmin() {
         alert('이미지 업로드에 실패했습니다.');
       }
     } catch (error) {
-      console.error('Image upload failed:', error);
       alert('이미지 업로드 중 오류가 발생했습니다.');
     } finally {
       setUploading(false);

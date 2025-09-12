@@ -30,7 +30,6 @@ export function CategoryShortcuts() {
           setCategories(activeCategories);
         }
       } catch (error) {
-        console.error('Failed to fetch category shortcuts:', error);
         // 에러 시 기본 데이터 사용
         setCategories([
           { id: '1', title: '아크릴 굿즈', image_url: '/category/1.png', href: '/akril-goods', sort_order: 1, is_active: true },

@@ -3,23 +3,18 @@
 import { useEffect, useState } from 'react';
 import { fetchBannersByType, BannerType } from '@/lib/banner';
 import type { Banner } from '@/lib/banner-types';
-import { useLanguage } from '@/contexts/language-context';
-
 export function PlatformBanner() {
   const [banner, setBanner] = useState<Banner | null>(null);
-  const { t } = useLanguage();
 
   useEffect(() => {
     async function loadBanner() {
       try {
-        console.log('Loading PLATFORM_BANNER data...');
         const data = await fetchBannersByType(BannerType.PLATFORM_BANNER);
-        console.log('Loaded platform banner:', data);
         if (data.length > 0) {
           setBanner(data[0]); // PLATFORM_BANNER는 1개만 허용
         }
       } catch (error) {
-        console.error('Failed to load platform banner:', error);
+        // Failed to load platform banner
       }
     }
     

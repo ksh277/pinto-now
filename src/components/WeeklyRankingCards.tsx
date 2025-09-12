@@ -35,7 +35,7 @@ export default function WeeklyRankingCards({
   const [rankings, setRankings] = useState<WeeklyRankingProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [weekRange, setWeekRange] = useState<{ start: string; end: string } | null>(null);
+  // Removed weekRange state as it's no longer displayed
 
   useEffect(() => {
     fetchWeeklyRankings();
@@ -54,10 +54,6 @@ export default function WeeklyRankingCards({
 
       if (result.success) {
         setRankings(result.data);
-        setWeekRange({
-          start: result.weekStart,
-          end: result.weekEnd
-        });
         setError(null);
       } else {
         setError(result.error || 'Failed to fetch rankings');
@@ -82,7 +78,7 @@ export default function WeeklyRankingCards({
         })
       });
     } catch (err) {
-      console.warn('Failed to track click:', err);
+      // Silently fail click tracking
     }
   };
 
@@ -102,7 +98,7 @@ export default function WeeklyRankingCards({
     }
   };
 
-  const getRankBadgeColor = (rank: number) => {
+  const getRankBadgeColor = () => {
     return 'bg-blue-500 text-white shadow-lg';
   };
 
@@ -110,7 +106,7 @@ export default function WeeklyRankingCards({
     return `BEST ${rank}`;
   };
 
-  const getCreatorDescription = (sellerName: string, rank: number) => {
+  const getCreatorDescription = (rank: number) => {
     const descriptions = [
       '인기 급상승 창작자입니다',
       '꾸준한 사랑받는 작품을 만들어요',  
@@ -124,7 +120,7 @@ export default function WeeklyRankingCards({
     return (
       <div className={`space-y-4 ${className}`}>
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold">{t('ranking.weekly_title')} - {getSellerTypeLabel(sellerType)}</h2>
+          <h2 className="text-xl font-bold">{t('ranking.weekly_title')}</h2>
         </div>
         <div className="md:grid md:grid-cols-4 md:gap-4 flex md:block overflow-x-auto md:overflow-visible gap-4 md:gap-0 pb-4 md:pb-0 scrollbar-hide px-4 md:px-0">
           {Array.from({ length: limit }).map((_, index) => (
@@ -165,12 +161,7 @@ export default function WeeklyRankingCards({
   return (
     <div className={`space-y-4 ${className}`}>
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">{t('ranking.weekly_title')} - {getSellerTypeLabel(sellerType)}</h2>
-        {weekRange && (
-          <span className="text-sm text-gray-500">
-            {weekRange.start} ~ {weekRange.end}
-          </span>
-        )}
+        <h2 className="text-xl font-bold">{t('ranking.weekly_title')}</h2>
       </div>
 
       {/* Mobile: Horizontal scroll, Desktop: 4 columns in 1 row */}
@@ -184,7 +175,7 @@ export default function WeeklyRankingCards({
           >
             <div className="bg-white rounded-xl border-2 border-gray-100 p-3 md:p-4 hover:shadow-xl hover:border-blue-200 transition-all duration-300 relative w-[calc(100vw-3rem)] max-w-[350px] md:max-w-none md:w-auto flex-shrink-0 md:flex-shrink flex md:block gap-4 md:gap-0">
               {showRankNumbers && (
-                <div className={`absolute -top-2 -left-2 px-2 py-1 md:px-3 md:py-1 rounded-full flex items-center justify-center text-xs font-bold ${getRankBadgeColor(index + 1)} transform rotate-3 z-10`}>
+                <div className={`absolute -top-2 -left-2 px-2 py-1 md:px-3 md:py-1 rounded-full flex items-center justify-center text-xs font-bold ${getRankBadgeColor()} transform rotate-3 z-10`}>
                   {getRankLabel(index + 1)}
                 </div>
               )}
@@ -219,7 +210,7 @@ export default function WeeklyRankingCards({
                   </p>
                   
                   <p className="text-gray-500 text-xs leading-relaxed hidden md:block">
-                    {getCreatorDescription(product.seller_name, index + 1)}
+                    {getCreatorDescription(index + 1)}
                   </p>
                 </div>
 

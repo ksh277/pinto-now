@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -131,17 +131,28 @@ function ProductShelfItem({
 }) {
   const visibleProducts = banner.products.slice(0, 2);
   const hasMore = banner.products.length > 2;
+  const [imageError, setImageError] = useState(false);
+  
+  // Fix problematic image URLs
+  const getFixedImageUrl = (imageUrl: string) => {
+    if (imageError || imageUrl.includes('via.placeholder.com')) {
+      // Use stable fallback image
+      return 'https://placehold.co/400x260/e2e8f0/64748b.png?text=Banner+Image';
+    }
+    return imageUrl;
+  };
 
   return (
     <div>
       {/* 배너 이미지 */}
       <div className="min-h-[240px] md:min-h-[260px] rounded-2xl bg-neutral-200/80 dark:bg-neutral-800/70 flex flex-col justify-end p-6 relative overflow-hidden">
         <Image
-          src={banner.imageUrl}
+          src={getFixedImageUrl(banner.imageUrl)}
           alt={banner.title}
           fill
           className="object-cover rounded-2xl"
           sizes="(max-width: 768px) 320px, 380px"
+          onError={() => setImageError(true)}
         />
         <div className="absolute inset-0 bg-black/20 rounded-2xl" />
         <div className="relative z-10">
@@ -165,6 +176,10 @@ function ProductShelfItem({
                 fill
                 sizes="64px"
                 className="object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = 'https://placehold.co/300x300/e2e8f0/64748b.png?text=Product';
+                }}
               />
             </Link>
             <div className="min-w-0 flex-1">
