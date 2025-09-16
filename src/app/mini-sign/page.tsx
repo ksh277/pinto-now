@@ -38,15 +38,7 @@ export const metadata: Metadata = {
   }
 };
 
-// 미니간판 카테고리 전용 샘플 제품들
-const miniSignProducts = [
-  { id: 'acrylic-mini-sign-15x20', name: '아크릴 미니간판 15x20cm', tags: ['아크릴', '15x20cm', '투명'], price: 25000, image: '/images/mini-sign/acrylic-mini.png' },
-  { id: 'wood-mini-sign-20x25', name: '우드 미니간판 20x25cm', tags: ['우드', '20x25cm', '자연'], price: 30000, image: '/images/mini-sign/wood-mini.png' },
-  { id: 'metal-mini-sign-18x24', name: '메탈 미니간판 18x24cm', tags: ['메탈', '18x24cm', '고급'], price: 40000, image: '/images/mini-sign/metal-mini.png' },
-  { id: 'chalkboard-mini-15x20', name: '칠판 미니간판 15x20cm', tags: ['칠판', '15x20cm', '변경'], price: 20000, image: '/images/mini-sign/chalkboard-mini.png' },
-  { id: 'led-mini-sign-20x15', name: 'LED 미니간판 20x15cm', tags: ['LED', '20x15cm', '발광'], price: 65000, image: '/images/mini-sign/led-mini.png' },
-  { id: 'hanging-mini-sign-20x30', name: '행잉 미니간판 20x30cm', tags: ['행잉', '20x30cm', '매달기'], price: 35000, image: '/images/mini-sign/hanging-mini.png' }
-];
+const miniSignProducts: any[] = [];
 
 // 미니간판 카테고리 전용 FAQ
 const miniSignFaq = [

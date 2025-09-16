@@ -38,15 +38,7 @@ export const metadata: Metadata = {
   }
 };
 
-// 등신대 카테고리 전용 샘플 제품들
-const standeeProducts = [
-  { id: 'cardboard-standee-160cm', name: '골판지 등신대 160cm', tags: ['골판지', '160cm', '경제적'], price: 45000, image: '/images/life-size-standee/cardboard-160.png' },
-  { id: 'cardboard-standee-170cm', name: '골판지 등신대 170cm', tags: ['골판지', '170cm', '표준'], price: 50000, image: '/images/life-size-standee/cardboard-170.png' },
-  { id: 'cardboard-standee-180cm', name: '골판지 등신대 180cm', tags: ['골판지', '180cm', '대형'], price: 55000, image: '/images/life-size-standee/cardboard-180.png' },
-  { id: 'pvc-standee-160cm', name: 'PVC 등신대 160cm', tags: ['PVC', '160cm', '내구성'], price: 80000, image: '/images/life-size-standee/pvc-160.png' },
-  { id: 'pvc-standee-170cm', name: 'PVC 등신대 170cm', tags: ['PVC', '170cm', '고급'], price: 85000, image: '/images/life-size-standee/pvc-170.png' },
-  { id: 'custom-shape-standee', name: '맞춤형 등신대', tags: ['맞춤', '특수형태', '프리미엄'], price: 120000, image: '/images/life-size-standee/custom-shape.png' }
-];
+const standeeProducts: any[] = [];
 
 // 등신대 카테고리 전용 FAQ
 const standeeFaq = [
@@ -70,8 +62,8 @@ const standeeFaq = [
 
 export default function LifeSizeStandeePage() {
   return (
-    <CategoryPageTemplate 
-      mapping={mapping}
+    <CategoryPageTemplate
+      mapping={mapping!}
       products={standeeProducts}
       faq={standeeFaq}
     />

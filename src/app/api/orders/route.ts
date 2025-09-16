@@ -10,6 +10,11 @@ interface OrderItem {
   price: number;
   options: any;
   image: string;
+  designFile?: {
+    name: string;
+    type: string;
+    url?: string;
+  };
 }
 
 interface OrderData {
@@ -72,56 +77,68 @@ export async function POST(req: NextRequest) {
     }
 
     // 주문번호 생성
-    const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const orderNumber = `${new Date().getFullYear()}${String(Date.now()).slice(-6)}`;
+
+    // 배송 주소 정보 JSON으로 변환
+    const addrSnapshot = {
+      recipientName: orderData.shipping.recipientName,
+      phone: orderData.shipping.phone,
+      zipCode: orderData.shipping.zipCode || '',
+      address: orderData.shipping.address,
+      detailAddress: orderData.shipping.detailAddress || '',
+      deliveryMemo: orderData.shipping.deliveryMemo || '',
+      paymentMethod: orderData.payment.method,
+      installment: orderData.payment.installment,
+      receiptType: orderData.payment.receiptType
+    };
 
     // 트랜잭션 시작 (MySQL)
     try {
       // 1. 주문 정보 저장
       const orderResult = await query(
         `INSERT INTO orders (
-          order_id, order_number, user_id, status, 
-          items_total, shipping_fee, points_used, final_amount,
-          recipient_name, recipient_phone, zip_code, address, detail_address, delivery_memo,
-          payment_method, installment, receipt_type,
+          order_no, user_id, status,
+          total_amount, discount_amount, shipping_fee, point_used,
+          addr_snapshot, memo,
           created_at, updated_at
-        ) VALUES (?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+        ) VALUES (?, ?, 'PENDING', ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
         [
-          orderId, orderNumber, authUser.id,
-          orderData.amounts.itemsTotal,
+          orderNumber, authUser.id,
+          orderData.amounts.finalAmount,
+          orderData.amounts.itemsTotal - orderData.amounts.finalAmount + orderData.amounts.shippingFee + orderData.amounts.pointsUsed,
           orderData.amounts.shippingFee,
           orderData.amounts.pointsUsed,
-          orderData.amounts.finalAmount,
-          orderData.shipping.recipientName,
-          orderData.shipping.phone,
-          orderData.shipping.zipCode || '',
-          orderData.shipping.address,
-          orderData.shipping.detailAddress || '',
-          orderData.shipping.deliveryMemo || '',
-          orderData.payment.method,
-          orderData.payment.installment,
-          orderData.payment.receiptType
+          JSON.stringify(addrSnapshot),
+          orderData.shipping.deliveryMemo || ''
         ]
-      );
+      ) as any;
+
+      const orderId = orderResult.insertId;
 
       // 2. 주문 상품 정보 저장
       for (const item of orderData.items) {
         await query(
           `INSERT INTO order_items (
-            order_id, product_id, product_name_ko, product_name_en,
-            quantity, unit_price, total_price, options, image_url,
+            order_id, product_id, product_name,
+            qty, unit_price, option_snapshot,
+            design_file_name, design_file_type, design_file_url,
             created_at
           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
           [
             orderId,
             item.productId,
             item.nameKo,
-            item.nameEn,
             item.quantity,
             item.price,
-            item.quantity * item.price,
-            JSON.stringify(item.options),
-            item.image
+            JSON.stringify({
+              ...item.options,
+              nameKo: item.nameKo,
+              nameEn: item.nameEn,
+              image: item.image
+            }),
+            item.designFile?.name || null,
+            item.designFile?.type || null,
+            item.designFile?.url || null
           ]
         );
       }
@@ -190,17 +207,23 @@ export async function GET(req: NextRequest) {
 
     // 사용자의 주문 목록 조회
     const orders = await query(
-      `SELECT 
-        order_id, order_number, status, final_amount,
-        recipient_name, created_at
-       FROM orders 
-       WHERE user_id = ? 
+      `SELECT
+        id, order_no, status, total_amount,
+        addr_snapshot, created_at
+       FROM orders
+       WHERE user_id = ?
        ORDER BY created_at DESC
        LIMIT 20`,
       [authUser.id]
-    );
+    ) as any[];
 
-    return NextResponse.json({ orders });
+    // addr_snapshot JSON 파싱
+    const ordersWithParsedAddr = orders.map((order: any) => ({
+      ...order,
+      address: order.addr_snapshot ? JSON.parse(order.addr_snapshot) : null
+    }));
+
+    return NextResponse.json({ orders: ordersWithParsedAddr });
 
   } catch (error) {
     console.error('Get orders error:', error);

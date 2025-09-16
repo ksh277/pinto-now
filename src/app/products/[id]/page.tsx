@@ -35,7 +35,8 @@ export default function ProductDetail() {
   const { getProductById, isProductsLoading } = useProductContext();
   const { addToCart } = useCartContext();
 
-  const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   // State management
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -58,39 +59,62 @@ export default function ProductDetail() {
   const [designService, setDesignService] = useState(false); // 디자인비용(인쇄) 5만원
   const [keyringAdd, setKeyringAdd] = useState(false); // 키링추가(부자재) 300원
 
-  const productData = getProductById(id);
-  const advancedPricing = getPricingByProductId(id);
-  const hasAdvancedPricingSystem = hasAdvancedPricing(id);
-  
   useEffect(() => {
-    if (productData) {
-      setProduct(productData);
-      
-      // 기본 옵션 설정
-      if (productData.options?.sizes?.length) {
-        setSelectedSize(productData.options.sizes[0].name);
-      }
-      if (productData.options?.colors?.length) {
-        setSelectedColor(productData.options.colors[0].nameKo);
-      }
-      if (productData.options?.bases?.length) {
-        setSelectedBase(productData.options.bases[0].name);
-      }
-      if (productData.options?.packaging?.length) {
-        setSelectedPackaging(productData.options.packaging[0].name);
-      }
-      
-      // 고급 가격 시스템 초기화
-      if (hasAdvancedPricingSystem && advancedPricing) {
-        if (advancedPricing.printTypes.length) {
-          setSelectedPrintType(advancedPricing.printTypes[0].id);
+    const fetchProduct = async () => {
+      setLoading(true);
+      try {
+        // 먼저 API에서 상품 조회 시도 (관리자가 생성한 상품)
+        const response = await fetch(`/api/products/${id}`);
+        if (response.ok) {
+          const data = await response.json();
+          const apiProduct = data.product;
+          setProduct(apiProduct);
+
+          // 새로운 상품 구조의 기본값 설정
+          if (apiProduct.pricingData) {
+            if (apiProduct.pricingData.printTypes?.length) {
+              setSelectedPrintType(apiProduct.pricingData.printTypes[0].id);
+            }
+            if (apiProduct.pricingData.sizes?.length) {
+              setSelectedSize(apiProduct.pricingData.sizes[0].id);
+            }
+          }
+        } else {
+          // 고급 가격 시스템 상품이 아닌 경우에만 ProductContext에서 찾기
+          if (!hasAdvancedPricing(id)) {
+            const contextProduct = getProductById(id);
+            if (contextProduct) {
+              setProduct(contextProduct);
+
+              // 기존 상품 구조의 기본값 설정
+              if (contextProduct.options?.sizes?.length) {
+                setSelectedSize(contextProduct.options.sizes[0].name);
+              }
+              if (contextProduct.options?.colors?.length) {
+                setSelectedColor(contextProduct.options.colors[0].nameKo);
+              }
+              if (contextProduct.options?.bases?.length) {
+                setSelectedBase(contextProduct.options.bases[0].name);
+              }
+              if (contextProduct.options?.packaging?.length) {
+                setSelectedPackaging(contextProduct.options.packaging[0].name);
+              }
+            }
+          } else {
+            console.error('고급 가격 시스템 상품이지만 API에서 데이터를 불러올 수 없습니다:', id);
+          }
         }
-        if (advancedPricing.sizes.length && !productData.options?.sizes?.length) {
-          setSelectedSize(advancedPricing.sizes[0].id);
-        }
+      } catch (error) {
+        console.error('상품을 불러오는 중 오류 발생:', error);
+      } finally {
+        setLoading(false);
       }
+    };
+
+    if (id) {
+      fetchProduct();
     }
-  }, [id, productData, hasAdvancedPricingSystem, advancedPricing]);
+  }, [id]);
 
   const productDisplay = useMemo(() => {
     if (!product) return null;
@@ -132,42 +156,58 @@ export default function ProductDetail() {
       description: language === 'ko' ? product.descriptionKo : product.descriptionEn,
       images: product.imageUrls?.length ? product.imageUrls : ["https://placehold.co/600x600.png"],
       options: finalOptions,
-      rating: product.stats.avgRating || 0,
-      reviewCount: product.stats.reviewCount || 0,
+      rating: product.stats?.avgRating || 0,
+      reviewCount: product.stats?.reviewCount || 0,
     };
   }, [product, language]);
 
 
   const calculateTotalPrice = () => {
-    if (!productDisplay || !product) return 0;
-    
+    if (!product) return 0;
+
     let baseTotal = 0;
-    
-    // 고급 가격 시스템 사용 가능한 경우
-    if (hasAdvancedPricingSystem && advancedPricing && selectedPrintType && selectedSize) {
-      const advancedQuote = calculatePrice(advancedPricing.id, selectedPrintType, selectedSize, quantity);
-      if (advancedQuote) {
-        baseTotal = advancedQuote.totalPrice;
+
+    // 새로운 상품 구조 (API에서 가져온 상품) - pricingData 사용
+    if (product.pricingData && selectedPrintType && selectedSize) {
+      const { pricingTiers } = product.pricingData;
+
+      // 수량에 맞는 가격 구간 찾기
+      const tier = pricingTiers.find((t: any) => quantity >= t.minQuantity && quantity <= t.maxQuantity);
+      if (tier) {
+        const priceKey = `${selectedPrintType}-${selectedSize}`;
+        const unitPrice = tier.prices[priceKey] || 0;
+        baseTotal = unitPrice * quantity;
       }
-    } else {
-      // 기존 가격 시스템 (fallback)
-      const sizeData = productDisplay.options.sizes?.find(s => s.name === selectedSize);
+    }
+    // 기존 고급 가격 시스템 (pricing-data.ts 사용)
+    else if (hasAdvancedPricing(id) && selectedPrintType && selectedSize) {
+      const advancedPricing = getPricingByProductId(id);
+      if (advancedPricing) {
+        const advancedQuote = calculatePrice(advancedPricing.id, selectedPrintType, selectedSize, quantity);
+        if (advancedQuote) {
+          baseTotal = advancedQuote.totalPrice;
+        }
+      }
+    }
+    // 기존 가격 시스템 (fallback)
+    else if (productDisplay) {
+      const sizeData = productDisplay.options.sizes?.find((s: any) => s.name === selectedSize);
       const sizePrice = sizeData?.price || product.priceKrw || 0;
-      
-      const colorData = productDisplay.options.colors?.find(c => c.nameKo === selectedColor);
+
+      const colorData = productDisplay.options.colors?.find((c: any) => c.nameKo === selectedColor);
       const colorPrice = colorData?.priceDelta || 0;
-      
-      const baseData = productDisplay.options.bases?.find(b => b.name === selectedBase);
+
+      const baseData = productDisplay.options.bases?.find((b: any) => b.name === selectedBase);
       const baseTypePrice = baseData?.price || 0;
-      
-      const packagingData = productDisplay.options.packaging?.find(p => p.name === selectedPackaging);
+
+      const packagingData = productDisplay.options.packaging?.find((p: any) => p.name === selectedPackaging);
       const packagingPrice = packagingData?.price || 0;
 
       const itemPrice = sizePrice;
       const addons = colorPrice + baseTypePrice + packagingPrice;
       const subtotal = itemPrice + addons;
 
-      const quantityRange = productDisplay.options.quantityRanges?.find(r => {
+      const quantityRange = productDisplay.options.quantityRanges?.find((r: any) => {
         if (!r.range) return false;
         const [minStr, maxStr] = r.range.split(/[~-]/);
         const min = parseInt(minStr.replace(/\D/g, ""));
@@ -213,17 +253,78 @@ export default function ProductDetail() {
     }
   };
 
+  // 에디터 열기 핸들러
+  const handleOpenEditor = async () => {
+    const editorUrl = `/editor?type=${product?.categoryId || 'keyring'}`;
+
+    // 업로드된 PDF가 있으면 LocalStorage에 저장
+    if (uploadedFile && uploadedFile.type === 'application/pdf') {
+      try {
+        // File을 Base64로 변환하여 저장
+        const fileReader = new FileReader();
+        fileReader.onload = () => {
+          const base64Data = fileReader.result as string;
+          const pdfData = {
+            name: uploadedFile.name,
+            type: uploadedFile.type,
+            data: base64Data,
+            timestamp: Date.now()
+          };
+
+          localStorage.setItem('editorPdfFile', JSON.stringify(pdfData));
+          toast({
+            title: "PDF 업로드 완료",
+            description: "에디터에서 PDF를 확인할 수 있습니다."
+          });
+
+          // 에디터로 이동
+          router.push(editorUrl);
+        };
+
+        fileReader.readAsDataURL(uploadedFile);
+      } catch (error) {
+        console.error('PDF 처리 중 오류:', error);
+        toast({
+          title: "오류",
+          description: "PDF 처리 중 문제가 발생했습니다.",
+          variant: "destructive"
+        });
+      }
+    } else {
+      // PDF가 없으면 바로 에디터로 이동
+      router.push(editorUrl);
+    }
+  };
+
   const handleCartAction = (action: 'addToCart' | 'buyNow') => {
      if (!product || !productDisplay) return;
-    if (!selectedSize || !selectedBase || (productDisplay.options.colors && productDisplay.options.colors.length > 0 && !selectedColor)) {
-      toast({ title: "옵션을 선택해주세요", description: "사이즈, 색상, 받침을 선택해야 합니다.", variant: "destructive" });
-      return;
+
+    // 새로운 상품 구조는 인쇄 방식과 사이즈만 필수, 기존 상품은 사이즈와 색상, 받침이 필수
+    const isNewProduct = product.pricingData || hasAdvancedPricing(id);
+
+    if (isNewProduct) {
+      // 새로운 상품: 인쇄 방식과 사이즈 필수
+      if (!selectedPrintType || !selectedSize) {
+        toast({ title: "옵션을 선택해주세요", description: "인쇄 방식과 사이즈를 선택해야 합니다.", variant: "destructive" });
+        return;
+      }
+    } else {
+      // 기존 상품: 사이즈, 받침 필수, 색상은 옵션이 있을 때만 필수
+      const hasColorOptions = productDisplay.options.colors && productDisplay.options.colors.length > 0;
+      if (!selectedSize || !selectedBase || (hasColorOptions && !selectedColor)) {
+        toast({ title: "옵션을 선택해주세요", description: "사이즈, 색상, 받침을 선택해야 합니다.", variant: "destructive" });
+        return;
+      }
     }
     
-    const selectedColorObject = productDisplay.options.colors.find(c => c.nameKo === selectedColor);
-    if (!selectedColorObject) {
-       toast({ title: "색상 오류", description: "선택된 색상을 찾을 수 없습니다.", variant: "destructive" });
-       return;
+    // 색상 옵션이 있는 경우에만 색상 객체 검증
+    let selectedColorObject = null;
+    if (!isNewProduct && productDisplay.options.colors && productDisplay.options.colors.length > 0) {
+      selectedColorObject = productDisplay.options.colors.find((c: any) => c.nameKo === selectedColor);
+      if (!selectedColorObject) {
+         toast({ title: "색상 오류", description: "선택된 색상을 찾을 수 없습니다.", variant: "destructive" });
+         return;
+      }
     }
 
     addToCart({
@@ -235,7 +336,12 @@ export default function ProductDetail() {
       quantity,
       options: {
           size: selectedSize,
-          color: { nameKo: selectedColorObject.nameKo, nameEn: selectedColorObject.nameEn || selectedColorObject.nameKo, value: selectedColorObject.value },
+          color: selectedColorObject ? {
+            nameKo: selectedColorObject.nameKo,
+            nameEn: selectedColorObject.nameEn || selectedColorObject.nameKo,
+            value: selectedColorObject.value
+          } : undefined,
+          printType: selectedPrintType,
           customText: customText,
       },
       designFile: uploadedFile ? { name: uploadedFile.name, type: uploadedFile.type } : undefined,
@@ -262,15 +368,15 @@ export default function ProductDetail() {
   const sizeCategories = useMemo(() => {
     if (!productDisplay?.options?.sizes) return {};
     return {
-        "일반": productDisplay.options.sizes.filter(s => s.name.startsWith("일반")),
-        "라미": productDisplay.options.sizes.filter(s => s.name.startsWith("라미")),
-        "대형": productDisplay.options.sizes.filter(s => s.name.startsWith("대형")),
+        "일반": productDisplay.options.sizes.filter((s: any) => s.name.startsWith("일반")),
+        "라미": productDisplay.options.sizes.filter((s: any) => s.name.startsWith("라미")),
+        "대형": productDisplay.options.sizes.filter((s: any) => s.name.startsWith("대형")),
     };
   }, [productDisplay]);
 
 
   // 로딩 상태
-  if (isProductsLoading) {
+  if (loading || isProductsLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-[#1a1a1a] flex items-center justify-center">
         <div className="text-center">
@@ -350,12 +456,39 @@ export default function ProductDetail() {
             </div>
 
             <div className="space-y-4">
-              {/* 고급 가격 시스템: 인쇄 방식 선택 */}
-              {hasAdvancedPricingSystem && advancedPricing && (
+              {/* 새로운 상품 구조: 인쇄 방식 선택 */}
+              {product.pricingData?.printTypes && (
                 <div>
                   <Label className="text-base font-medium mb-3 block text-gray-900 dark:text-white">🎨 인쇄 방식</Label>
                   <div className="grid grid-cols-1 gap-3">
-                    {advancedPricing.printTypes.map(printType => (
+                    {product.pricingData.printTypes.map((printType: any) => (
+                      <button
+                        key={printType.id}
+                        onClick={() => setSelectedPrintType(printType.id)}
+                        className={`p-4 rounded-lg border text-left transition-all ${
+                          selectedPrintType === printType.id
+                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                            : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 text-gray-900 dark:text-gray-100"
+                        }`}
+                      >
+                        <div className="font-medium">{printType.name}</div>
+                        {printType.multiplier !== 1.0 && (
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            기본 가격의 {(printType.multiplier * 100).toFixed(0)}%
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 기존 고급 가격 시스템: 인쇄 방식 선택 */}
+              {!product.pricingData && hasAdvancedPricing(id) && getPricingByProductId(id) && (
+                <div>
+                  <Label className="text-base font-medium mb-3 block text-gray-900 dark:text-white">🎨 인쇄 방식</Label>
+                  <div className="grid grid-cols-1 gap-3">
+                    {getPricingByProductId(id)!.printTypes.map(printType => (
                       <button
                         key={printType.id}
                         onClick={() => setSelectedPrintType(printType.id)}
@@ -379,19 +512,19 @@ export default function ProductDetail() {
               
               <div>
                 <Label className="text-base font-medium mb-3 block text-gray-900 dark:text-white">📏 {t('product.size')}</Label>
-                {hasAdvancedPricingSystem && advancedPricing ? (
+                {hasAdvancedPricing(id) && getPricingByProductId(id) ? (
                   // 고급 가격 시스템: 새로운 사이즈 옵션
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {advancedPricing.sizes
+                    {getPricingByProductId(id)!.sizes
                       .filter(size => {
                         // 선택된 인쇄 방식이 없으면 모든 사이즈 표시
                         if (!selectedPrintType) return true;
                         
                         // 가격이 존재하는 사이즈만 표시
-                        const quote = calculatePrice(advancedPricing.id, selectedPrintType, size.id, 1);
+                        const quote = calculatePrice(getPricingByProductId(id)!.id, selectedPrintType, size.id, 1);
                         return quote !== null;
                       })
-                      .map(size => (
+                      .map((size: any) => (
                       <button
                         key={size.id}
                         onClick={() => setSelectedSize(size.id)}
@@ -406,7 +539,7 @@ export default function ProductDetail() {
                         {selectedPrintType && (
                           <div className="text-sm font-medium text-blue-600 dark:text-blue-400 mt-1">
                             {(() => {
-                              const quote = calculatePrice(advancedPricing.id, selectedPrintType, size.id, 1);
+                              const quote = calculatePrice(getPricingByProductId(id)!.id, selectedPrintType, size.id, 1);
                               return quote ? `${quote.unitPrice.toLocaleString()}원` : '-';
                             })()}
                           </div>
@@ -586,16 +719,47 @@ export default function ProductDetail() {
                 </Tabs>
               </div>
             </div>
-            <Link href={`/editor`} className="inline-flex items-center rounded-lg border px-3 py-2">
+            <Button
+              onClick={() => handleOpenEditor()}
+              className="inline-flex items-center rounded-lg border px-3 py-2"
+              variant="outline"
+            >
               이 디자인으로 굿즈 에디터 열기
-            </Link>
+            </Button>
 
             <div className="grid grid-cols-2 gap-3">
-              <Button onClick={() => handleCartAction('addToCart')} disabled={!selectedSize || !selectedBase || (!uploadedFile && activeTab === 'pdf')} size="lg" variant="outline" className="text-lg">
+              <Button
+                onClick={() => handleCartAction('addToCart')}
+                disabled={(() => {
+                  const isNewProduct = product.pricingData || hasAdvancedPricing(id);
+                  if (isNewProduct) {
+                    return !selectedPrintType || !selectedSize || (!uploadedFile && activeTab === 'pdf');
+                  } else {
+                    const hasColorOptions = productDisplay?.options?.colors && productDisplay.options.colors.length > 0;
+                    return !selectedSize || !selectedBase || (hasColorOptions && !selectedColor) || (!uploadedFile && activeTab === 'pdf');
+                  }
+                })()}
+                size="lg"
+                variant="outline"
+                className="text-lg"
+              >
                   <ShoppingCart className="w-5 h-5 mr-2" />
                   {t('product.addToCart')}
               </Button>
-               <Button onClick={() => handleCartAction('buyNow')} disabled={!selectedSize || !selectedBase || (!uploadedFile && activeTab === 'pdf')} size="lg" className="text-lg">
+               <Button
+                onClick={() => handleCartAction('buyNow')}
+                disabled={(() => {
+                  const isNewProduct = product.pricingData || hasAdvancedPricing(id);
+                  if (isNewProduct) {
+                    return !selectedPrintType || !selectedSize || (!uploadedFile && activeTab === 'pdf');
+                  } else {
+                    const hasColorOptions = productDisplay?.options?.colors && productDisplay.options.colors.length > 0;
+                    return !selectedSize || !selectedBase || (hasColorOptions && !selectedColor) || (!uploadedFile && activeTab === 'pdf');
+                  }
+                })()}
+                size="lg"
+                className="text-lg"
+              >
                   <CreditCard className="w-5 h-5 mr-2" />
                   {t('product.buyNow')}
               </Button>

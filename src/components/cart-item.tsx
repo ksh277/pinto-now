@@ -40,9 +40,16 @@ export function CartItem({ item }: CartItemProps) {
           <p>
             <span className="font-medium text-foreground">{t('product.size')}:</span> {item.options.size}
           </p>
-          <p>
-            <span className="font-medium text-foreground">{t('product.color')}:</span> {locale === 'ko' ? item.options.color.nameKo : item.options.color.nameEn}
-          </p>
+          {item.options.color && (
+            <p>
+              <span className="font-medium text-foreground">{t('product.color')}:</span> {locale === 'ko' ? item.options.color.nameKo : item.options.color.nameEn}
+            </p>
+          )}
+          {item.options.printType && (
+            <p>
+              <span className="font-medium text-foreground">인쇄 방식:</span> {item.options.printType}
+            </p>
+          )}
           {item.options.customText && (
             <p>
               <span className="font-medium text-foreground">{t('product.customText')}:</span> {item.options.customText}

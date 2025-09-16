@@ -40,14 +40,7 @@ export const metadata: Metadata = {
   }
 };
 
-const promoProducts = [
-  { id: 'promo-pen', name: '판촉용 볼펜', tags: ['볼펜', '판촉', '대량'], price: 500, image: '/images/placeholder-product.jpg' },
-  { id: 'promo-notepad', name: '판촉용 메모지', tags: ['메모지', '사무용품', '대량'], price: 300, image: '/images/placeholder-product.jpg' },
-  { id: 'promo-usb', name: '판촉용 USB', tags: ['USB', 'IT', '기업'], price: 8000, image: '/images/placeholder-product.jpg' },
-  { id: 'promo-tumbler', name: '판촉용 텀블러', tags: ['텀블러', '실용', '친환경'], price: 12000, image: '/images/placeholder-product.jpg' },
-  { id: 'promo-bag', name: '판촉용 에코백', tags: ['에코백', '친환경', '실용'], price: 3000, image: '/images/placeholder-product.jpg' },
-  { id: 'promo-powerbank', name: '판촉용 보조배터리', tags: ['보조배터리', 'IT', '실용'], price: 15000, image: '/images/placeholder-product.jpg' }
-];
+const promoProducts: any[] = [];
 
 const promoFaq = [
   {

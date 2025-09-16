@@ -22,6 +22,7 @@ type ProductShelfBanner = {
   imageUrl: string;
   sortOrder: number;
   products: Product[];
+  moreLink?: string;
 };
 
 export default function ProductShelfBannersAdmin() {
@@ -33,6 +34,7 @@ export default function ProductShelfBannersAdmin() {
     title: '',
     description: '',
     imageUrl: '',
+    moreLink: '',
     productIds: [] as string[]
   });
   const [isCreating, setIsCreating] = useState(false);
@@ -86,13 +88,14 @@ export default function ProductShelfBannersAdmin() {
           title: newBanner.title,
           description: newBanner.description,
           imageUrl: newBanner.imageUrl,
+          moreLink: newBanner.moreLink,
           sortOrder: banners.length,
           productIds: newBanner.productIds
         })
       });
 
       if (response.ok) {
-        setNewBanner({ title: '', description: '', imageUrl: '', productIds: [] });
+        setNewBanner({ title: '', description: '', imageUrl: '', moreLink: '', productIds: [] });
         setIsCreating(false);
         fetchBanners();
       } else {
@@ -266,6 +269,19 @@ export default function ProductShelfBannersAdmin() {
               />
             </div>
 
+            {/* MORE 링크는 현재 데이터베이스 스키마에 없으므로 주석 처리 */}
+            {/* <div>
+              <label className="block text-sm font-medium mb-1">MORE 버튼 링크</label>
+              <Input
+                value={newBanner.moreLink}
+                onChange={(e) => setNewBanner(prev => ({ ...prev, moreLink: e.target.value }))}
+                placeholder="/akril-goods (비어있으면 자동 링크 사용)"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                예: /akril-goods, /sticker-goods 등. 비어있으면 제목에 따라 자동으로 링크가 결정됩니다.
+              </p>
+            </div> */}
+
             {/* Product Selection */}
             <div>
               <label className="block text-sm font-medium mb-2">Associated Products</label>
@@ -341,11 +357,23 @@ export default function ProductShelfBannersAdmin() {
                     <label className="block text-sm font-medium mb-1">Image URL</label>
                     <Input
                       value={editingBanner.imageUrl}
-                      onChange={(e) => setEditingBanner(prev => 
+                      onChange={(e) => setEditingBanner(prev =>
                         prev ? { ...prev, imageUrl: e.target.value } : null
                       )}
                     />
                   </div>
+
+                  {/* MORE 링크는 현재 데이터베이스 스키마에 없으므로 주석 처리 */}
+                  {/* <div>
+                    <label className="block text-sm font-medium mb-1">MORE 버튼 링크</label>
+                    <Input
+                      value={editingBanner.moreLink || ''}
+                      onChange={(e) => setEditingBanner(prev =>
+                        prev ? { ...prev, moreLink: e.target.value } : null
+                      )}
+                      placeholder="/akril-goods (비어있으면 자동 링크 사용)"
+                    />
+                  </div> */}
 
                   <div className="flex justify-end gap-2">
                     <Button 
@@ -380,6 +408,13 @@ export default function ProductShelfBannersAdmin() {
                       />
                       <span className="text-xs text-neutral-500">{banner.imageUrl}</span>
                     </div>
+                    {/* MORE 링크는 현재 데이터베이스 스키마에 없으므로 주석 처리 */}
+                    {/* {banner.moreLink && (
+                      <div className="mb-2">
+                        <span className="text-sm font-medium">MORE 링크: </span>
+                        <span className="text-sm text-blue-600">{banner.moreLink}</span>
+                      </div>
+                    )} */}
                     <div className="flex items-center gap-1 flex-wrap">
                       <span className="text-sm font-medium">Products ({banner.products.length}):</span>
                       {banner.products.slice(0, 3).map(product => (

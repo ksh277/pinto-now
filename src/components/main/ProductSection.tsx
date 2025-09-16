@@ -40,32 +40,35 @@ export default function ProductSection() {
       } else {
         // Fallback to old system if no banners exist
         const acrylic = products.filter(p => p.categoryId === 'acrylic');
-        const wood = products.filter(p => p.categoryId === 'wood');
-        const pool: Product[] = products.length ? products : [];
-        const take = (arr: Product[], start = 0, count = 3): Product[] =>
-          (arr.length ? arr : pool).slice(start, start + count);
+
+        // 아크릴 상품이 충분하지 않으면 전체 상품 사용
+        const productPool = acrylic.length >= 6 ? acrylic : products.slice(0, 6);
+
+        const take = (arr: Product[], start = 0, count = 2): Product[] => {
+          return arr.slice(start, start + count);
+        };
 
         const fallbackBanners: ProductShelfBanner[] = [
           {
             id: 's1',
-            title: '티셔츠 | 다양한 색상과 소재가 준비되어 있습니다.',
-            description: '디자인이 고민이면 핀토 상담가에게 문의 주세요',
-            imageUrl: 'https://placehold.co/400x260/e2e8f0/64748b.png?text=T-Shirt+Banner',
-            products: take(acrylic, 0, 3),
+            title: '아크릴 키링 | 다양한 스타일과 색상으로 제작 가능',
+            description: '내 마음대로 커스텀! 고품질 아크릴 키링',
+            imageUrl: 'https://placehold.co/400x260/FFB6C1/333?text=아크릴+키링',
+            products: take(productPool, 0, 2),
           },
           {
             id: 's2',
-            title: '키링 | 스포츠, 축제, 행사, 굿즈에 많이 사용되요.',
-            description: '칼선/재단 걱정하지 않아도 돼요. 자동편집!',
-            imageUrl: 'https://placehold.co/400x260/e2e8f0/64748b.png?text=Keyring+Banner',
-            products: take(acrylic, 3, 3),
+            title: '아크릴 스탠드 | 캐릭터와 굿즈를 멋지게 세워보세요',
+            description: '완벽한 각도로 디스플레이! 자립형 아크릴 스탠드',
+            imageUrl: 'https://placehold.co/400x260/87CEEB/333?text=아크릴+스탠드',
+            products: take(productPool, 2, 2),
           },
           {
             id: 's3',
-            title: '우산 | 소량부터 대량까지 다양하게 준비되어 있습니다.',
-            description: '핸드폰으로도 뚝딱 만들 수 있는 나만의 굿즈',
-            imageUrl: 'https://placehold.co/400x260/e2e8f0/64748b.png?text=Umbrella+Banner',
-            products: take(wood, 0, 3),
+            title: '아크릴 굿즈 | 투명하고 견고한 프리미엄 제품',
+            description: '내구성 뛰어난 아크릴로 만드는 나만의 굿즈',
+            imageUrl: 'https://placehold.co/400x260/98FB98/333?text=아크릴+굿즈',
+            products: take(productPool, 4, 2),
           },
         ];
         setBanners(fallbackBanners);

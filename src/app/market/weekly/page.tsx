@@ -55,11 +55,12 @@ export default function WeeklyRankingsPage() {
         </div>
 
         {/* Rankings Grid */}
-        <WeeklyRankingCards 
-          sellerType={selectedTab} 
+        <WeeklyRankingCards
+          sellerType={selectedTab}
           limit={20}
           showRankNumbers={true}
           className="mb-8"
+          layout="full-page"
         />
 
         {/* Info Section */}

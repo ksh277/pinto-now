@@ -68,15 +68,7 @@ export const categoryMappings: Record<string, CategoryMapping> = {
       { icon: '🎭', title: '캐릭터 굿즈', desc: '인기 캐릭터 기반 제품' },
       { icon: '💼', title: '상품기획', desc: '전문 기획팀의 상품 개발' }
     ],
-    heroImagePath: '/components/img/placeholder-product.jpg',
-    sampleProducts: [
-      { id: 'ip-1', name: '캐릭터 아크릴 스탠드', tags: ['아크릴', 'IP'], price: 15000, image: '/components/img/placeholder-product.jpg' },
-      { id: 'ip-2', name: '브랜드 굿즈 세트', tags: ['세트', '브랜드'], price: 35000, image: '/components/img/placeholder-product.jpg' },
-      { id: 'ip-3', name: 'IP 라이선스 티셔츠', tags: ['의류', 'IP'], price: 25000, image: '/components/img/placeholder-product.jpg' },
-      { id: 'ip-4', name: '캐릭터 키링', tags: ['키링', '캐릭터'], price: 8000, image: '/components/img/placeholder-product.jpg' },
-      { id: 'ip-5', name: 'IP 굿즈 머그컵', tags: ['머그컵', 'IP'], price: 12000, image: '/components/img/placeholder-product.jpg' },
-      { id: 'ip-6', name: '브랜드 노트북', tags: ['문구', '브랜드'], price: 18000, image: '/components/img/placeholder-product.jpg' }
-    ]
+    heroImagePath: '/components/img/placeholder-product.jpg'
   },
   'brand-request': {
     slug: 'brand-request',
@@ -89,15 +81,7 @@ export const categoryMappings: Record<string, CategoryMapping> = {
       { icon: '👥', title: '전담팀', desc: '브랜드 전담 프로젝트 팀' },
       { icon: '📋', title: '체계적 관리', desc: '프로젝트 전과정 관리' }
     ],
-    heroImagePath: '/components/img/placeholder-product.jpg',
-    sampleProducts: [
-      { id: 'brand-1', name: '기업 웰컴 키트 세트', tags: ['세트', '기업'], price: 45000, image: '/components/img/placeholder-product.jpg' },
-      { id: 'brand-2', name: '브랜드 텀블러', tags: ['텀블러', '브랜드'], price: 18000, image: '/components/img/placeholder-product.jpg' },
-      { id: 'brand-3', name: '회사 기념품 세트', tags: ['기념품', '세트'], price: 28000, image: '/components/img/placeholder-product.jpg' },
-      { id: 'brand-4', name: '브랜드 에코백', tags: ['에코백', '브랜드'], price: 15000, image: '/components/img/placeholder-product.jpg' },
-      { id: 'brand-5', name: '기업 문구 세트', tags: ['문구', '기업'], price: 22000, image: '/components/img/placeholder-product.jpg' },
-      { id: 'brand-6', name: '웰컴 키트 박스', tags: ['박스', '웰컴'], price: 35000, image: '/components/img/placeholder-product.jpg' }
-    ]
+    heroImagePath: '/components/img/placeholder-product.jpg'
   },
   'reviews': {
     slug: 'reviews',

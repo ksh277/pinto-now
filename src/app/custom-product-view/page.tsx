@@ -40,14 +40,7 @@ export const metadata: Metadata = {
   }
 };
 
-const customProducts = [
-  { id: 'custom-keyring', name: '맞춤 키링', tags: ['커스텀', '개인', '키링'], price: 3000, image: '/images/placeholder-product.jpg' },
-  { id: 'custom-phone-case', name: '맞춤 폰케이스', tags: ['폰케이스', '개인', '실용'], price: 12000, image: '/images/placeholder-product.jpg' },
-  { id: 'custom-notebook', name: '맞춤 노트북', tags: ['노트북', '문구', '개인'], price: 8000, image: '/images/placeholder-product.jpg' },
-  { id: 'custom-bag', name: '맞춤 에코백', tags: ['에코백', '친환경', '실용'], price: 15000, image: '/images/placeholder-product.jpg' },
-  { id: 'custom-calendar', name: '맞춤 달력', tags: ['달력', '사진', '기념품'], price: 18000, image: '/images/placeholder-product.jpg' },
-  { id: 'custom-puzzle', name: '맞춤 퍼즐', tags: ['퍼즐', '놀이', '사진'], price: 25000, image: '/images/placeholder-product.jpg' }
-];
+const customProducts: any[] = [];
 
 const customFaq = [
   {

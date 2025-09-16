@@ -35,7 +35,7 @@ export const BANNER_LIMITS = {
   [BannerType.HOME_SLIDER_PC]: 2,
   [BannerType.HOME_SLIDER_MOBILE]: 1,
   [BannerType.IMAGE_BANNER]: 12,
-  [BannerType.PLATFORM_BANNER]: 1
+  [BannerType.PLATFORM_BANNER]: 3
 } as const;
 
 export type StripBannerData = {

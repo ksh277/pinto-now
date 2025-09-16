@@ -318,6 +318,8 @@ export default function Register() {
               variant="link"
               size="sm"
               className="text-muted-foreground h-auto p-0"
+              onClick={() => window.open('/terms', '_blank')}
+              type="button"
             >
               보기
             </Button>
@@ -343,6 +345,8 @@ export default function Register() {
               variant="link"
               size="sm"
               className="text-muted-foreground h-auto p-0"
+              onClick={() => window.open('/privacy', '_blank')}
+              type="button"
             >
               보기
             </Button>

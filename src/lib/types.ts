@@ -71,7 +71,8 @@ export interface CartItem {
   quantity: number;
   options: {
     size: string;
-    color: { nameKo: string; nameEn: string; value: string };
+    color?: { nameKo: string; nameEn: string; value: string };
+    printType?: string;
     customText?: string;
   };
   designFile?: {

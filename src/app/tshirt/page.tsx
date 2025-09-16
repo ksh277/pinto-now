@@ -70,8 +70,8 @@ const tshirtFaq = [
 
 export default function TshirtPage() {
   return (
-    <CategoryPageTemplate 
-      mapping={mapping}
+    <CategoryPageTemplate
+      mapping={mapping!}
       products={tshirtProducts}
       faq={tshirtFaq}
     />

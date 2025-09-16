@@ -32,10 +32,11 @@ export default function ReviewForm({
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hoverRating, setHoverRating] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    if (files.length + uploadedFiles.length > 5) {
+    if (files.length + images.length > 5) {
       toast({
         title: "이미지 개수 초과",
         description: "최대 5개의 이미지만 업로드할 수 있습니다.",
@@ -44,34 +45,57 @@ export default function ReviewForm({
       return;
     }
 
-    files.forEach(file => {
-      if (file.size > 5 * 1024 * 1024) { // 5MB 제한
-        toast({
-          title: "파일 크기 초과",
-          description: `${file.name}은 5MB를 초과합니다.`,
-          variant: "destructive",
-        });
-        return;
-      }
+    setIsUploading(true);
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setImages(prev => [...prev, result]);
-        setUploadedFiles(prev => [...prev, file]);
-      };
-      reader.readAsDataURL(file);
-    });
+    try {
+      const formData = new FormData();
+      files.forEach(file => {
+        if (file.size > 5 * 1024 * 1024) {
+          toast({
+            title: "파일 크기 초과",
+            description: `${file.name}은 5MB를 초과합니다.`,
+            variant: "destructive",
+          });
+          return;
+        }
+        formData.append('images', file);
+      });
+
+      const response = await fetch('/api/upload/review-images', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setImages(prev => [...prev, ...result.images]);
+        toast({
+          title: "이미지 업로드 완료",
+          description: `${result.images.length}개의 이미지가 업로드되었습니다.`,
+        });
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      toast({
+        title: "이미지 업로드 실패",
+        description: error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.',
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const removeImage = (index: number) => {
     setImages(prev => prev.filter((_, i) => i !== index));
-    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user) {
       toast({
         title: "로그인 필요",
@@ -102,13 +126,11 @@ export default function ReviewForm({
     setIsSubmitting(true);
 
     try {
-      // 실제 구현에서는 이미지를 서버에 업로드하고 URL을 받아와야 합니다.
-      // 여기서는 임시로 base64 데이터를 사용합니다.
       const reviewData = {
         product_id: productId,
         rating,
         content: content.trim(),
-        images: images.slice(0, 5), // 최대 5개까지만
+        images: images, // 이미 업로드된 이미지 URL들
         order_item_id: orderItemId
       };
 
@@ -128,13 +150,13 @@ export default function ReviewForm({
           title: "리뷰가 등록되었습니다",
           description: "소중한 후기 감사합니다!",
         });
-        
+
         // 폼 초기화
         setRating(0);
         setContent('');
         setImages([]);
         setUploadedFiles([]);
-        
+
         onSuccess?.();
       } else {
         throw new Error(result.error || '리뷰 등록에 실패했습니다.');
@@ -248,15 +270,24 @@ export default function ReviewForm({
                     onChange={handleImageUpload}
                     className="hidden"
                     id="image-upload"
+                    disabled={isUploading}
                   />
                   <label
                     htmlFor="image-upload"
-                    className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-gray-400 transition-colors"
+                    className={`flex items-center justify-center p-4 border-2 border-dashed rounded-lg transition-colors ${
+                      isUploading
+                        ? 'border-blue-300 bg-blue-50 cursor-not-allowed'
+                        : 'border-gray-300 cursor-pointer hover:border-gray-400'
+                    }`}
                   >
                     <div className="text-center">
-                      <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
+                      {isUploading ? (
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                      ) : (
+                        <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
+                      )}
                       <p className="text-sm text-gray-600">
-                        사진 추가 ({images.length}/5)
+                        {isUploading ? '업로드 중...' : `사진 추가 (${images.length}/5)`}
                       </p>
                       <p className="text-xs text-gray-500">
                         최대 5MB, JPG/PNG 파일

@@ -85,7 +85,7 @@ const allFaq = [
 export default function AllPage() {
   return (
     <CategoryPageTemplate 
-      mapping={mapping}
+      mapping={mapping!}
       products={allProducts}
       faq={allFaq}
     />

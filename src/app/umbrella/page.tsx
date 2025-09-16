@@ -38,15 +38,7 @@ export const metadata: Metadata = {
   }
 };
 
-// 우산 카테고리 전용 샘플 제품들
-const umbrellaProducts = [
-  { id: 'long-umbrella-60cm', name: '장우산 60cm', tags: ['장우산', '60cm', '기본'], price: 15000, image: '/images/umbrella/long-umbrella.png' },
-  { id: 'folding-umbrella-3-stage', name: '3단 접이식 우산', tags: ['3단', '휴대용', '간편'], price: 18000, image: '/images/umbrella/3-stage.png' },
-  { id: 'golf-umbrella-70cm', name: '골프우산 70cm', tags: ['골프', '70cm', '대형'], price: 25000, image: '/images/umbrella/golf-umbrella.png' },
-  { id: 'auto-umbrella-55cm', name: '자동우산 55cm', tags: ['자동', '55cm', '편리'], price: 20000, image: '/images/umbrella/auto-umbrella.png' },
-  { id: 'transparent-umbrella-50cm', name: '투명우산 50cm', tags: ['투명', '50cm', '시야'], price: 12000, image: '/images/umbrella/transparent.png' },
-  { id: 'windproof-umbrella-60cm', name: '방풍우산 60cm', tags: ['방풍', '60cm', '튼튼'], price: 30000, image: '/images/umbrella/windproof.png' }
-];
+const umbrellaProducts: any[] = [];
 
 // 우산 카테고리 전용 FAQ
 const umbrellaFaq = [
@@ -70,8 +62,8 @@ const umbrellaFaq = [
 
 export default function UmbrellaPage() {
   return (
-    <CategoryPageTemplate 
-      mapping={mapping}
+    <CategoryPageTemplate
+      mapping={mapping!}
       products={umbrellaProducts}
       faq={umbrellaFaq}
     />

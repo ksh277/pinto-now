@@ -38,15 +38,7 @@ export const metadata: Metadata = {
   }
 };
 
-// 핀버튼 카테고리 전용 샘플 제품들
-const pinButtonProducts = [
-  { id: 'pin-25mm', name: '25mm 핀버튼', tags: ['25mm', '소형', '인기'], price: 800, image: '/images/pin-button/25mm-pin.png' },
-  { id: 'pin-37mm', name: '37mm 핀버튼', tags: ['37mm', '중형', '표준'], price: 1000, image: '/images/pin-button/37mm-pin.png' },
-  { id: 'pin-57mm', name: '57mm 핀버튼', tags: ['57mm', '대형', '임팩트'], price: 1500, image: '/images/pin-button/57mm-pin.png' },
-  { id: 'pin-75mm', name: '75mm 핀버튼', tags: ['75mm', '특대형', '강조'], price: 2000, image: '/images/pin-button/75mm-pin.png' },
-  { id: 'pin-hologram', name: '홀로그램 핀버튼', tags: ['홀로그램', '특수', '프리미엄'], price: 2500, image: '/images/pin-button/hologram-pin.png' },
-  { id: 'pin-glow', name: '야광 핀버튼', tags: ['야광', '어둠', '특별'], price: 2200, image: '/images/pin-button/glow-pin.png' }
-];
+const pinButtonProducts: any[] = [];
 
 // 핀버튼 카테고리 전용 FAQ
 const pinButtonFaq = [
@@ -71,7 +63,7 @@ const pinButtonFaq = [
 export default function PinButtonPage() {
   return (
     <CategoryPageTemplate 
-      mapping={mapping}
+      mapping={mapping!}
       products={pinButtonProducts}
       faq={pinButtonFaq}
     />

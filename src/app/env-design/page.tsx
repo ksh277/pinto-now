@@ -38,15 +38,7 @@ export const metadata: Metadata = {
   }
 };
 
-// 환경디자인 카테고리 전용 샘플 제품들
-const envDesignProducts = [
-  { id: 'wall-graphics-design', name: '벽면 그래픽 디자인', tags: ['벽면', '그래픽', '인테리어'], price: 500000, image: '/images/env-design/wall-graphics.png' },
-  { id: 'floor-graphics-design', name: '바닥 그래픽 디자인', tags: ['바닥', '그래픽', '안내'], price: 300000, image: '/images/env-design/floor-graphics.png' },
-  { id: 'window-graphics-design', name: '창문 그래픽 디자인', tags: ['창문', '시트', '프라이버시'], price: 200000, image: '/images/env-design/window-graphics.png' },
-  { id: 'exhibition-design', name: '전시 공간 디자인', tags: ['전시', '공간', '연출'], price: 1000000, image: '/images/env-design/exhibition-design.png' },
-  { id: 'office-space-design', name: '사무공간 디자인', tags: ['사무실', '브랜딩', '환경'], price: 800000, image: '/images/env-design/office-design.png' },
-  { id: 'retail-space-design', name: '매장 공간 디자인', tags: ['매장', '리테일', '고객'], price: 1200000, image: '/images/env-design/retail-design.png' }
-];
+const envDesignProducts: any[] = [];
 
 // 환경디자인 카테고리 전용 FAQ
 const envDesignFaq = [

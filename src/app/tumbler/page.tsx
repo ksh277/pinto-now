@@ -38,15 +38,7 @@ export const metadata: Metadata = {
   }
 };
 
-// 텀블러 카테고리 전용 샘플 제품들
-const tumblerProducts = [
-  { id: 'stainless-tumbler-350ml', name: '스테인리스 텀블러 350ml', tags: ['스테인리스', '350ml', '기본'], price: 15000, image: '/images/tumbler/stainless-350.png' },
-  { id: 'stainless-tumbler-500ml', name: '스테인리스 텀블러 500ml', tags: ['스테인리스', '500ml', '대용량'], price: 18000, image: '/images/tumbler/stainless-500.png' },
-  { id: 'vacuum-tumbler-450ml', name: '진공 텀블러 450ml', tags: ['진공', '450ml', '보온'], price: 22000, image: '/images/tumbler/vacuum-450.png' },
-  { id: 'eco-tumbler-400ml', name: '친환경 텀블러 400ml', tags: ['친환경', '400ml', '재활용'], price: 16000, image: '/images/tumbler/eco-400.png' },
-  { id: 'sports-tumbler-600ml', name: '스포츠 텀블러 600ml', tags: ['스포츠', '600ml', '운동'], price: 25000, image: '/images/tumbler/sports-600.png' },
-  { id: 'premium-tumbler-450ml', name: '프리미엄 텀블러 450ml', tags: ['프리미엄', '450ml', '고급'], price: 30000, image: '/images/tumbler/premium-450.png' }
-];
+const tumblerProducts: any[] = [];
 
 // 텀블러 카테고리 전용 FAQ
 const tumblerFaq = [
@@ -70,8 +62,8 @@ const tumblerFaq = [
 
 export default function TumblerPage() {
   return (
-    <CategoryPageTemplate 
-      mapping={mapping}
+    <CategoryPageTemplate
+      mapping={mapping!}
       products={tumblerProducts}
       faq={tumblerFaq}
     />

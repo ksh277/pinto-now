@@ -38,15 +38,7 @@ export const metadata: Metadata = {
   }
 };
 
-// 수건 카테고리 전용 샘플 제품들
-const towelProducts = [
-  { id: 'sports-towel-35x80', name: '스포츠 타월 35x80cm', tags: ['스포츠', '35x80cm', '운동'], price: 8000, image: '/images/towel/sports-towel.png' },
-  { id: 'gym-towel-40x100', name: '헬스장 수건 40x100cm', tags: ['헬스', '40x100cm', '대형'], price: 12000, image: '/images/towel/gym-towel.png' },
-  { id: 'microfiber-towel-30x70', name: '마이크로화이버 수건 30x70cm', tags: ['마이크로화이버', '속건', '여행'], price: 10000, image: '/images/towel/microfiber.png' },
-  { id: 'golf-towel-30x40', name: '골프 타월 30x40cm', tags: ['골프', '30x40cm', '클립'], price: 15000, image: '/images/towel/golf-towel.png' },
-  { id: 'cooling-towel-30x90', name: '쿨링 타월 30x90cm', tags: ['쿨링', '시원함', '여름'], price: 18000, image: '/images/towel/cooling-towel.png' },
-  { id: 'antibacterial-towel-40x80', name: '항균 수건 40x80cm', tags: ['항균', '위생', '안전'], price: 14000, image: '/images/towel/antibacterial.png' }
-];
+const towelProducts: any[] = [];
 
 // 수건 카테고리 전용 FAQ
 const towelFaq = [
@@ -70,8 +62,8 @@ const towelFaq = [
 
 export default function TowelPage() {
   return (
-    <CategoryPageTemplate 
-      mapping={mapping}
+    <CategoryPageTemplate
+      mapping={mapping!}
       products={towelProducts}
       faq={towelFaq}
     />

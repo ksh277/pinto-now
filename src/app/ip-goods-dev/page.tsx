@@ -86,8 +86,9 @@ const ipFaq = [
 
 export default function IpGoodsDevPage() {
   return (
-    <CategoryPageTemplate 
-      mapping={mapping}
+    <CategoryPageTemplate
+      mapping={mapping!}
+      products={[]}
       faq={ipFaq}
       processSteps={processSteps}
     />

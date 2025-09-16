@@ -13,7 +13,28 @@ const goodsEditorHelp = `
 - PNG/SVG/PDF로 내보내거나 DB에 저장할 수 있어요.
 `;
 
+// FAQ 데이터를 가져오는 함수
+async function getFaqData(): Promise<string> {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/faqs`);
+    if (response.ok) {
+      const data = await response.json();
+      const faqs = data.faqs || [];
+
+      if (faqs.length > 0) {
+        return '\n\n### 자주 묻는 질문 (FAQ)\n\n' +
+          faqs.map((faq: any) => `**Q: ${faq.question}**\nA: ${faq.answer}\n`).join('\n');
+      }
+    }
+  } catch (error) {
+    console.error('Failed to fetch FAQ data:', error);
+  }
+  return '';
+}
+
 const systemPrompt = `You are a friendly and helpful customer support agent for a custom goods printing company called "Pinto".
+
+IMPORTANT: When users ask questions, first check if there's relevant information in the FAQ section below. If you find a matching FAQ, use that information to answer. Otherwise, use the general product information.
 
 Your knowledge is based on the following information:
 - We sell custom goods like acrylic keyrings, smart-toks, stickers, etc.
@@ -174,10 +195,17 @@ Keep your answers concise and helpful.`;
 export async function chat(input: string): Promise<string> {
   try {
     console.log('Calling OpenAI API...');
-    
+
     if (!process.env.OPENAI_API_KEY) {
       throw new Error('OpenAI API key is not configured');
     }
+
+    // FAQ 데이터를 가져와서 시스템 프롬프트에 추가
+    console.log('Fetching FAQ data...');
+    const faqData = await getFaqData();
+    const enhancedSystemPrompt = systemPrompt + faqData;
+
+    console.log('Enhanced system prompt length:', enhancedSystemPrompt.length);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -188,7 +216,7 @@ export async function chat(input: string): Promise<string> {
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: systemPrompt },
+          { role: 'system', content: enhancedSystemPrompt },
           { role: 'user', content: input }
         ],
         max_tokens: 1000,

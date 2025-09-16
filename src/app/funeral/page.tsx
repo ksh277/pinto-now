@@ -38,15 +38,7 @@ export const metadata: Metadata = {
   }
 };
 
-// 장례용품 카테고리 전용 샘플 제품들
-const funeralProducts = [
-  { id: 'memorial-ribbon-white', name: '추도 리본 (흰색)', tags: ['리본', '흰색', '추도'], price: 5000, image: '/images/funeral/memorial-ribbon.png' },
-  { id: 'condolence-banner-150x50', name: '조화 현수막 150x50cm', tags: ['현수막', '조화', '150x50cm'], price: 25000, image: '/images/funeral/condolence-banner.png' },
-  { id: 'memorial-photo-frame-a4', name: '영정 사진 액자 A4', tags: ['영정', '사진', 'A4'], price: 30000, image: '/images/funeral/memorial-photo.png' },
-  { id: 'funeral-guest-book', name: '조문객 방명록', tags: ['방명록', '조문', '기록'], price: 15000, image: '/images/funeral/guest-book.png' },
-  { id: 'memorial-card-100ea', name: '부고 카드 100매', tags: ['부고', '카드', '100매'], price: 20000, image: '/images/funeral/memorial-card.png' },
-  { id: 'funeral-wreath-ribbon', name: '화환 리본', tags: ['화환', '리본', '추모'], price: 8000, image: '/images/funeral/wreath-ribbon.png' }
-];
+const funeralProducts: any[] = [];
 
 // 장례용품 카테고리 전용 FAQ
 const funeralFaq = [

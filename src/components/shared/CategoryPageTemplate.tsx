@@ -70,47 +70,69 @@ export default function CategoryPageTemplate({
   return (
     <StripBannerProvider>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-        
+
+        {/* Header */}
+        <section className="py-12 bg-white dark:bg-slate-800">
+          <div className="container mx-auto px-4">
+            <div className="text-center">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                {mapping.categoryKo}
+              </h1>
+              <p className="text-lg text-gray-600 dark:text-gray-400">
+                {mapping.description || `다양한 ${mapping.categoryKo} 제품들을 확인해보세요`}
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Products Grid */}
-        <section className="py-16">
-          <div className="max-w-7xl mx-auto px-6">
-            <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
-              {mapping.categoryKo}
-            </h2>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4">
+        <section className="pt-6 pb-10 md:pt-8 md:pb-14">
+          <div className="px-8 md:px-16">
+            {/* 주간 랭킹 카드와 동일한 스타일 */}
+            <div className="md:grid md:grid-cols-4 md:gap-4 flex md:block overflow-x-auto md:overflow-visible gap-4 md:gap-0 pb-4 md:pb-0 scrollbar-hide px-4 md:px-0">
               {displayProducts.slice(0, 8).map((product) => (
-                <Card key={product.id} className="group overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="relative aspect-square overflow-hidden bg-gray-100">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
-                    />
+                <Link
+                  key={product.id}
+                  href={`/product/${product.id}`}
+                  className="block group"
+                >
+                  <div className="bg-white rounded-xl border-2 border-gray-100 p-3 md:p-4 hover:shadow-xl hover:border-blue-200 transition-all duration-300 relative w-[calc(100vw-3rem)] max-w-[350px] md:max-w-none md:w-auto flex-shrink-0 md:flex-shrink flex md:block gap-4 md:gap-0">
+                    <div className="relative w-24 h-24 md:w-full md:h-80 flex-shrink-0 md:mb-3 overflow-hidden rounded-xl bg-gray-100 shadow-md">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                      />
+                      {/* 호버 시 오버레이 */}
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 rounded-xl"></div>
+                    </div>
+
+                    <div className="space-y-1 md:space-y-2">
+                      <h3 className="font-bold text-gray-900 text-sm md:text-base mb-1 md:mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors leading-tight">
+                        {product.name}
+                      </h3>
+
+                      <div className="space-y-1">
+                        <div className="flex flex-wrap gap-1 mb-1 md:mb-2">
+                          {product.tags.map((tag) => (
+                            <Badge key={tag} variant="secondary" className="text-xs px-2 py-1">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="pt-1 md:pt-2 border-t border-gray-100">
+                        <span className="font-bold text-blue-600 text-base md:text-lg">
+                          ~{product.price.toLocaleString()}원
+                        </span>
+                        <span className="text-xs text-gray-500 ml-1">부터</span>
+                      </div>
+                    </div>
                   </div>
-                  <CardContent className="p-5">
-                    <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-3 line-clamp-2">
-                      {product.name}
-                    </h3>
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {product.tags.map((tag) => (
-                        <Badge key={tag} variant="secondary" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-blue-600">
-                        {product.price.toLocaleString()}원~
-                      </span>
-                      <Link href={`/product/${product.id}`} className="text-sm text-gray-500 hover:text-gray-700 flex items-center">
-                        자세히 보기
-                        <ChevronRight className="w-4 h-4 ml-1" />
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
+                </Link>
               ))}
             </div>
           </div>

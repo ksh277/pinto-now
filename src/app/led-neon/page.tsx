@@ -38,15 +38,7 @@ export const metadata: Metadata = {
   }
 };
 
-// LED 네온 카테고리 전용 샘플 제품들
-const ledNeonProducts = [
-  { id: 'led-neon-sign-50cm', name: 'LED 네온사인 50cm', tags: ['50cm', '기본형', '실내'], price: 120000, image: '/images/led-neon/neon-50cm.png' },
-  { id: 'led-neon-sign-100cm', name: 'LED 네온사인 100cm', tags: ['100cm', '대형', '매장'], price: 200000, image: '/images/led-neon/neon-100cm.png' },
-  { id: 'rgb-led-neon', name: 'RGB LED 네온', tags: ['RGB', '다색', '화려'], price: 250000, image: '/images/led-neon/rgb-neon.png' },
-  { id: 'outdoor-led-neon', name: '실외용 LED 네온', tags: ['실외', '방수', '내구성'], price: 300000, image: '/images/led-neon/outdoor-neon.png' },
-  { id: 'custom-shape-neon', name: '맞춤형 LED 네온', tags: ['맞춤형', '특수제작', '개성'], price: 180000, image: '/images/led-neon/custom-neon.png' },
-  { id: 'mini-led-neon-30cm', name: '미니 LED 네온 30cm', tags: ['30cm', '미니', '포인트'], price: 80000, image: '/images/led-neon/mini-neon.png' }
-];
+const ledNeonProducts: any[] = [];
 
 // LED 네온 카테고리 전용 FAQ
 const ledNeonFaq = [

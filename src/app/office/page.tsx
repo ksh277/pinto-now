@@ -38,14 +38,7 @@ export const metadata: Metadata = {
   }
 };
 
-const officeProducts = [
-  { id: 'office-pen', name: '맞춤 볼펜', tags: ['볼펜', '문구', '실용'], price: 2000, image: '/images/placeholder-product.jpg' },
-  { id: 'office-notebook', name: '맞춤 노트', tags: ['노트', '업무', '기록'], price: 5000, image: '/images/placeholder-product.jpg' },
-  { id: 'office-calendar', name: '탁상 달력', tags: ['달력', '일정', '오피스'], price: 8000, image: '/images/placeholder-product.jpg' },
-  { id: 'office-mousepad', name: '마우스패드', tags: ['마우스패드', 'IT', '업무'], price: 12000, image: '/images/placeholder-product.jpg' },
-  { id: 'office-folder', name: '파일 폴더', tags: ['폴더', '정리', '문서'], price: 3000, image: '/images/placeholder-product.jpg' },
-  { id: 'office-sticky', name: '맞춤 포스트잇', tags: ['포스트잇', '메모', '업무'], price: 4000, image: '/images/placeholder-product.jpg' }
-];
+const officeProducts: any[] = [];
 
 const officeFaq = [
   {
@@ -68,8 +61,8 @@ const officeFaq = [
 
 export default function OfficePage() {
   return (
-    <CategoryPageTemplate 
-      mapping={mapping}
+    <CategoryPageTemplate
+      mapping={mapping!}
       products={officeProducts}
       faq={officeFaq}
     />

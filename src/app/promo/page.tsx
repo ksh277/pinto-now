@@ -49,14 +49,7 @@ export const metadata: Metadata = {
 };
 
 // 단체 판촉상품 카테고리 전용 샘플 제품들
-const promoProducts = [
-  { id: 'promo-tote-bag', name: '판촉용 에코백', tags: ['에코백', '대량', 'B2B'], price: 3500, image: '/images/promo/tote-bag.png' },
-  { id: 'promo-pen', name: '기업 볼펜', tags: ['볼펜', '실용', '로고'], price: 800, image: '/images/promo/pen.png' },
-  { id: 'promo-notebook', name: '판촉용 노트', tags: ['노트', '업무', '기업'], price: 2500, image: '/images/promo/notebook.png' },
-  { id: 'promo-usb', name: '기업용 USB', tags: ['USB', '실용', '기술'], price: 8000, image: '/images/promo/usb.png' },
-  { id: 'promo-tumbler-bulk', name: '대량 텀블러', tags: ['텀블러', '친환경', '대량'], price: 12000, image: '/images/promo/tumbler-bulk.png' },
-  { id: 'promo-keyring-bulk', name: '판촉용 키링', tags: ['키링', '소량단가', '기념품'], price: 1200, image: '/images/promo/keyring-bulk.png' }
-];
+const promoProducts: any[] = [];
 
 // 단체 판촉상품 카테고리 전용 FAQ
 const promoFaq = [

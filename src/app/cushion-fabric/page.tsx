@@ -38,15 +38,7 @@ export const metadata: Metadata = {
   }
 };
 
-// 쿠션/방석/패브릭 제품 카테고리 전용 샘플 제품들
-const cushionFabricProducts = [
-  { id: 'square-cushion-40x40', name: '사각 쿠션 40x40cm', tags: ['사각', '40x40cm', '기본'], price: 18000, image: '/images/cushion-fabric/square-cushion.png' },
-  { id: 'round-cushion-35cm', name: '원형 쿠션 지름 35cm', tags: ['원형', '35cm', '둥근'], price: 20000, image: '/images/cushion-fabric/round-cushion.png' },
-  { id: 'floor-cushion-50x50', name: '바닥 방석 50x50cm', tags: ['바닥', '50x50cm', '두꺼움'], price: 25000, image: '/images/cushion-fabric/floor-cushion.png' },
-  { id: 'back-cushion-45x35', name: '등받이 쿠션 45x35cm', tags: ['등받이', '45x35cm', '지지'], price: 22000, image: '/images/cushion-fabric/back-cushion.png' },
-  { id: 'memory-foam-cushion', name: '메모리폼 쿠션', tags: ['메모리폼', '고급', '편안'], price: 35000, image: '/images/cushion-fabric/memory-foam.png' },
-  { id: 'fabric-pouch-large', name: '패브릭 파우치 대형', tags: ['패브릭', '파우치', '수납'], price: 15000, image: '/images/cushion-fabric/fabric-pouch.png' }
-];
+const cushionFabricProducts: any[] = [];
 
 // 쿠션/방석/패브릭 제품 카테고리 전용 FAQ
 const cushionFabricFaq = [

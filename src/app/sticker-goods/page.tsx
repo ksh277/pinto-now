@@ -42,21 +42,16 @@ export default async function StickerGoodsPage() {
   let stats: Record<string, { likeCount: number; reviewCount: number }> = {};
 
   try {
-    // Fetch sticker-related products (using acrylic category as fallback)
-    const products = await getProductsByCategory('아크릴');
+    // Fetch sticker-related products
+    const products = await getProductsByCategory('스티커');
     stats = await getProductStats(products.map(p => p.id));
 
-    // Filter for sticker-like products or take first 6
-    stickerProducts = products.slice(0, 6);
+    // Take all sticker products
+    stickerProducts = products;
   } catch (error) {
     console.warn('Failed to fetch products for sticker page during build:', error);
-    // Use fallback static data for build
-    stickerProducts = [
-      { id: '1', nameKo: '비닐 스티커', imageUrl: '/images/sample-banner1.svg', priceKrw: 500 },
-      { id: '2', nameKo: '투명 스티커', imageUrl: '/images/sample-banner2.svg', priceKrw: 800 },
-      { id: '3', nameKo: '홀로그램 스티커', imageUrl: '/images/sample-banner3.svg', priceKrw: 1200 },
-      { id: '4', nameKo: '방수 스티커', imageUrl: '/images/sample-banner4.svg', priceKrw: 1000 },
-    ];
+    // No fallback data - show empty list if API fails
+    stickerProducts = [];
     stats = {};
   }
   return (
@@ -68,52 +63,62 @@ export default async function StickerGoodsPage() {
           <div className="container mx-auto px-4">
             <div className="text-center">
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                스티커
+                스티커 굿즈
               </h1>
               <p className="text-lg text-gray-600 dark:text-gray-400">
-                다양한 스티커 제품들을 확인해보세요
+                다양한 용도의 맞춤 스티커 제품들을 확인해보세요
               </p>
             </div>
           </div>
         </section>
 
         {/* Products Grid */}
-        <section className="py-8">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <section className="pt-6 pb-10 md:pt-8 md:pb-14">
+          <div className="px-8 md:px-16">
+            <div className="md:grid md:grid-cols-4 md:gap-4 flex md:block overflow-x-auto md:overflow-visible gap-4 md:gap-0 pb-4 md:pb-0 scrollbar-hide px-4 md:px-0">
               {stickerProducts.map((product) => (
-                <Card key={product.id} className="group overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="relative aspect-square overflow-hidden bg-gray-100">
-                    <Image
-                      src={product.imageUrl || '/images/sample-banner1.svg'}
-                      alt={product.nameKo || 'Product'}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                    />
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                      {product.nameKo}
-                    </h3>
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      <Badge variant="secondary" className="text-xs">
-                        스티커
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs">
-                        맞춤제작
-                      </Badge>
+                <Link
+                  key={product.id}
+                  href={`/products/${product.id}`}
+                  className="block group"
+                >
+                  <div className="bg-white rounded-xl border-2 border-gray-100 p-3 md:p-4 hover:shadow-xl hover:border-blue-200 transition-all duration-300 relative w-[calc(100vw-3rem)] max-w-[350px] md:max-w-none md:w-auto flex-shrink-0 md:flex-shrink flex md:block gap-4 md:gap-0">
+                    <div className="relative w-24 h-24 md:w-full md:h-80 flex-shrink-0 md:mb-3 overflow-hidden rounded-xl bg-gray-100 shadow-md">
+                      <Image
+                        src={product.imageUrl || '/components/img/placeholder-product.jpg'}
+                        alt={product.nameKo || 'Product'}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                      />
+                      {/* 호버 시 오버레이 */}
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 rounded-xl"></div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-green-600">
-                        {product.priceKrw?.toLocaleString()}원~
-                      </span>
-                      <div className="text-xs text-gray-500">
-                        ♡ {stats[product.id]?.likeCount || 0} 리뷰 {stats[product.id]?.reviewCount || 0}
+                    <div className="space-y-1 md:space-y-2">
+                      <h3 className="font-bold text-gray-900 text-sm md:text-base mb-1 md:mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors leading-tight">
+                        {product.nameKo}
+                      </h3>
+
+                      <div className="space-y-1">
+                        <div className="flex flex-wrap gap-1 mb-1 md:mb-2">
+                          <Badge variant="secondary" className="text-xs px-2 py-1">
+                            스티커
+                          </Badge>
+                          <Badge variant="secondary" className="text-xs px-2 py-1">
+                            맞춤제작
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <div className="pt-1 md:pt-2 border-t border-gray-100">
+                        <span className="font-bold text-blue-600 text-base md:text-lg">
+                          ~{product.priceKrw?.toLocaleString()}원
+                        </span>
+                        <span className="text-xs text-gray-500 ml-1">부터</span>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </Link>
               ))}
             </div>
           </div>

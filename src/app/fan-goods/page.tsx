@@ -38,18 +38,7 @@ export const metadata: Metadata = {
   }
 };
 
-const fanGoodsProducts = [
-  { id: 'fan-acrylic-stand', name: '아크릴 스탠드', tags: ['아크릴', '스탠드', '덕질'], price: 8000, image: '/components/img/placeholder-product.jpg' },
-  { id: 'fan-photo-card', name: '포토카드', tags: ['포카', '수집', '팬아트'], price: 1500, image: '/components/img/placeholder-product.jpg' },
-  { id: 'fan-slogan', name: '응원 슬로건', tags: ['슬로건', '콘서트', '응원'], price: 3000, image: '/components/img/placeholder-product.jpg' },
-  { id: 'fan-keyring', name: '팬아트 키링', tags: ['키링', '굿즈', '휴대'], price: 2500, image: '/components/img/placeholder-product.jpg' },
-  { id: 'fan-badge', name: '캐릭터 뱃지', tags: ['뱃지', '핀', '수집'], price: 1200, image: '/components/img/placeholder-product.jpg' },
-  { id: 'fan-picket', name: '응원 피켓', tags: ['피켓', '이벤트', '대형'], price: 5000, image: '/components/img/placeholder-product.jpg' },
-  { id: 'fan-sticker', name: '캐릭터 스티커', tags: ['스티커', '데코', '다꾸'], price: 800, image: '/components/img/placeholder-product.jpg' },
-  { id: 'fan-postcard', name: '엽서 세트', tags: ['엽서', '수집', '선물'], price: 4000, image: '/components/img/placeholder-product.jpg' },
-  { id: 'fan-phone-case', name: '팬아트 폰케이스', tags: ['폰케이스', '실용', '개성'], price: 15000, image: '/components/img/placeholder-product.jpg' },
-  { id: 'fan-bookmark', name: '캐릭터 북마크', tags: ['북마크', '문구', '실용'], price: 1800, image: '/components/img/placeholder-product.jpg' }
-];
+const fanGoodsProducts: any[] = [];
 
 const fanGoodsFaq = [
   {
@@ -80,8 +69,8 @@ const fanGoodsFaq = [
 
 export default function FanGoodsPage() {
   return (
-    <CategoryPageTemplate 
-      mapping={mapping}
+    <CategoryPageTemplate
+      mapping={mapping!}
       products={fanGoodsProducts}
       faq={fanGoodsFaq}
     />

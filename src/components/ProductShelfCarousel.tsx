@@ -20,6 +20,7 @@ type ProductShelfBanner = {
   description: string;
   imageUrl: string;
   products: Product[];
+  moreLink?: string;
 };
 
 type ProductShelfCarouselProps = {
@@ -32,11 +33,13 @@ function getBannerCategoryUrl(banner: ProductShelfBanner): string {
   const id = banner.id;
 
   // 배너 제목이나 ID를 기반으로 적절한 카테고리 페이지로 매핑
-  if (title.includes('티셔츠') || title.includes('t-shirt') || id === 's1') {
+  if (title.includes('아크릴') || id === 's1' || id === 's2' || id === 's3') {
+    return '/akril-goods'; // 모든 아크릴 관련 배너는 아크릴 굿즈 페이지로
+  } else if (title.includes('티셔츠') || title.includes('t-shirt')) {
     return '/clothing-goods';
-  } else if (title.includes('키링') || title.includes('keyring') || id === 's2') {
-    return '/acrylic'; // 아크릴 키링은 아크릴 카테고리로
-  } else if (title.includes('우산') || title.includes('umbrella') || id === 's3') {
+  } else if (title.includes('키링') || title.includes('keyring')) {
+    return '/akril-goods'; // 키링도 아크릴 굿즈 페이지로
+  } else if (title.includes('우산') || title.includes('umbrella')) {
     return '/promo-product-view'; // 우산은 단체판촉상품으로
   } else if (title.includes('스티커') || title.includes('sticker')) {
     return '/sticker-goods';
@@ -45,8 +48,8 @@ function getBannerCategoryUrl(banner: ProductShelfBanner): string {
   } else if (title.includes('의류') || title.includes('clothing')) {
     return '/clothing-goods';
   } else {
-    // 기본값으로 전체 상품 보기로
-    return '/all';
+    // 기본값으로 아크릴 굿즈 페이지로 (현재 주요 상품이 아크릴이므로)
+    return '/akril-goods';
   }
 }
 
@@ -144,8 +147,8 @@ function ProductShelfItem({
 
   return (
     <div>
-      {/* 배너 이미지 */}
-      <div className="min-h-[240px] md:min-h-[260px] rounded-2xl bg-neutral-200/80 dark:bg-neutral-800/70 flex flex-col justify-end p-6 relative overflow-hidden">
+      {/* 배너 이미지 (텍스트 없이) */}
+      <div className="min-h-[240px] md:min-h-[260px] rounded-2xl bg-neutral-200/80 dark:bg-neutral-800/70 relative overflow-hidden">
         <Image
           src={getFixedImageUrl(banner.imageUrl)}
           alt={banner.title}
@@ -154,17 +157,18 @@ function ProductShelfItem({
           sizes="(max-width: 768px) 320px, 380px"
           onError={() => setImageError(true)}
         />
-        <div className="absolute inset-0 bg-black/20 rounded-2xl" />
-        <div className="relative z-10">
-          <h3 className="text-[15px] font-semibold leading-6 text-white break-keep">
-            {banner.title}
-          </h3>
-          <p className="mt-2 text-[12px] leading-6 text-white/90 break-keep">
-            {banner.description}
-          </p>
-        </div>
       </div>
-      
+
+      {/* 제목과 설명 텍스트 */}
+      <div className="mt-4">
+        <h3 className="text-[15px] font-semibold leading-6 text-gray-900 dark:text-white break-keep">
+          {banner.title}
+        </h3>
+        <p className="mt-2 text-[12px] leading-6 text-gray-600 dark:text-gray-400 break-keep">
+          {banner.description}
+        </p>
+      </div>
+
       {/* 연관 상품 목록 */}
       <div className="mt-4 space-y-4">
         {visibleProducts.map((product: Product) => (
@@ -198,12 +202,12 @@ function ProductShelfItem({
         ))}
         
         <div className="pt-1">
-          <Button 
-            asChild 
-            variant="outline" 
+          <Button
+            asChild
+            variant="outline"
             className="h-8 w-full rounded-full border-slate-300 text-xs text-slate-600"
           >
-            <Link href={getBannerCategoryUrl(banner)}>
+            <Link href={banner.moreLink || getBannerCategoryUrl(banner)}>
               {hasMore ? `MORE (${banner.products.length - 2}+)` : 'MORE'}
             </Link>
           </Button>

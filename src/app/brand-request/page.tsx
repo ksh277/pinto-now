@@ -88,8 +88,9 @@ const brandFaq = [
 
 export default function BrandRequestPage() {
   return (
-    <CategoryPageTemplate 
+    <CategoryPageTemplate
       mapping={safeMapping}
+      products={[]}
       faq={brandFaq}
       processSteps={processSteps}
     />

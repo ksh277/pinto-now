@@ -38,15 +38,7 @@ export const metadata: Metadata = {
   }
 };
 
-// 시계 카테고리 전용 샘플 제품들
-const clockProducts = [
-  { id: 'wall-clock-30cm', name: '벽시계 30cm', tags: ['벽시계', '30cm', '인테리어'], price: 25000, image: '/images/clock/wall-clock-30.png' },
-  { id: 'desk-clock-15cm', name: '탁상시계 15cm', tags: ['탁상시계', '15cm', '사무실'], price: 18000, image: '/images/clock/desk-clock.png' },
-  { id: 'wooden-clock-25cm', name: '우드 시계 25cm', tags: ['우드', '자연', '25cm'], price: 35000, image: '/images/clock/wooden-clock.png' },
-  { id: 'acrylic-clock-20cm', name: '아크릴 시계 20cm', tags: ['아크릴', '20cm', '모던'], price: 20000, image: '/images/clock/acrylic-clock.png' },
-  { id: 'digital-clock-led', name: 'LED 디지털 시계', tags: ['디지털', 'LED', '현대적'], price: 30000, image: '/images/clock/digital-led.png' },
-  { id: 'photo-clock-square', name: '사진 시계 사각형', tags: ['사진', '사각형', '개인화'], price: 22000, image: '/images/clock/photo-clock.png' }
-];
+const clockProducts: any[] = [];
 
 // 시계 카테고리 전용 FAQ
 const clockFaq = [

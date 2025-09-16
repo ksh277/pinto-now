@@ -38,15 +38,7 @@ export const metadata: Metadata = {
   }
 };
 
-// 액자/소품/네임택 카테고리 전용 샘플 제품들
-const framePropNameTagProducts = [
-  { id: 'acrylic-frame-a4', name: '아크릴 액자 A4', tags: ['아크릴', 'A4', '투명'], price: 15000, image: '/images/frame-prop-name-tag/acrylic-frame.png' },
-  { id: 'wood-frame-20x25', name: '우드 액자 20x25cm', tags: ['우드', '20x25cm', '자연'], price: 18000, image: '/images/frame-prop-name-tag/wood-frame.png' },
-  { id: 'metal-name-tag-rect', name: '메탈 네임택 직사각형', tags: ['메탈', '네임택', '직사각형'], price: 8000, image: '/images/frame-prop-name-tag/metal-nametag.png' },
-  { id: 'acrylic-name-tag-round', name: '아크릴 네임택 원형', tags: ['아크릴', '네임택', '원형'], price: 6000, image: '/images/frame-prop-name-tag/acrylic-nametag.png' },
-  { id: 'desk-prop-stand', name: '데스크 소품 스탠드', tags: ['데스크', '소품', '스탠드'], price: 12000, image: '/images/frame-prop-name-tag/desk-prop.png' },
-  { id: 'memorial-plaque-20x15', name: '기념패 20x15cm', tags: ['기념패', '20x15cm', '기념품'], price: 25000, image: '/images/frame-prop-name-tag/memorial-plaque.png' }
-];
+const framePropNameTagProducts: any[] = [];
 
 // 액자/소품/네임택 카테고리 전용 FAQ
 const framePropNameTagFaq = [

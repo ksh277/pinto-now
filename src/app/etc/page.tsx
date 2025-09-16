@@ -40,15 +40,7 @@ export const metadata: Metadata = {
   }
 };
 
-// ETC 카테고리 전용 샘플 제품들
-const etcProducts = [
-  { id: 'custom-shaped-goods', name: '맞춤형 굿즈', tags: ['맞춤', '특별제작', '독특'], price: 15000, image: '/images/etc/custom-shaped.png' },
-  { id: 'special-material', name: '특수 소재 굿즈', tags: ['특수소재', '프리미엄', '한정'], price: 25000, image: '/images/etc/special-material.png' },
-  { id: 'limited-edition', name: '한정판 아이템', tags: ['한정판', '콜렉터블', '희귀'], price: 50000, image: '/images/etc/limited-edition.png' },
-  { id: 'experimental-goods', name: '실험적 굿즈', tags: ['실험적', '아트', '창작'], price: 30000, image: '/images/etc/experimental.png' },
-  { id: 'unusual-item', name: '특이한 아이템', tags: ['특이함', '화제성', '독창성'], price: 20000, image: '/images/etc/unusual-item.png' },
-  { id: 'concept-goods', name: '컨셉 굿즈', tags: ['컨셉', '테마', '스토리'], price: 35000, image: '/images/etc/concept-goods.png' }
-];
+const etcProducts: any[] = [];
 
 // ETC 카테고리 전용 FAQ
 const etcFaq = [

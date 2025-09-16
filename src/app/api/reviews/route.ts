@@ -176,10 +176,26 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // 동일한 주문 아이템에 대해 이미 리뷰가 있는지 확인
+    // 주문자 검증 및 중복 리뷰 확인
     if (order_item_id) {
+      // 주문 아이템이 실제로 해당 사용자의 것인지 확인
+      const orderItemCheck = await query<{user_id: number}[]>(`
+        SELECT o.user_id
+        FROM order_items oi
+        JOIN orders o ON oi.order_id = o.id
+        WHERE oi.id = ? AND o.user_id = ?
+      `, [order_item_id, userId]);
+
+      if (orderItemCheck.length === 0) {
+        return Response.json({
+          success: false,
+          error: 'You can only review products you have purchased'
+        }, { status: 403 });
+      }
+
+      // 이미 리뷰가 있는지 확인
       const existingReview = await query<{id: number}[]>(`
-        SELECT id FROM reviews 
+        SELECT id FROM reviews
         WHERE user_id = ? AND order_item_id = ?
       `, [userId, order_item_id]);
 
@@ -187,6 +203,34 @@ export async function POST(req: NextRequest) {
         return Response.json({
           success: false,
           error: 'Review already exists for this order item'
+        }, { status: 400 });
+      }
+    } else {
+      // order_item_id가 없는 경우 구매 이력 확인
+      const purchaseHistory = await query<{id: number}[]>(`
+        SELECT oi.id
+        FROM order_items oi
+        JOIN orders o ON oi.order_id = o.id
+        WHERE o.user_id = ? AND oi.product_id = ? AND o.status = 'delivered'
+      `, [userId, product_id]);
+
+      if (purchaseHistory.length === 0) {
+        return Response.json({
+          success: false,
+          error: 'You can only review products you have purchased and received'
+        }, { status: 403 });
+      }
+
+      // 해당 상품에 이미 리뷰를 작성했는지 확인
+      const existingProductReview = await query<{id: number}[]>(`
+        SELECT id FROM reviews
+        WHERE user_id = ? AND product_id = ?
+      `, [userId, product_id]);
+
+      if (existingProductReview.length > 0) {
+        return Response.json({
+          success: false,
+          error: 'You have already reviewed this product'
         }, { status: 400 });
       }
     }

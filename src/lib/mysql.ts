@@ -19,6 +19,7 @@ function parseDatabaseUrl(url: string) {
       password: m[2],
       database: m[5],
       connectionLimit: 10,
+      charset: 'utf8mb4',
       ssl: {
         rejectUnauthorized: false
       }
@@ -41,6 +42,8 @@ function getConfig(): PoolOptions {
     user: process.env.MYSQL_USER || process.env.DB_USER || 'root',
     password: process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD || '',
     database: process.env.MYSQL_DB || process.env.DB_NAME || 'pinto',
+    charset: 'utf8mb4',
+    connectionLimit: 10,
   };
   
   return config;

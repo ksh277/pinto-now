@@ -38,15 +38,7 @@ export const metadata: Metadata = {
   }
 };
 
-// 머그컵/유리컵 카테고리 전용 샘플 제품들
-const mugGlassProducts = [
-  { id: 'ceramic-mug-300ml', name: '도자기 머그컵 300ml', tags: ['도자기', '300ml', '기본'], price: 8000, image: '/images/mug-glass/ceramic-mug.png' },
-  { id: 'glass-mug-250ml', name: '유리 머그컵 250ml', tags: ['유리', '250ml', '투명'], price: 10000, image: '/images/mug-glass/glass-mug.png' },
-  { id: 'stainless-mug-400ml', name: '스테인리스 머그컵 400ml', tags: ['스테인리스', '400ml', '내구성'], price: 15000, image: '/images/mug-glass/stainless-mug.png' },
-  { id: 'color-changing-mug', name: '마법 머그컵', tags: ['색변화', '특수', '재미'], price: 12000, image: '/images/mug-glass/magic-mug.png' },
-  { id: 'wine-glass', name: '맞춤 와인잔', tags: ['와인잔', '고급', '선물'], price: 18000, image: '/images/mug-glass/wine-glass.png' },
-  { id: 'whiskey-glass', name: '위스키 글라스', tags: ['위스키', '튼튼', '남성'], price: 20000, image: '/images/mug-glass/whiskey-glass.png' }
-];
+const mugGlassProducts: any[] = [];
 
 // 머그컵/유리컵 카테고리 전용 FAQ
 const mugGlassFaq = [

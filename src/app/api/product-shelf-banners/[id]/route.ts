@@ -42,6 +42,11 @@ export async function PUT(
       updateFields.push('image_url = ?');
       updateValues.push(updates.imageUrl);
     }
+    // more_link 컬럼이 없으므로 주석 처리
+    // if (updates.moreLink !== undefined) {
+    //   updateFields.push('more_link = ?');
+    //   updateValues.push(updates.moreLink);
+    // }
     if (updates.sortOrder !== undefined) {
       updateFields.push('sort_order = ?');
       updateValues.push(updates.sortOrder);

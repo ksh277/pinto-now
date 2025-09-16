@@ -154,7 +154,7 @@ export function Header() {
                             </Link>
                           </AccordionTrigger>
                           {item.subnav && (
-                            <AccordionContent className="pb-1 pl-4">
+                            <AccordionContent className="pb-1 pl-4 max-h-60 overflow-y-auto">
                               <div className="flex flex-col items-start gap-1">
                                 {item.subnav.map(subItem => (
                                   <Button key={subItem.label} variant="link" asChild className="h-auto p-1 text-muted-foreground">

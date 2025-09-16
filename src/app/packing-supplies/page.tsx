@@ -38,15 +38,7 @@ export const metadata: Metadata = {
   }
 };
 
-// 포장 부자재 카테고리 전용 샘플 제품들
-const packingSuppliesProducts = [
-  { id: 'gift-box-small-10x10', name: '선물상자 소형 10x10cm', tags: ['선물상자', '10x10cm', '소형'], price: 1500, image: '/images/packing-supplies/gift-box-small.png' },
-  { id: 'gift-box-medium-15x15', name: '선물상자 중형 15x15cm', tags: ['선물상자', '15x15cm', '중형'], price: 2000, image: '/images/packing-supplies/gift-box-medium.png' },
-  { id: 'bubble-wrap-30x40', name: '에어캡 30x40cm (50매)', tags: ['에어캡', '30x40cm', '보호'], price: 8000, image: '/images/packing-supplies/bubble-wrap.png' },
-  { id: 'packing-paper-kraft', name: '포장지 크라프트 (10매)', tags: ['포장지', '크라프트', '친환경'], price: 5000, image: '/images/packing-supplies/kraft-paper.png' },
-  { id: 'shipping-box-20x15x10', name: '택배박스 20x15x10cm', tags: ['택배박스', '20x15x10cm', '배송'], price: 800, image: '/images/packing-supplies/shipping-box.png' },
-  { id: 'packing-tape-custom', name: '맞춤 포장테이프', tags: ['포장테이프', '맞춤', '브랜딩'], price: 12000, image: '/images/packing-supplies/custom-tape.png' }
-];
+const packingSuppliesProducts: any[] = [];
 
 // 포장 부자재 카테고리 전용 FAQ
 const packingSuppliesFaq = [
@@ -71,7 +63,7 @@ const packingSuppliesFaq = [
 export default function PackingSuppliesPage() {
   return (
     <CategoryPageTemplate 
-      mapping={mapping}
+      mapping={mapping!}
       products={packingSuppliesProducts}
       faq={packingSuppliesFaq}
     />

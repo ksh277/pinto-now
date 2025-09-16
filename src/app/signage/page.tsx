@@ -38,15 +38,7 @@ export const metadata: Metadata = {
   }
 };
 
-// 광고물/사인 카테고리 전용 샘플 제품들
-const signageProducts = [
-  { id: 'x-banner-60x160', name: 'X배너 60x160cm', tags: ['X배너', '이동형', '간편'], price: 45000, image: '/images/signage/x-banner.png' },
-  { id: 'roll-banner-80x200', name: '롤배너 80x200cm', tags: ['롤배너', '휴대용', '전시'], price: 65000, image: '/images/signage/roll-banner.png' },
-  { id: 'poster-banner-100x150', name: '포스터 배너 100x150cm', tags: ['포스터', '벽부착', '홍보'], price: 25000, image: '/images/signage/poster-banner.png' },
-  { id: 'acrylic-sign-30x40', name: '아크릴 사인 30x40cm', tags: ['아크릴', '고급', '매장'], price: 35000, image: '/images/signage/acrylic-sign.png' },
-  { id: 'menu-board-a3', name: '메뉴판 A3사이즈', tags: ['메뉴판', 'A3', '식당'], price: 20000, image: '/images/signage/menu-board.png' },
-  { id: 'safety-sign-20x30', name: '안전 표지판 20x30cm', tags: ['안전', '표지판', '주의'], price: 15000, image: '/images/signage/safety-sign.png' }
-];
+const signageProducts: any[] = [];
 
 // 광고물/사인 카테고리 전용 FAQ
 const signageFaq = [
@@ -70,8 +62,8 @@ const signageFaq = [
 
 export default function SignagePage() {
   return (
-    <CategoryPageTemplate 
-      mapping={mapping}
+    <CategoryPageTemplate
+      mapping={mapping!}
       products={signageProducts}
       faq={signageFaq}
     />

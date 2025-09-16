@@ -3,7 +3,13 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Upload, RotateCw, Move, Square, Type, Download, ZoomIn, ZoomOut, Scissors, Loader2 } from 'lucide-react';
+import { Upload, RotateCw, Move, Square, Type, Download, ZoomIn, ZoomOut, Scissors, Loader2, FileText } from 'lucide-react';
+import * as pdfjsLib from 'pdfjs-dist';
+
+// PDF.js worker 설정
+if (typeof window !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+}
 
 // 제품별 규격 정의 (mm 단위)
 const PRODUCT_SPECS = {
@@ -58,6 +64,8 @@ export default function GoodsEditor({ productType }: GoodsEditorProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [isProcessingBg, setIsProcessingBg] = useState(false);
+  const [pdfFile, setPdfFile] = useState<any>(null);
+  const [isLoadingPdf, setIsLoadingPdf] = useState(false);
 
   const spec = PRODUCT_SPECS[productType as keyof typeof PRODUCT_SPECS] || PRODUCT_SPECS.keyring;
   const canvasWidth = spec.width * MM_TO_PX * zoom;
@@ -150,6 +158,29 @@ export default function GoodsEditor({ productType }: GoodsEditorProps) {
       ctx.restore();
     });
   }, [objects, selectedObjectId, spec, zoom]);
+
+  // PDF 파일 로드 (LocalStorage에서)
+  useEffect(() => {
+    const loadPdfFromStorage = async () => {
+      try {
+        const storedPdf = localStorage.getItem('editorPdfFile');
+        if (storedPdf) {
+          const pdfData = JSON.parse(storedPdf);
+          setPdfFile(pdfData);
+
+          // PDF를 이미지로 변환하여 자동 추가
+          await convertPdfToImage(pdfData);
+
+          // 사용 후 LocalStorage에서 제거
+          localStorage.removeItem('editorPdfFile');
+        }
+      } catch (error) {
+        console.error('PDF 로딩 중 오류:', error);
+      }
+    };
+
+    loadPdfFromStorage();
+  }, []);
 
   // 캔버스 렌더링
   useEffect(() => {
@@ -436,6 +467,76 @@ export default function GoodsEditor({ productType }: GoodsEditorProps) {
     newImg.src = resultUrl;
   };
 
+  // PDF를 이미지로 변환하는 함수
+  const convertPdfToImage = async (pdfData: any) => {
+    setIsLoadingPdf(true);
+    try {
+      const loadingTask = pdfjsLib.getDocument({ data: pdfData.data });
+      const pdf = await loadingTask.promise;
+
+      // 첫 번째 페이지 렌더링
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({ scale: 2 });
+
+      // 캔버스 생성
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      if (context) {
+        const renderContext = {
+          canvasContext: context,
+          viewport: viewport
+        };
+
+        await page.render(renderContext).promise;
+
+        // Canvas를 이미지로 변환
+        const imageDataUrl = canvas.toDataURL('image/png');
+        const img = new Image();
+        img.onload = () => {
+          // 1cm 여백을 고려한 최대 크기 계산
+          const maxWidth = (spec.width - spec.safetyMargin * 2) * MM_TO_PX;
+          const maxHeight = (spec.height - spec.safetyMargin * 2) * MM_TO_PX;
+
+          // 비율 유지하면서 contain 스케일링
+          const scale = Math.min(maxWidth / img.width, maxHeight / img.height);
+          const scaledWidth = img.width * scale;
+          const scaledHeight = img.height * scale;
+
+          // 중앙 배치
+          const x = (spec.width * MM_TO_PX - scaledWidth) / 2;
+          const y = (spec.height * MM_TO_PX - scaledHeight) / 2;
+
+          const newObject: CanvasObject = {
+            id: `pdf_${Date.now()}`,
+            type: 'image',
+            x: x,
+            y: y,
+            width: scaledWidth,
+            height: scaledHeight,
+            rotation: 0,
+            data: {
+              imageElement: img,
+              src: imageDataUrl,
+              originalType: 'pdf',
+              pdfName: pdfData.name
+            }
+          };
+
+          setObjects(prev => [...prev, newObject]);
+          setSelectedObjectId(newObject.id);
+        };
+        img.src = imageDataUrl;
+      }
+    } catch (error) {
+      console.error('PDF 변환 중 오류:', error);
+    } finally {
+      setIsLoadingPdf(false);
+    }
+  };
+
   // 줌 조절
   const handleZoom = (delta: number) => {
     setZoom(prev => Math.max(0.5, Math.min(3, prev + delta)));
@@ -454,6 +555,18 @@ export default function GoodsEditor({ productType }: GoodsEditorProps) {
           <div className="text-sm text-gray-600">
             안전영역: {spec.safetyMargin}mm
           </div>
+          {isLoadingPdf && (
+            <div className="text-sm text-blue-600 flex items-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              PDF 변환 중...
+            </div>
+          )}
+          {pdfFile && (
+            <div className="text-sm text-green-600 flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              {pdfFile.name} 로드됨
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">

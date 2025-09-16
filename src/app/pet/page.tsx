@@ -38,15 +38,7 @@ export const metadata: Metadata = {
   }
 };
 
-// 반려동물 카테고리 전용 샘플 제품들
-const petProducts = [
-  { id: 'pet-id-tag-bone', name: '반려견 인식표 (뼈모양)', tags: ['인식표', '뼈모양', '안전'], price: 12000, image: '/images/pet/id-tag-bone.png' },
-  { id: 'pet-food-bowl-custom', name: '맞춤 사료그릇', tags: ['사료그릇', '스테인리스', '개인화'], price: 25000, image: '/images/pet/food-bowl.png' },
-  { id: 'pet-leash-custom', name: '맞춤 목줄', tags: ['목줄', '안전', '편안'], price: 18000, image: '/images/pet/leash.png' },
-  { id: 'pet-blanket-photo', name: '반려동물 담요 (사진)', tags: ['담요', '사진', '따뜻함'], price: 35000, image: '/images/pet/blanket-photo.png' },
-  { id: 'pet-memorial-frame', name: '반려동물 메모리얼 액자', tags: ['메모리얼', '액자', '추억'], price: 30000, image: '/images/pet/memorial-frame.png' },
-  { id: 'pet-toy-custom', name: '맞춤 장난감', tags: ['장난감', '안전소재', '재미'], price: 20000, image: '/images/pet/toy-custom.png' }
-];
+const petProducts: any[] = [];
 
 // 반려동물 카테고리 전용 FAQ
 const petFaq = [
@@ -71,7 +63,7 @@ const petFaq = [
 export default function PetPage() {
   return (
     <CategoryPageTemplate 
-      mapping={mapping}
+      mapping={mapping!}
       products={petProducts}
       faq={petFaq}
     />

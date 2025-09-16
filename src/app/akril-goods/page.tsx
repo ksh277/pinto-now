@@ -17,8 +17,7 @@ const copy = {
     { icon: '🛡️', title: '내구성', desc: '긁힘과 충격에 강한 견고한 제품' }
   ],
   cta: {
-    primary: '아크릴 굿즈 제작하기',
-    secondary: '대량 주문 문의'
+    primary: '아크릴 굿즈 제작하기'
   },
   faq: [
     {
@@ -46,8 +45,10 @@ const copy = {
 };
 
 // pricing-data.ts의 availableProducts를 기반으로 제품 목록 생성
+// 실제 데이터베이스 ID와 매핑 (1-9, pricing-data.ts와 일치)
+const productIdMapping = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const products = availableProducts.map((product, index) => ({
-  id: index + 1,
+  id: productIdMapping[index],
   name: product.name,
   image: "/components/img/placeholder-product.jpg", // 기본 이미지 사용
   tags: product.name.split(' ').slice(0, 2), // 이름에서 태그 생성
@@ -87,105 +88,68 @@ export default function AkrilGoodsPage() {
   return (
     <StripBannerProvider>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-        
-        {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800">
-          <div className="container mx-auto px-4 py-16 md:py-24">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div className="text-center lg:text-left">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-                  {copy.title}
-                </h1>
-                <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-4">
-                  {copy.subtitle}
-                </p>
-                <p className="text-lg text-gray-500 dark:text-gray-400 mb-8">
-                  {copy.description}
-                </p>
-                
-                {/* USP Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                  {copy.usp.map((item, index) => (
-                    <div key={index} className="bg-white/80 dark:bg-slate-800/80 p-4 rounded-lg shadow-sm">
-                      <div className="text-2xl mb-2">{item.icon}</div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{item.title}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p>
-                    </div>
-                  ))}
-                </div>
-                
-                {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-                    {copy.cta.primary}
-                  </Button>
-                  <Button variant="outline" size="lg">
-                    {copy.cta.secondary}
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="relative">
-                <div className="relative h-[400px] md:h-[500px] w-full">
-                  <Image
-                    src="/components/img/placeholder-product.jpg"
-                    alt="아크릴 굿즈 모음"
-                    fill
-                    className="object-contain"
-                    priority
-                  />
-                </div>
-              </div>
+
+        {/* Header */}
+        <section className="py-12 bg-white dark:bg-slate-800">
+          <div className="container mx-auto px-4">
+            <div className="text-center">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                아크릴 굿즈
+              </h1>
+              <p className="text-lg text-gray-600 dark:text-gray-400">
+                투명하고 견고한 프리미엄 아크릴 제품들을 확인해보세요
+              </p>
             </div>
           </div>
         </section>
 
         {/* Products Grid */}
-        <section className="py-16 md:py-24">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                인기 아크릴 굿즈
-              </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-400">
-                다양한 아크릴 제품들을 확인해보세요
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4">
+        <section className="pt-6 pb-10 md:pt-8 md:pb-14">
+          <div className="px-8 md:px-16">
+            <div className="md:grid md:grid-cols-4 md:gap-4 flex md:block overflow-x-auto md:overflow-visible gap-4 md:gap-0 pb-4 md:pb-0 scrollbar-hide px-4 md:px-0">
               {products.map((product) => (
-                <Card key={product.id} className="group overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="relative aspect-square overflow-hidden bg-gray-100">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
-                    />
+                <Link
+                  key={product.id}
+                  href={`/products/${product.id}`}
+                  className="block group"
+                >
+                  <div className="bg-white rounded-xl border-2 border-gray-100 p-3 md:p-4 hover:shadow-xl hover:border-blue-200 transition-all duration-300 relative w-[calc(100vw-3rem)] max-w-[350px] md:max-w-none md:w-auto flex-shrink-0 md:flex-shrink flex md:block gap-4 md:gap-0">
+                    <div className="relative w-24 h-24 md:w-full md:h-80 flex-shrink-0 md:mb-3 overflow-hidden rounded-xl bg-gray-100 shadow-md">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                      />
+                      {/* 호버 시 오버레이 */}
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 rounded-xl"></div>
+                    </div>
+
+                    <div className="space-y-1 md:space-y-2">
+                      <h3 className="font-bold text-gray-900 text-sm md:text-base mb-1 md:mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors leading-tight">
+                        {product.name}
+                      </h3>
+
+                      <div className="space-y-1">
+                        <div className="flex flex-wrap gap-1 mb-1 md:mb-2">
+                          {product.tags.map((tag) => (
+                            <Badge key={tag} variant="secondary" className="text-xs px-2 py-1">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="pt-1 md:pt-2 border-t border-gray-100">
+                        <span className="font-bold text-blue-600 text-base md:text-lg">
+                          ~{product.price.toLocaleString()}원
+                        </span>
+                        <span className="text-xs text-gray-500 ml-1">부터</span>
+                      </div>
+                    </div>
                   </div>
-                  <CardContent className="p-5">
-                    <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-3 line-clamp-2">
-                      {product.name}
-                    </h3>
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {product.tags.map((tag) => (
-                        <Badge key={tag} variant="secondary" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-blue-600">
-                        {product.price.toLocaleString()}원~
-                      </span>
-                      <Link href={`/products/${product.id}`} className="text-sm text-gray-500 hover:text-gray-700 flex items-center">
-                        자세히 보기
-                        <ChevronRight className="w-4 h-4 ml-1" />
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
+                </Link>
               ))}
             </div>
           </div>
@@ -193,7 +157,7 @@ export default function AkrilGoodsPage() {
 
         {/* FAQ Section */}
         <section className="py-16 bg-white dark:bg-slate-800">
-          <div className="container mx-auto px-4">
+          <div className="px-8 md:px-16">
             <div className="max-w-4xl mx-auto">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-12 text-center">
                 자주 묻는 질문
@@ -217,7 +181,7 @@ export default function AkrilGoodsPage() {
 
         {/* Info Section */}
         <section className="py-12 bg-blue-50 dark:bg-slate-900">
-          <div className="container mx-auto px-4">
+          <div className="px-8 md:px-16">
             <div className="max-w-4xl mx-auto">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
                 <div className="flex flex-col items-center">
@@ -245,7 +209,7 @@ export default function AkrilGoodsPage() {
 
         {/* Final CTA */}
         <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600">
-          <div className="container mx-auto px-4 text-center">
+          <div className="px-8 md:px-16 text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               지금 바로 아크릴 굿즈를 제작해보세요
             </h2>

@@ -80,8 +80,8 @@ const viewAllFaq = [
 
 export default function ViewAllPage() {
   return (
-    <CategoryPageTemplate 
-      mapping={mapping}
+    <CategoryPageTemplate
+      mapping={mapping!}
       products={viewAllProducts}
       faq={viewAllFaq}
     />
