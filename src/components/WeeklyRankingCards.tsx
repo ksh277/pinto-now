@@ -126,19 +126,19 @@ export default function WeeklyRankingCards({
         </div>
         <div className={
           layout === 'homepage'
-            ? "md:grid md:grid-cols-4 md:gap-4 flex md:block overflow-x-auto md:overflow-visible gap-4 md:gap-0 pb-4 md:pb-0 scrollbar-hide px-4 md:px-0"
+            ? "grid grid-cols-1 md:grid-cols-4 gap-4 pb-4 md:pb-0 px-4 md:px-0"
             : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
         }>
           {Array.from({ length: limit }).map((_, index) => (
             <div key={index} className={`bg-white rounded-xl border p-3 md:p-4 animate-pulse ${
               layout === 'homepage'
-                ? "w-[calc(100vw-3rem)] max-w-[300px] md:w-auto flex-shrink-0 md:flex-shrink"
+                ? "w-full"
                 : "w-full"
             }`}>
               <div className={`bg-gray-300 rounded-lg mb-3 md:mb-4 ${
                 layout === 'homepage'
-                  ? "w-full h-64 md:h-80"
-                  : "w-full h-64"
+                  ? "w-full h-96 md:h-80"
+                  : "w-full h-96"
               }`}></div>
               <div className="h-3 md:h-4 bg-gray-300 rounded mb-2"></div>
               <div className="h-2 md:h-3 bg-gray-300 rounded w-2/3 mb-1 md:mb-2"></div>
@@ -181,7 +181,7 @@ export default function WeeklyRankingCards({
       {/* Layout based on usage context */}
       <div className={
         layout === 'homepage'
-          ? "md:grid md:grid-cols-4 md:gap-4 flex md:block overflow-x-auto md:overflow-visible gap-4 md:gap-0 pb-4 md:pb-0 scrollbar-hide px-4 md:px-0"
+          ? "grid grid-cols-1 md:grid-cols-4 gap-4 overflow-x-visible pb-4 md:pb-0 px-4 md:px-0"
           : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
       }>
         {rankings.map((product, index) => (
@@ -193,7 +193,7 @@ export default function WeeklyRankingCards({
           >
             <div className={`bg-white rounded-xl border-2 border-gray-100 p-3 md:p-4 hover:shadow-xl hover:border-blue-200 transition-all duration-300 relative ${
               layout === 'homepage'
-                ? "w-[calc(100vw-3rem)] max-w-[350px] md:max-w-none md:w-auto flex-shrink-0 md:flex-shrink flex md:block gap-4 md:gap-0"
+                ? "w-full flex flex-col"
                 : "w-full flex flex-col"
             }`}>
               {showRankNumbers && (
@@ -204,8 +204,8 @@ export default function WeeklyRankingCards({
 
               <div className={`relative overflow-hidden rounded-xl bg-gray-100 shadow-md ${
                 layout === 'homepage'
-                  ? "w-24 h-24 md:w-full md:h-80 flex-shrink-0 md:mb-3"
-                  : "w-full h-64 mb-4"
+                  ? "w-full h-96 md:h-80 mb-3 md:mb-3"
+                  : "w-full h-96 mb-4"
               }`}>
                 {product.product_image ? (
                   <Image

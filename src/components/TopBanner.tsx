@@ -46,7 +46,7 @@ export function TopBanner() {
   const currentBanner = banners[currentIndex];
 
   return (
-    <div className="relative w-full h-[970px] overflow-hidden">
+    <div className="relative w-full h-[300px] md:h-[500px] lg:h-[970px] overflow-hidden">
       {/* Banner wrapper */}
       <div 
         className="block relative w-full h-full cursor-pointer"
@@ -75,19 +75,19 @@ export function TopBanner() {
         />
         
         {/* Text overlay positioned at the center */}
-        <div className="absolute inset-0 flex items-center justify-center z-10" style={{ top: '-160px' }}>
+        <div className="absolute inset-0 flex items-center justify-center z-10" style={{ top: '-60px' }}>
           <div className="text-center" style={{ color: '#505050' }}>
             {/* Main title with adjusted size */}
             {currentBanner.mainTitle && (
-              <h1 className="text-[35px] font-bold mb-4 drop-shadow-2xl">
+              <h1 className="text-lg md:text-2xl lg:text-[35px] font-bold mb-2 md:mb-4 drop-shadow-2xl">
                 {currentBanner.mainTitle}
               </h1>
             )}
             {/* Subtitle with further adjusted position when only the subtitle is present */}
             {currentBanner.subTitle && !currentBanner.mainTitle && (
               <p
-                className="text-lg md:text-2xl mb-8 drop-shadow-lg max-w-2xl md-auto"
-                style={{ marginTop: '165px' }} // Increased margin to push subtitle further down
+                className="text-sm md:text-lg lg:text-2xl mb-4 md:mb-8 drop-shadow-lg max-w-2xl md-auto"
+                style={{ marginTop: '60px' }} // Adjusted margin for mobile
               >
                 {currentBanner.subTitle}
               </p>
@@ -95,8 +95,8 @@ export function TopBanner() {
             {/* Subtitle with default position */}
             {currentBanner.subTitle && currentBanner.mainTitle && (
               <p
-                className="text-lg md:text-2xl mb-8 drop-shadow-lg max-w-2xl md-auto"
-                style={{ marginTop: currentBanner.mainTitle ? '0' : '50px' }} // Adjusted margin only when main title is absent
+                className="text-sm md:text-lg lg:text-2xl mb-4 md:mb-8 drop-shadow-lg max-w-2xl md-auto"
+                style={{ marginTop: '0' }}
               >
                 {currentBanner.subTitle}
               </p>
@@ -106,7 +106,7 @@ export function TopBanner() {
             {currentBanner.moreButtonLink && (
               <a
                 href={currentBanner.moreButtonLink}
-                className="inline-block bg-[#F1F2F4] px-16 py-1.5 rounded-full font-semibold text-lg hover:bg-gray-300 transition-colors shadow-sm"
+                className="inline-block bg-[#F1F2F4] px-8 md:px-16 py-1 md:py-1.5 rounded-full font-semibold text-sm md:text-lg hover:bg-gray-300 transition-colors shadow-sm"
                 style={{ color: '#505050', width: 'auto', textAlign: 'center' }}
                 onClick={(e) => e.stopPropagation()} // Prevent conflict with banner click
               >

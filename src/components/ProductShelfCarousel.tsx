@@ -58,13 +58,15 @@ export default function ProductShelfCarousel({ banners }: ProductShelfCarouselPr
 
   const scrollLeft = () => {
     if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: -400, behavior: 'smooth' });
+      const scrollAmount = window.innerWidth < 768 ? window.innerWidth * 0.5 : 400;
+      scrollRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
     }
   };
 
   const scrollRight = () => {
     if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: 400, behavior: 'smooth' });
+      const scrollAmount = window.innerWidth < 768 ? window.innerWidth * 0.5 : 400;
+      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     }
   };
 
@@ -77,7 +79,7 @@ export default function ProductShelfCarousel({ banners }: ProductShelfCarouselPr
         <h2 className="mb-4 text-[15px] font-semibold text-slate-700">
           단체 굿즈 합리적인 가격으로 예쁘게 만들어 드릴게요.
         </h2>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6">
           {banners.map(banner => (
             <ProductShelfItem key={banner.id} banner={banner} fmtPrice={fmtPrice} />
           ))}
@@ -93,13 +95,13 @@ export default function ProductShelfCarousel({ banners }: ProductShelfCarouselPr
       </h2>
       
       <div className="relative">
-        <div 
+        <div
           ref={scrollRef}
           className="flex overflow-x-auto snap-x snap-mandatory gap-4 md:gap-6 pb-4 scrollbar-hide px-4 md:px-0"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {banners.map(banner => (
-            <div key={banner.id} className="flex-shrink-0 w-[calc(100vw-3rem)] md:w-[380px] snap-start">
+            <div key={banner.id} className="flex-shrink-0 w-[calc(50vw-1.5rem)] md:w-[380px] snap-start">
               <ProductShelfItem banner={banner} fmtPrice={fmtPrice} />
             </div>
           ))}
@@ -148,7 +150,7 @@ function ProductShelfItem({
   return (
     <div>
       {/* 배너 이미지 (텍스트 없이) */}
-      <div className="min-h-[240px] md:min-h-[260px] rounded-2xl bg-neutral-200/80 dark:bg-neutral-800/70 relative overflow-hidden">
+      <div className="min-h-[180px] md:min-h-[260px] rounded-2xl bg-neutral-200/80 dark:bg-neutral-800/70 relative overflow-hidden">
         <Image
           src={getFixedImageUrl(banner.imageUrl)}
           alt={banner.title}
