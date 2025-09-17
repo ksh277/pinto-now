@@ -126,18 +126,18 @@ export default function WeeklyRankingCards({
         </div>
         <div className={
           layout === 'homepage'
-            ? "grid grid-cols-1 md:grid-cols-4 gap-4 pb-4 md:pb-0 px-4 md:px-0"
+            ? "flex md:grid md:grid-cols-4 gap-4 overflow-x-auto md:overflow-visible pb-4 md:pb-0 px-4 md:px-0 scrollbar-hide snap-x snap-mandatory"
             : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
         }>
           {Array.from({ length: limit }).map((_, index) => (
             <div key={index} className={`bg-white rounded-xl border p-3 md:p-4 animate-pulse ${
               layout === 'homepage'
-                ? "w-full"
+                ? "w-[280px] md:w-full flex-shrink-0 snap-center"
                 : "w-full"
             }`}>
               <div className={`bg-gray-300 rounded-lg mb-3 md:mb-4 ${
                 layout === 'homepage'
-                  ? "w-full h-96 md:h-80"
+                  ? "w-full h-[280px] md:h-80 aspect-square"
                   : "w-full h-96"
               }`}></div>
               <div className="h-3 md:h-4 bg-gray-300 rounded mb-2"></div>
@@ -174,14 +174,10 @@ export default function WeeklyRankingCards({
 
   return (
     <div className={`space-y-4 ${className}`}>
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">{t('ranking.weekly_title')}</h2>
-      </div>
-
-      {/* Layout based on usage context */}
+      {/* Mobile: horizontal scroll, Desktop: grid */}
       <div className={
         layout === 'homepage'
-          ? "grid grid-cols-1 md:grid-cols-4 gap-4 overflow-x-visible pb-4 md:pb-0 px-4 md:px-0"
+          ? "flex md:grid md:grid-cols-4 gap-4 overflow-x-auto md:overflow-visible pb-4 md:pb-0 px-4 md:px-0 scrollbar-hide snap-x snap-mandatory"
           : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
       }>
         {rankings.map((product, index) => (
@@ -193,7 +189,7 @@ export default function WeeklyRankingCards({
           >
             <div className={`bg-white rounded-xl border-2 border-gray-100 p-3 md:p-4 hover:shadow-xl hover:border-blue-200 transition-all duration-300 relative ${
               layout === 'homepage'
-                ? "w-full flex flex-col"
+                ? "w-[280px] md:w-full flex flex-col flex-shrink-0 snap-center"
                 : "w-full flex flex-col"
             }`}>
               {showRankNumbers && (
@@ -204,7 +200,7 @@ export default function WeeklyRankingCards({
 
               <div className={`relative overflow-hidden rounded-xl bg-gray-100 shadow-md ${
                 layout === 'homepage'
-                  ? "w-full h-96 md:h-80 mb-3 md:mb-3"
+                  ? "w-full h-[280px] md:h-80 mb-3 md:mb-3 aspect-square"
                   : "w-full h-96 mb-4"
               }`}>
                 {product.product_image ? (
