@@ -39,7 +39,7 @@ export default function PricingTableModal({
   pricingTiers,
   printTypes
 }: PricingTableModalProps) {
-  const [selectedPrintType, setSelectedPrintType] = useState(printTypes?.[0]?.id || pricingTiers?.[0]?.type || 'single');
+  const [selectedPrintType, setSelectedPrintType] = useState(printTypes?.[0]?.id || 'single');
 
   // 수량 구간 정의 (pricing-data.ts와 일치)
   const quantityRanges = [
@@ -88,18 +88,18 @@ export default function PricingTableModal({
 
         <div className="space-y-6">
           {/* 인쇄 방식 선택 */}
-          {pricingTiers.length > 1 && (
+          {printTypes && printTypes.length > 1 && (
             <div>
               <h3 className="text-sm font-medium mb-3">인쇄 방식 선택</h3>
               <div className="flex flex-wrap gap-2">
-                {pricingTiers.map((tier) => (
+                {printTypes.map((printType) => (
                   <Button
-                    key={tier.type}
-                    variant={selectedPrintType === tier.type ? "default" : "outline"}
+                    key={printType.id}
+                    variant={selectedPrintType === printType.id ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setSelectedPrintType(tier.type)}
+                    onClick={() => setSelectedPrintType(printType.id)}
                   >
-                    {tier.name.includes('-') ? tier.name.split('-')[1].trim() : tier.name}
+                    {printType.name}
                   </Button>
                 ))}
               </div>
