@@ -460,6 +460,19 @@ export const categoryMappings: Record<string, CategoryMapping> = {
     ],
   heroImagePath: '/components/img/placeholder-product.jpg',
   },
+  'packaging': {
+    slug: 'packaging',
+    categoryKo: '포장재',
+    type: 'category',
+    subtitle: '완벽한 포장을 위한 포장재',
+    description: '제품 포장, 배송을 위한 다양한 포장재를 제공합니다.',
+    usp: [
+      { icon: '📦', title: '포장 전문', desc: '안전한 포장 솔루션' },
+      { icon: '🛡️', title: '보호 기능', desc: '제품 손상 방지' },
+      { icon: '♻️', title: '친환경', desc: '재활용 가능한 소재' }
+    ],
+    heroImagePath: '/components/img/placeholder-product.jpg',
+  },
   'packing-supplies': {
     slug: 'packing-supplies',
     categoryKo: '포장 부자재',
