@@ -57,6 +57,19 @@ export const categoryMappings: Record<string, CategoryMapping> = {
   heroImagePath: '/components/img/placeholder-product.jpg',
   // promo-product-view/hero.png' // If needed, add as a separate property or update the value
   },
+  'ip': {
+    slug: 'ip',
+    categoryKo: 'IP 굿즈',
+    type: 'category',
+    subtitle: '지적재산권 기반 굿즈',
+    description: '캐릭터, 브랜드 IP를 활용한 라이선스 굿즈를 제작합니다.',
+    usp: [
+      { icon: '©️', title: 'IP 라이선스', desc: '정식 라이선스 굿즈 제작' },
+      { icon: '🎭', title: '캐릭터 굿즈', desc: '인기 캐릭터 기반 제품' },
+      { icon: '💼', title: '브랜드 협업', desc: '공식 브랜드 굿즈 제작' }
+    ],
+    heroImagePath: '/components/img/placeholder-product.jpg'
+  },
   'ip-goods-dev': {
     slug: 'ip-goods-dev',
     categoryKo: 'IP굿즈 상품개발',
