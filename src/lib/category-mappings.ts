@@ -525,6 +525,71 @@ export const categoryMappings: Record<string, CategoryMapping> = {
     ],
     heroImagePath: '/components/img/placeholder-product.jpg',
   },
+  'lanyard': {
+    slug: 'lanyard',
+    categoryKo: '목걸이/스트랩',
+    type: 'category',
+    subtitle: '실용적인 목걸이와 스트랩',
+    description: '카드, 키, 휴대폰용 목걸이와 스트랩을 제작하세요.',
+    usp: [
+      { icon: '🏷️', title: '다양한 용도', desc: '카드케이스, 키링 등' },
+      { icon: '🎨', title: '맞춤 디자인', desc: '로고, 이름 인쇄 가능' },
+      { icon: '💪', title: '내구성', desc: '튼튼한 끈과 고리' }
+    ],
+    heroImagePath: '/components/img/placeholder-product.jpg',
+  },
+  'stationery-goods': {
+    slug: 'stationery-goods',
+    categoryKo: '문구 굿즈',
+    type: 'category',
+    subtitle: '실용적인 문구 굿즈',
+    description: '일상에서 유용하게 사용할 수 있는 맞춤 문구용품을 제작합니다.',
+    usp: [
+      { icon: '✏️', title: '실용성', desc: '일상에서 유용한 문구용품' },
+      { icon: '🎨', title: '맞춤 제작', desc: '개성있는 디자인 가능' },
+      { icon: '💼', title: '업무용', desc: '사무실, 학교에서 사용' }
+    ],
+    heroImagePath: '/components/img/placeholder-product.jpg',
+  },
+  'sticker-goods': {
+    slug: 'sticker-goods',
+    categoryKo: '스티커 굿즈',
+    type: 'category',
+    subtitle: '다양한 스티커 굿즈',
+    description: '다꾸, 굿즈, 라벨 등 다양한 용도의 스티커 굿즈를 제작하세요.',
+    usp: [
+      { icon: '🌈', title: '다양한 디자인', desc: '트렌디한 스티커 디자인' },
+      { icon: '✂️', title: '정밀 재단', desc: '깔끔한 다이컷 스티커' },
+      { icon: '💧', title: '방수 옵션', desc: '실외용 방수 스티커 가능' }
+    ],
+    heroImagePath: '/components/img/placeholder-product.jpg',
+  },
+  'wood': {
+    slug: 'wood',
+    categoryKo: '목재',
+    type: 'category',
+    subtitle: '자연스러운 목재 굿즈',
+    description: '따뜻하고 자연스러운 느낌의 목재 굿즈를 제작하세요.',
+    usp: [
+      { icon: '🌳', title: '자연 소재', desc: '친환경 천연 목재 사용' },
+      { icon: '🔥', title: '레이저 각인', desc: '정밀한 레이저 각인 기술' },
+      { icon: '🎁', title: '고급스러움', desc: '프리미엄 선물용 제품' }
+    ],
+    heroImagePath: '/components/img/placeholder-product.jpg',
+  },
+  'test-banners': {
+    slug: 'test-banners',
+    categoryKo: '테스트 배너',
+    type: 'category',
+    subtitle: '배너 테스트 페이지',
+    description: '배너 시스템 테스트를 위한 페이지입니다.',
+    usp: [
+      { icon: '🧪', title: '테스트', desc: '배너 시스템 테스트' },
+      { icon: '📊', title: '모니터링', desc: '배너 성능 확인' },
+      { icon: '🔧', title: '개발용', desc: '개발 및 디버깅용' }
+    ],
+    heroImagePath: '/components/img/placeholder-product.jpg',
+  },
   'view-all': {
     slug: 'view-all',
     categoryKo: '전체보기',
