@@ -382,6 +382,32 @@ export const categoryMappings: Record<string, CategoryMapping> = {
     ],
   heroImagePath: '/components/img/placeholder-product.jpg',
   },
+  'frame': {
+    slug: 'frame',
+    categoryKo: '액자',
+    type: 'category',
+    subtitle: '소중한 추억을 담는 액자',
+    description: '기념품, 선물용으로 인기 높은 맞춤 액자를 제작하세요.',
+    usp: [
+      { icon: '🖼️', title: '다양한 액자', desc: '탁상용, 벽걸이용 액자' },
+      { icon: '📸', title: '사진 인쇄', desc: '고품질 사진 프린팅' },
+      { icon: '🎁', title: '선물 최적', desc: '기념품, 답례품으로 인기' }
+    ],
+    heroImagePath: '/components/img/placeholder-product.jpg',
+  },
+  'frame-goods': {
+    slug: 'frame-goods',
+    categoryKo: '액자 굿즈',
+    type: 'category',
+    subtitle: '소중한 추억을 담는 액자 굿즈',
+    description: '기념품, 선물용으로 인기 높은 액자 굿즈를 제작하세요.',
+    usp: [
+      { icon: '🖼️', title: '다양한 액자', desc: '탁상용, 벽걸이용 액자' },
+      { icon: '📸', title: '사진 인쇄', desc: '고품질 사진 프린팅' },
+      { icon: '🎁', title: '선물 최적', desc: '기념품, 답례품으로 인기' }
+    ],
+    heroImagePath: '/components/img/placeholder-product.jpg',
+  },
   'frame-prop-name-tag': {
     slug: 'frame-prop-name-tag',
     categoryKo: '액자/소품/네임택',
