@@ -42,12 +42,12 @@ export async function GET(request: NextRequest) {
 
     const whereClause = whereConditions.join(' AND ');
 
-    // 상품 목록 조회 (실제 DB 구조에 맞게)
+    // 상품 목록 조회 (실제 DB 구조에 맞게) - UTF8 인코딩 명시
     const products = await query(`
       SELECT
         p.id,
-        p.name as nameKo,
-        p.name as nameEn,
+        CONVERT(p.name USING utf8mb4) as nameKo,
+        CONVERT(p.name USING utf8mb4) as nameEn,
         p.thumbnail_url as imageUrl,
         p.category_id as categoryId,
         p.price as priceKrw,
