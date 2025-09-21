@@ -10,14 +10,14 @@ export async function GET(
   try {
     const { id } = await params;
 
-    // 기본 상품 정보 조회
+    // 기본 상품 정보 조회 (UTF8 인코딩 보장)
     const sql = `
       SELECT
         id,
-        name as name_ko,
-        name as name_en,
-        description as description_ko,
-        description as description_en,
+        CONVERT(name USING utf8mb4) as name_ko,
+        CONVERT(name USING utf8mb4) as name_en,
+        CONVERT(description USING utf8mb4) as description_ko,
+        CONVERT(description USING utf8mb4) as description_en,
         thumbnail_url as imageUrl,
         category_id as categoryId,
         price as priceKrw,
@@ -126,39 +126,41 @@ export async function GET(
     if (finalPricingData) {
       product.pricingData = finalPricingData;
 
-      // 기본 가격 업데이트 (첫 번째 가격 구간의 최소값)
+      // 기본 가격 업데이트 (가장 저렴한 가격 찾기)
       if (finalPricingData.pricingTiers && finalPricingData.pricingTiers.length > 0) {
-        const firstTier = finalPricingData.pricingTiers[0];
-        if (firstTier.prices && Object.keys(firstTier.prices).length > 0) {
-          let allPrices: number[] = [];
+        let allPrices: number[] = [];
 
-          // 모든 사이즈의 가격 수집
-          Object.values(firstTier.prices).forEach((sizeData: any) => {
-            if (typeof sizeData === 'object') {
-              // 단면/양면 구조인 경우
-              if (sizeData.single) {
-                Object.values(sizeData.single).forEach((price: any) => {
-                  if (typeof price === 'number' && price > 0) {
-                    allPrices.push(price);
+        // 모든 pricingTier에서 가격 수집
+        finalPricingData.pricingTiers.forEach((tier: any) => {
+          if (tier.prices && typeof tier.prices === 'object') {
+            Object.values(tier.prices).forEach((sizeData: any) => {
+              if (typeof sizeData === 'object' && sizeData !== null) {
+                // 중첩된 구조 탐색 (single/double, quantity levels 등)
+                const extractPrices = (obj: any) => {
+                  if (typeof obj === 'number' && obj > 0) {
+                    allPrices.push(obj);
+                  } else if (typeof obj === 'object' && obj !== null) {
+                    Object.values(obj).forEach(extractPrices);
                   }
-                });
+                };
+                extractPrices(sizeData);
+              } else if (typeof sizeData === 'number' && sizeData > 0) {
+                allPrices.push(sizeData);
               }
-              // 기존 구조인 경우
-              Object.values(sizeData).forEach((price: any) => {
-                if (typeof price === 'number' && price > 0) {
-                  allPrices.push(price);
-                }
-              });
-            } else if (typeof sizeData === 'number' && sizeData > 0) {
-              allPrices.push(sizeData);
-            }
-          });
-
-          if (allPrices.length > 0) {
-            const minPrice = Math.min(...allPrices);
-            product.priceKrw = minPrice;
+            });
           }
+        });
+
+        // 기본 가격이 없거나 0이면 최소 가격으로 설정
+        if (allPrices.length > 0 && (!product.priceKrw || product.priceKrw === 0)) {
+          const minPrice = Math.min(...allPrices);
+          product.priceKrw = minPrice;
         }
+      }
+
+      // 여전히 가격이 없으면 기본값 설정
+      if (!product.priceKrw || product.priceKrw === 0) {
+        product.priceKrw = 1000; // 기본 최소 가격
       }
     }
 
@@ -292,8 +294,8 @@ export async function DELETE(
     //   );
     // }
 
-    // 실제 데이터베이스에서 상품 삭제 (모든 상품 삭제 가능)
-    const sql = `DELETE FROM products WHERE id = ?`;
+    // 소프트 삭제 (관리자 API와 일치)
+    const sql = `UPDATE products SET status = 'DELETED', updated_at = NOW() WHERE id = ?`;
     await query(sql, [id]);
 
     return NextResponse.json({

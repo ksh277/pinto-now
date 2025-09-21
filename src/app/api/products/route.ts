@@ -15,10 +15,10 @@ export async function GET(request: Request) {
       let sql = `
         SELECT
           p.id,
-          p.name as name_ko,
-          p.name as name_en,
-          p.description as description_ko,
-          p.description as description_en,
+          CONVERT(p.name USING utf8mb4) as name_ko,
+          CONVERT(p.name USING utf8mb4) as name_en,
+          CONVERT(p.description USING utf8mb4) as description_ko,
+          CONVERT(p.description USING utf8mb4) as description_en,
           p.thumbnail_url as imageUrl,
           p.category_id as categoryId,
           p.price,

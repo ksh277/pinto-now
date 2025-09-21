@@ -30,9 +30,9 @@ export const metadata = {
 async function getPaperProducts() {
   try {
     const products = await query(
-      'SELECT id, name, thumbnail_url as image, price FROM products WHERE category_id = ? AND status = ? ORDER BY created_at DESC',
+      'SELECT id, CONVERT(name USING utf8mb4) as name, thumbnail_url as image, price FROM products WHERE category_id = ? AND status = ? ORDER BY created_at DESC',
       [12, 'ACTIVE']
-    );
+    ) as any[];
 
     return products.map((product: any) => ({
       id: product.id,

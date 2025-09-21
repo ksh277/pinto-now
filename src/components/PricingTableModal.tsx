@@ -41,18 +41,31 @@ export default function PricingTableModal({
 }: PricingTableModalProps) {
   const [selectedPrintType, setSelectedPrintType] = useState(printTypes?.[0]?.id || pricingTiers?.[0]?.type || 'single');
 
-  // 수량 구간 정의
+  // 수량 구간 정의 (pricing-data.ts와 일치)
   const quantityRanges = [
-    { key: '1-9개', label: '1~9개', min: 1, max: 9 },
-    { key: '10-99개', label: '10~99개', min: 10, max: 99 },
-    { key: '100-499개', label: '100~499개', min: 100, max: 499 },
-    { key: '500-999개', label: '500~999개', min: 500, max: 999 }
+    { key: '1~9개', label: '1~9개', min: 1, max: 9 },
+    { key: '10~99개', label: '10~99개', min: 10, max: 99 },
+    { key: '100~499개', label: '100~499개', min: 100, max: 499 },
+    { key: '500~999개', label: '500~999개', min: 500, max: 999 }
   ];
 
   const getPriceForSizeAndQuantity = (sizeId: string, quantityKey: string) => {
-    // 선택된 인쇄 방식에 해당하는 티어 찾기
+    // 수량 범위에 해당하는 티어 찾기 (새로운 구조)
+    const quantityTier = pricingTiers.find(t =>
+      t.quantityRange === quantityKey ||
+      t.name === quantityKey ||
+      (t.minQuantity && t.maxQuantity && quantityRanges.find(r => r.key === quantityKey && r.min >= t.minQuantity && r.max <= t.maxQuantity))
+    );
+
+    if (quantityTier) {
+      // pricing-data.ts 구조: 'single-30x30' 형태의 키
+      const priceKey = `${selectedPrintType}-${sizeId}`;
+      return quantityTier.prices[priceKey] || null;
+    }
+
+    // 기존 구조 지원
     const tier = pricingTiers.find(t => t.type === selectedPrintType);
-    if (!tier || !tier.prices[sizeId]) return null;
+    if (!tier || !tier.prices || !tier.prices[sizeId]) return null;
 
     return tier.prices[sizeId][quantityKey] || null;
   };
