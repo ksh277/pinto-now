@@ -1,5 +1,6 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
+import { query } from '@/lib/mysql';
 import { Metadata } from 'next';
 
 const categorySlug = 'etc';
@@ -40,7 +41,26 @@ export const metadata: Metadata = {
   }
 };
 
-const etcProducts: any[] = [];
+// 기타 카테고리 상품을 데이터베이스에서 가져오는 함수
+async function getEtcProducts() {
+  try {
+    const products = await query(
+      'SELECT id, name, thumbnail_url as image, price FROM products WHERE category_id = ? AND status = ? ORDER BY created_at DESC',
+      [14, 'ACTIVE']
+    );
+
+    return products.map((product: any) => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['기타'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching etc products:', error);
+    return [];
+  }
+}
 
 // ETC 카테고리 전용 FAQ
 const etcFaq = [
@@ -62,12 +82,16 @@ const etcFaq = [
   }
 ];
 
-export default function EtcPage() {
+export default async function EtcPage() {
+  const products = await getEtcProducts();
+
   return (
-    <CategoryPageTemplate 
+    <CategoryPageTemplate
       mapping={safeMapping}
-      products={etcProducts}
-      faq={etcFaq}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

@@ -1,6 +1,7 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
 import { Metadata } from 'next';
+import { query } from '@/lib/mysql';
 
 const categorySlug = 'custom-product-view';
 const mapping = getCategoryMapping(categorySlug);
@@ -40,7 +41,27 @@ export const metadata: Metadata = {
   }
 };
 
-const customProducts: any[] = [];
+async function getCustomProductViewProducts() {
+  try {
+    const products = await query(`
+      SELECT id, name, thumbnail_url as image, price
+      FROM products
+      WHERE category_id = 22 AND status = 'ACTIVE'
+      ORDER BY created_at DESC
+    `) as any[];
+
+    return products.map(product => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['커스텀상품'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching custom product view products:', error);
+    return [];
+  }
+}
 
 const customFaq = [
   {
@@ -61,12 +82,16 @@ const customFaq = [
   }
 ];
 
-export default function CustomProductViewPage() {
+export default async function CustomProductViewPage() {
+  const products = await getCustomProductViewProducts();
+
   return (
-    <CategoryPageTemplate 
+    <CategoryPageTemplate
       mapping={safeMapping}
-      products={customProducts}
-      faq={customFaq}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

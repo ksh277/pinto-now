@@ -72,6 +72,7 @@ export default function CheckoutPage() {
       });
       setIsLoading(false);
     }
+    */
   };
 
   if (isAuthLoading) {
@@ -121,9 +122,13 @@ export default function CheckoutPage() {
               <span className="text-muted-foreground">{t('cart.subtotal')}</span>
               <span>{totalPrice.toLocaleString()} {t('currency')}</span>
             </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">배송비</span>
+              <span>{totalPrice >= 30000 ? '무료' : '3,000원'}</span>
+            </div>
              <div className="flex justify-between font-bold text-xl">
               <span>{t('cart.total')}</span>
-              <span>{totalPrice.toLocaleString()} {t('currency')}</span>
+              <span>{(totalPrice + (totalPrice >= 30000 ? 0 : 3000)).toLocaleString()} {t('currency')}</span>
             </div>
           </div>
         </CardContent>
@@ -134,6 +139,5 @@ export default function CheckoutPage() {
         </CardFooter>
       </Card>
     </div>
-  ); */
-}
+  );
 }

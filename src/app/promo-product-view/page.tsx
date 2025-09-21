@@ -1,6 +1,7 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
 import { Metadata } from 'next';
+import { query } from '@/lib/mysql';
 
 const categorySlug = 'promo-product-view';
 const mapping = getCategoryMapping(categorySlug);
@@ -40,7 +41,27 @@ export const metadata: Metadata = {
   }
 };
 
-const promoProducts: any[] = [];
+async function getPromoProductViewProducts() {
+  try {
+    const products = await query(`
+      SELECT id, name, thumbnail_url as image, price
+      FROM products
+      WHERE category_id = 23 AND status = 'ACTIVE'
+      ORDER BY created_at DESC
+    `) as any[];
+
+    return products.map(product => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['단체판촉상품'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching promo product view products:', error);
+    return [];
+  }
+}
 
 const promoFaq = [
   {
@@ -65,12 +86,16 @@ const promoFaq = [
   }
 ];
 
-export default function PromoProductViewPage() {
+export default async function PromoProductViewPage() {
+  const products = await getPromoProductViewProducts();
+
   return (
-    <CategoryPageTemplate 
+    <CategoryPageTemplate
       mapping={safeMapping}
-      products={promoProducts}
-      faq={promoFaq}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

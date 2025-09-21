@@ -50,7 +50,7 @@ export function Header() {
     // href가 있는 경우 해당 페이지로 이동
     const categoryItem = [
       { id: 'all', label: 'ALL' },
-      { id: 'acrylic', label: '아크릴', href: '/akril-goods' },
+      { id: 'acrylic', label: '아크릴', href: '/acrylic' },
       { id: 'paper', label: '지류', href: '/paper-goods' },
       { id: 'sticker', label: '스티커', href: '/sticker-goods' },
       { id: 'clothing', label: '의류', href: '/clothing-goods' },
@@ -103,8 +103,8 @@ export function Header() {
           onMouseLeave={handleCategoryLeave}
         >
           <div className="flex h-15 items-center justify-between w-full px-0">
-          <Link href="/" className="flex items-center gap-2 text-3xl font-bold ml-8">
-            <Image src={require('./img/logo.png')} width={150} height={30} alt="logo" className="object-contain" />
+          <Link href="/" className="flex items-center gap-2 text-3xl font-bold ml-8 cursor-pointer z-50 relative">
+            <Image src={require('./img/logo.png')} width={150} height={30} alt="PINTO 홈페이지" className="object-contain hover:opacity-80 transition-opacity" />
           </Link>
 
           {/* 모바일 아이콘 */}

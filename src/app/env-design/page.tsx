@@ -1,6 +1,7 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
 import { Metadata } from 'next';
+import { query } from '@/lib/mysql';
 
 const categorySlug = 'env-design';
 const mapping = getCategoryMapping(categorySlug);
@@ -38,7 +39,27 @@ export const metadata: Metadata = {
   }
 };
 
-const envDesignProducts: any[] = [];
+async function getEnvDesignProducts() {
+  try {
+    const products = await query(`
+      SELECT id, name, thumbnail_url as image, price
+      FROM products
+      WHERE category_id = 26 AND status = 'ACTIVE'
+      ORDER BY created_at DESC
+    `) as any[];
+
+    return products.map(product => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['환경디자인'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching env design products:', error);
+    return [];
+  }
+}
 
 // 환경디자인 카테고리 전용 FAQ
 const envDesignFaq = [
@@ -60,12 +81,16 @@ const envDesignFaq = [
   }
 ];
 
-export default function EnvDesignPage() {
+export default async function EnvDesignPage() {
+  const products = await getEnvDesignProducts();
+
   return (
-    <CategoryPageTemplate 
-      mapping={mapping}
-      products={envDesignProducts}
-      faq={envDesignFaq}
+    <CategoryPageTemplate
+      mapping={mapping!}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

@@ -1,6 +1,7 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
 import { Metadata } from 'next';
+import { query } from '@/lib/mysql';
 
 const categorySlug = 'cushion-fabric';
 const mapping = getCategoryMapping(categorySlug);
@@ -38,7 +39,26 @@ export const metadata: Metadata = {
   }
 };
 
-const cushionFabricProducts: any[] = [];
+// 쿠션/패브릭 카테고리 상품을 데이터베이스에서 가져오는 함수
+async function getCushionFabricProducts() {
+  try {
+    const products = await query(
+      'SELECT id, name, thumbnail_url as image, price FROM products WHERE category_id = ? AND status = ? ORDER BY created_at DESC',
+      [18, 'ACTIVE']
+    );
+
+    return products.map((product: any) => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['쿠션'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching cushion fabric products:', error);
+    return [];
+  }
+}
 
 // 쿠션/방석/패브릭 제품 카테고리 전용 FAQ
 const cushionFabricFaq = [
@@ -60,12 +80,16 @@ const cushionFabricFaq = [
   }
 ];
 
-export default function CushionFabricPage() {
+export default async function CushionFabricPage() {
+  const products = await getCushionFabricProducts();
+
   return (
-    <CategoryPageTemplate 
+    <CategoryPageTemplate
       mapping={mapping}
-      products={cushionFabricProducts}
-      faq={cushionFabricFaq}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

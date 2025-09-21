@@ -4,17 +4,20 @@ import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useProductContext } from '@/contexts/product-context';
-import { Package, FileText, HelpCircle, MessageSquare, BookOpen, Image as ImageIcon, CreditCard } from 'lucide-react';
+import { Package, FileText, HelpCircle, MessageSquare, BookOpen, Image as ImageIcon, CreditCard, BarChart3, ShoppingCart, Users, Umbrella, Database } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
+  { href: '/admin', label: '대시보드', icon: BarChart3 },
+  { href: '/admin/orders', label: '주문 관리', icon: ShoppingCart },
+  { href: '/admin/users', label: '사용자 관리', icon: Users },
+  { href: '/admin/products', label: '상품 관리', icon: Package },
+  { href: '/admin/category-shortcuts', label: '카테고리 단축키', icon: Umbrella },
   { href: '/admin/banners', label: '배너 관리', icon: ImageIcon },
   { href: '/admin/product-shelf-banners', label: '상품진열 배너', icon: ImageIcon },
   { href: '/admin/info-cards', label: '정보 카드', icon: CreditCard },
-  { href: '/admin/products', label: '상품 관리', icon: Package },
-  { href: '/admin/notice', label: '공지사항', icon: FileText },
+  { href: '/admin/backup', label: '데이터 백업', icon: Database },
   { href: '/admin/faq', label: 'FAQ', icon: HelpCircle },
-  { href: '/admin/guide', label: '가이드', icon: BookOpen },
   { href: '/admin/inquiries', label: '문의사항', icon: MessageSquare },
 ];
 

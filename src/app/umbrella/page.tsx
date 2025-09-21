@@ -1,6 +1,7 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
 import { Metadata } from 'next';
+import { query } from '@/lib/mysql';
 
 const categorySlug = 'umbrella';
 const mapping = getCategoryMapping(categorySlug);
@@ -38,7 +39,32 @@ export const metadata: Metadata = {
   }
 };
 
-const umbrellaProducts: any[] = [];
+// 우산 카테고리 상품 데이터를 데이터베이스에서 직접 가져오는 함수
+async function getUmbrellaProducts() {
+  try {
+    const products = await query(`
+      SELECT
+        id,
+        name,
+        thumbnail_url as image,
+        price
+      FROM products
+      WHERE category_id = 6 AND status = 'ACTIVE'
+      ORDER BY created_at DESC
+    `) as any[];
+
+    return products.map(product => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/images/umbrella-thumbnail.jpg',
+      tags: ['방수', '내구성', '우산'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching umbrella products:', error);
+    return [];
+  }
+}
 
 // 우산 카테고리 전용 FAQ
 const umbrellaFaq = [
@@ -60,12 +86,16 @@ const umbrellaFaq = [
   }
 ];
 
-export default function UmbrellaPage() {
+export default async function UmbrellaPage() {
+  const umbrellaProducts = await getUmbrellaProducts();
+
   return (
     <CategoryPageTemplate
       mapping={mapping!}
       products={umbrellaProducts}
-      faq={umbrellaFaq}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

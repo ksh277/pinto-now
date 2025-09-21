@@ -95,9 +95,12 @@ const guideFaq = [
 
 export default function GuidePage() {
   return (
-    <CategoryPageTemplate 
+    <CategoryPageTemplate
       mapping={mapping}
-      faq={guideFaq}
+      products={[]}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
       processSteps={processSteps}
     />
   );

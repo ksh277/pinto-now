@@ -1,5 +1,6 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
+import { query } from '@/lib/mysql';
 import { Metadata } from 'next';
 
 const categorySlug = 'clock';
@@ -38,7 +39,26 @@ export const metadata: Metadata = {
   }
 };
 
-const clockProducts: any[] = [];
+// 시계 카테고리 상품을 데이터베이스에서 가져오는 함수
+async function getClockProducts() {
+  try {
+    const products = await query(
+      'SELECT id, name, thumbnail_url as image, price FROM products WHERE category_id = ? AND status = ? ORDER BY created_at DESC',
+      [15, 'ACTIVE']
+    );
+
+    return products.map((product: any) => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['시계'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching clock products:', error);
+    return [];
+  }
+}
 
 // 시계 카테고리 전용 FAQ
 const clockFaq = [
@@ -60,12 +80,16 @@ const clockFaq = [
   }
 ];
 
-export default function ClockPage() {
+export default async function ClockPage() {
+  const products = await getClockProducts();
+
   return (
-    <CategoryPageTemplate 
+    <CategoryPageTemplate
       mapping={mapping}
-      products={clockProducts}
-      faq={clockFaq}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify, type JWTPayload } from 'jose';
 import { cookies, headers } from 'next/headers';
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 
 export type Role = 'admin' | 'seller' | 'staff' | 'user';
 export type AuthUser = { id: string; username: string; role: Role; nickname?: string };
@@ -97,4 +97,31 @@ export async function maybeRefreshCookie(
     const newToken = await signToken(user, maxAgeSec);
     setSessionCookie(res, newToken, maxAgeSec);
   }
+}
+
+// NextRequest에서 토큰을 추출하는 헬퍼 함수
+export function extractTokenFromRequest(request: any): string | null {
+  // Authorization 헤더에서 Bearer 토큰 확인
+  const authHeader = request.headers.get('authorization');
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authHeader.substring(7);
+  }
+
+  // 쿠키에서 세션 토큰 확인
+  const cookieHeader = request.headers.get('cookie');
+  if (cookieHeader) {
+    const sessionCookie = cookieHeader.split(';').find((c: string) => c.trim().startsWith('session='));
+    if (sessionCookie) {
+      return sessionCookie.split('=')[1];
+    }
+  }
+
+  return null;
+}
+
+// NextRequest를 받아서 사용자 인증을 확인하는 헬퍼 함수
+export async function verifyRequestAuth(request: NextRequest): Promise<(AuthUser & { iat: number }) | null> {
+  const token = extractTokenFromRequest(request);
+  if (!token) return null;
+  return await verifyToken(token);
 }

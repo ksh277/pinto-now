@@ -1,6 +1,7 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
 import { Metadata } from 'next';
+import { query } from '@/lib/mysql';
 
 const categorySlug = 'brand-request';
 const mapping = getCategoryMapping(categorySlug);
@@ -86,12 +87,38 @@ const brandFaq = [
   }
 ];
 
-export default function BrandRequestPage() {
+async function getBrandRequestProducts() {
+  try {
+    const products = await query(`
+      SELECT id, name, thumbnail_url as image, price
+      FROM products
+      WHERE category_id = 25 AND status = 'ACTIVE'
+      ORDER BY created_at DESC
+    `) as any[];
+
+    return products.map(product => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['브랜드의뢰'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching brand request products:', error);
+    return [];
+  }
+}
+
+export default async function BrandRequestPage() {
+  const products = await getBrandRequestProducts();
+
   return (
     <CategoryPageTemplate
       mapping={safeMapping}
-      products={[]}
-      faq={brandFaq}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
       processSteps={processSteps}
     />
   );

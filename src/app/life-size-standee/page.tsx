@@ -1,5 +1,6 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
+import { query } from '@/lib/mysql';
 import { Metadata } from 'next';
 
 const categorySlug = 'life-size-standee';
@@ -38,7 +39,26 @@ export const metadata: Metadata = {
   }
 };
 
-const standeeProducts: any[] = [];
+// 등신대 카테고리 상품을 데이터베이스에서 가져오는 함수
+async function getStandeeProducts() {
+  try {
+    const products = await query(
+      'SELECT id, name, thumbnail_url as image, price FROM products WHERE category_id = ? AND status = ? ORDER BY created_at DESC',
+      [17, 'ACTIVE']
+    );
+
+    return products.map((product: any) => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['등신대'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching standee products:', error);
+    return [];
+  }
+}
 
 // 등신대 카테고리 전용 FAQ
 const standeeFaq = [
@@ -60,12 +80,16 @@ const standeeFaq = [
   }
 ];
 
-export default function LifeSizeStandeePage() {
+export default async function LifeSizeStandeePage() {
+  const products = await getStandeeProducts();
+
   return (
     <CategoryPageTemplate
       mapping={mapping!}
-      products={standeeProducts}
-      faq={standeeFaq}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

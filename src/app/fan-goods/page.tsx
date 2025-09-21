@@ -1,5 +1,6 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
+import { query } from '@/lib/mysql';
 import { Metadata } from 'next';
 
 const categorySlug = 'fan-goods';
@@ -38,7 +39,26 @@ export const metadata: Metadata = {
   }
 };
 
-const fanGoodsProducts: any[] = [];
+// 팬굿즈 카테고리 상품을 데이터베이스에서 가져오는 함수
+async function getFanGoodsProducts() {
+  try {
+    const products = await query(
+      'SELECT id, name, thumbnail_url as image, price FROM products WHERE category_id = ? AND status = ? ORDER BY created_at DESC',
+      [13, 'ACTIVE']
+    );
+
+    return products.map((product: any) => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['팬굿즈'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching fan goods products:', error);
+    return [];
+  }
+}
 
 const fanGoodsFaq = [
   {
@@ -67,12 +87,16 @@ const fanGoodsFaq = [
   }
 ];
 
-export default function FanGoodsPage() {
+export default async function FanGoodsPage() {
+  const products = await getFanGoodsProducts();
+
   return (
     <CategoryPageTemplate
       mapping={mapping!}
-      products={fanGoodsProducts}
-      faq={fanGoodsFaq}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

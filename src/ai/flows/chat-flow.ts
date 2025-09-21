@@ -16,7 +16,7 @@ const goodsEditorHelp = `
 // FAQ 데이터를 가져오는 함수
 async function getFaqData(): Promise<string> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/faqs`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3005'}/api/faqs`);
     if (response.ok) {
       const data = await response.json();
       const faqs = data.faqs || [];

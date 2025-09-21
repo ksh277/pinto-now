@@ -4,14 +4,14 @@ import prisma from '@/lib/prisma';
 interface Params { params: { id: string } }
 
 export async function GET(_: Request, { params }: Params) {
-  const item = await prisma.notice.findUnique({ where: { id: params.id } });
+  const item = await prisma.notices.findUnique({ where: { id: params.id } });
   if (!item) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   return NextResponse.json(item);
 }
 
 export async function PUT(req: Request, { params }: Params) {
   const data = await req.json();
-  const updated = await prisma.notice.update({
+  const updated = await prisma.notices.update({
     where: { id: params.id },
     data: { title: data.title ?? undefined, content: data.content ?? undefined },
   });
@@ -19,6 +19,6 @@ export async function PUT(req: Request, { params }: Params) {
 }
 
 export async function DELETE(_: Request, { params }: Params) {
-  await prisma.notice.delete({ where: { id: params.id } });
+  await prisma.notices.delete({ where: { id: params.id } });
   return NextResponse.json({ ok: true });
 }

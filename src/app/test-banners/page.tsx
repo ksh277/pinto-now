@@ -58,8 +58,8 @@ export default function TestBannersPage() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${user.token || ''}`
           },
+          credentials: 'include',
           body: JSON.stringify({
             title: template.title,
             description: template.description,
@@ -122,9 +122,7 @@ export default function TestBannersPage() {
         for (const banner of result.banners) {
           await fetch(`/api/product-shelf-banners/${banner.id}`, {
             method: 'DELETE',
-            headers: {
-              'Authorization': `Bearer ${user.token || ''}`
-            }
+            credentials: 'include'
           });
         }
       }

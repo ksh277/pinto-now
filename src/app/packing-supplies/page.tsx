@@ -1,5 +1,6 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
+import { query } from '@/lib/mysql';
 import { Metadata } from 'next';
 
 const categorySlug = 'packing-supplies';
@@ -38,7 +39,26 @@ export const metadata: Metadata = {
   }
 };
 
-const packingSuppliesProducts: any[] = [];
+// 포장 부자재 카테고리 상품을 데이터베이스에서 가져오는 함수
+async function getPackingSuppliesProducts() {
+  try {
+    const products = await query(
+      'SELECT id, name, thumbnail_url as image, price FROM products WHERE category_id = ? AND status = ? ORDER BY created_at DESC',
+      [20, 'ACTIVE']
+    );
+
+    return products.map((product: any) => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['포장용품'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching packing supplies products:', error);
+    return [];
+  }
+}
 
 // 포장 부자재 카테고리 전용 FAQ
 const packingSuppliesFaq = [
@@ -60,12 +80,16 @@ const packingSuppliesFaq = [
   }
 ];
 
-export default function PackingSuppliesPage() {
+export default async function PackingSuppliesPage() {
+  const products = await getPackingSuppliesProducts();
+
   return (
-    <CategoryPageTemplate 
+    <CategoryPageTemplate
       mapping={mapping!}
-      products={packingSuppliesProducts}
-      faq={packingSuppliesFaq}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

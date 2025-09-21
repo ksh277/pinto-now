@@ -1,6 +1,7 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
 import { Metadata } from 'next';
+import { query } from '@/lib/mysql';
 
 const categorySlug = 'view-all';
 const mapping = getCategoryMapping(categorySlug);
@@ -38,21 +39,29 @@ export const metadata: Metadata = {
   }
 };
 
-// 전체보기 카테고리 전용 샘플 제품들 (다양한 카테고리에서 선별)
-const viewAllProducts = [
-  { id: 'acrylic-keyring-featured', name: '아크릴 키링', tags: ['아크릴', '키링', '인기'], price: 2500, image: '/images/view-all/acrylic-keyring.png' },
-  { id: 'pin-button-featured', name: '핀버튼 37mm', tags: ['핀버튼', '37mm', '표준'], price: 1000, image: '/images/view-all/pin-button.png' },
-  { id: 'tshirt-featured', name: '맞춤 티셔츠', tags: ['티셔츠', '면100%', '인기'], price: 15000, image: '/images/view-all/tshirt.png' },
-  { id: 'mug-featured', name: '도자기 머그컵', tags: ['머그컵', '도자기', '실용'], price: 8000, image: '/images/view-all/mug.png' },
-  { id: 'tumbler-featured', name: '스테인리스 텀블러', tags: ['텀블러', '보온', '친환경'], price: 18000, image: '/images/view-all/tumbler.png' },
-  { id: 'sticker-featured', name: '다꾸 스티커', tags: ['스티커', '다꾸', '트렌드'], price: 1000, image: '/images/view-all/sticker.png' },
-  { id: 'signage-featured', name: 'X배너', tags: ['X배너', '이동형', '홍보'], price: 45000, image: '/images/view-all/x-banner.png' },
-  { id: 'towel-featured', name: '스포츠 타월', tags: ['타월', '스포츠', '흡수'], price: 8000, image: '/images/view-all/sports-towel.png' },
-  { id: 'clock-featured', name: '벽시계 30cm', tags: ['시계', '인테리어', '실용'], price: 25000, image: '/images/view-all/wall-clock.png' },
-  { id: 'umbrella-featured', name: '자동우산', tags: ['우산', '자동', '편리'], price: 20000, image: '/images/view-all/auto-umbrella.png' },
-  { id: 'cushion-featured', name: '사각 쿠션', tags: ['쿠션', '인테리어', '편안'], price: 18000, image: '/images/view-all/square-cushion.png' },
-  { id: 'standee-featured', name: '골판지 등신대', tags: ['등신대', '이벤트', '포토존'], price: 50000, image: '/images/view-all/standee.png' }
-];
+// 전체보기 카테고리 전용 제품들 (모든 카테고리에서 조회)
+async function getViewAllProducts() {
+  try {
+    const products = await query(`
+      SELECT id, name, thumbnail_url as image, price
+      FROM products
+      WHERE status = 'ACTIVE'
+      ORDER BY created_at DESC
+      LIMIT 50
+    `) as any[];
+
+    return products.map(product => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['전체보기'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching view all products:', error);
+    return [];
+  }
+}
 
 // 전체보기 카테고리 전용 FAQ
 const viewAllFaq = [
@@ -78,12 +87,16 @@ const viewAllFaq = [
   }
 ];
 
-export default function ViewAllPage() {
+export default async function ViewAllPage() {
+  const products = await getViewAllProducts();
+
   return (
     <CategoryPageTemplate
       mapping={mapping!}
-      products={viewAllProducts}
-      faq={viewAllFaq}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

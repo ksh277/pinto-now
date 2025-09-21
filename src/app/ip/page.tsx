@@ -1,19 +1,76 @@
-import Link from 'next/link';
+import { getCategoryMapping } from '@/lib/category-mappings';
+import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
+import { Metadata } from 'next';
+import { query } from '@/lib/mysql';
 
-export const metadata = {
-  title: 'IP 굿즈 개발',
+const categorySlug = 'ip';
+const mapping = getCategoryMapping(categorySlug);
+
+if (!mapping) {
+  throw new Error(`Category mapping not found for: ${categorySlug}`);
+}
+
+export const metadata: Metadata = {
+  title: `${mapping.categoryKo} | PINTO`,
+  description: mapping.description,
+  alternates: {
+    canonical: `https://pinto.co.kr/${mapping.slug}`
+  },
+  openGraph: {
+    title: `${mapping.categoryKo} | PINTO`,
+    description: mapping.description,
+    url: `https://pinto.co.kr/${mapping.slug}`,
+    siteName: 'PINTO',
+    type: 'website',
+    images: [
+      {
+        url: mapping.heroImagePath,
+        width: 1200,
+        height: 630,
+        alt: `${mapping.categoryKo} 메인 이미지`
+      }
+    ]
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${mapping.categoryKo} | PINTO`,
+    description: mapping.description,
+    images: [mapping.heroImagePath]
+  }
 };
 
-export default function IpPage() {
+async function getIpProducts() {
+  try {
+    const products = await query(`
+      SELECT id, name, thumbnail_url as image, price
+      FROM products
+      WHERE category_id = 33 AND status = 'ACTIVE'
+      ORDER BY created_at DESC
+    `) as any[];
+
+    return products.map(product => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['IP'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching IP products:', error);
+    return [];
+  }
+}
+
+export default async function IpPage() {
+  const products = await getIpProducts();
+
   return (
-    <main className="container mx-auto px-4 py-8">
-      <section className="mb-8 text-center">
-        <h1 className="text-3xl font-bold">IP 굿즈 개발 서비스</h1>
-        <p className="text-muted-foreground mt-2">전문가와 함께 IP 굿즈를 만들어보세요.</p>
-        <Link href="/brand/request" className="mt-4 inline-block rounded bg-primary px-6 py-2 text-white focus:outline-none focus:ring-2">
-          문의하기
-        </Link>
-      </section>
-    </main>
+    <CategoryPageTemplate
+      mapping={mapping!}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
+    />
   );
 }

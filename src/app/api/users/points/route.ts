@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/mysql';
-import { verifyToken } from '@/lib/auth/jwt';
+import { verifyRequestAuth } from '@/lib/auth/jwt';
 
 interface UserPoints {
   user_id: number;
@@ -12,7 +12,7 @@ interface UserPoints {
 export async function GET(req: NextRequest) {
   try {
     // JWT 토큰에서 사용자 정보 추출
-    const authUser = await verifyToken(req);
+    const authUser = await verifyRequestAuth(req);
     if (!authUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const authUser = await verifyToken(req);
+    const authUser = await verifyRequestAuth(req);
     if (!authUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

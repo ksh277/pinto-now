@@ -1,5 +1,6 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
+import { query } from '@/lib/mysql';
 import { Metadata } from 'next';
 
 const categorySlug = 'office';
@@ -38,7 +39,26 @@ export const metadata: Metadata = {
   }
 };
 
-const officeProducts: any[] = [];
+// 오피스 카테고리 상품을 데이터베이스에서 가져오는 함수
+async function getOfficeProducts() {
+  try {
+    const products = await query(
+      'SELECT id, name, thumbnail_url as image, price FROM products WHERE category_id = ? AND status = ? ORDER BY created_at DESC',
+      [21, 'ACTIVE']
+    );
+
+    return products.map((product: any) => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['오피스'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching office products:', error);
+    return [];
+  }
+}
 
 const officeFaq = [
   {
@@ -59,12 +79,16 @@ const officeFaq = [
   }
 ];
 
-export default function OfficePage() {
+export default async function OfficePage() {
+  const products = await getOfficeProducts();
+
   return (
     <CategoryPageTemplate
       mapping={mapping!}
-      products={officeProducts}
-      faq={officeFaq}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

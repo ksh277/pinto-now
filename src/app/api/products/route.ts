@@ -7,18 +7,18 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
     const categoryId = searchParams.get('categoryId');
+    const includeEnhanced = searchParams.get('includeEnhanced') === 'true';
 
-    // 아크릴 상품들 (pricing-data.ts에서)
-    const acrylicProducts = getAllAcrylicProducts();
-
-    // 데이터베이스 상품들 (아크릴 상품 1-9 제외)
+    // 데이터베이스 상품들 조회 (향상된 세부 데이터 포함)
     let dbProducts: any[] = [];
     try {
       let sql = `
         SELECT
           p.id,
-          p.name,
-          p.description,
+          p.name as name_ko,
+          p.name as name_en,
+          p.description as description_ko,
+          p.description as description_en,
           p.thumbnail_url as imageUrl,
           p.category_id as categoryId,
           p.price,
@@ -28,8 +28,6 @@ export async function GET(request: Request) {
           p.updated_at as updatedAt
         FROM products p
         WHERE p.status = 'ACTIVE'
-        AND p.id NOT IN ('1', '2', '3', '4', '5', '6', '7', '8', '9')
-        AND p.id >= 33
       `;
 
       const params: any[] = [];
@@ -38,11 +36,12 @@ export async function GET(request: Request) {
         sql += ` AND p.category_id = ?`;
         params.push(categoryId);
       } else if (category) {
-        // For backward compatibility with category names
         const categoryMapping: Record<string, string> = {
           '아크릴': '1',
           '의류': '2',
           '스티커': '3',
+          'umbrella': '6',
+          '우산': '6',
         };
         const mappedCategoryId = categoryMapping[category];
         if (mappedCategoryId) {
@@ -51,54 +50,98 @@ export async function GET(request: Request) {
         }
       }
 
-      sql += ` ORDER BY p.name ASC`;
+      sql += ` ORDER BY p.created_at DESC`;
 
       const results = await query(sql, params) as any[];
 
-      dbProducts = results.map((row) => ({
-        id: row.id.toString(),
-        nameKo: row.name,
-        nameEn: row.name,
-        descriptionKo: row.description || '',
-        descriptionEn: row.description || '',
-        imageUrl: row.imageUrl,
-        categoryId: row.categoryId.toString(),
-        categoryKo: getCategoryName(row.categoryId.toString()),
-        categoryEn: getCategoryName(row.categoryId.toString()),
-        subcategory: '',
-        isPublished: true,
-        isFeatured: false,
-        status: row.status,
-        stockQuantity: row.stock,
-        pricingData: null,
-        priceKrw: row.price,
-        createdAt: row.createdAt,
-        updatedAt: row.updatedAt
-      }));
+      dbProducts = results.map((row) => {
+        let detailData = null;
+        let descriptionImageUrl = null;
+        let additionalImages: string[] = [];
+        let pricingData = null;
+
+        // product_details 데이터 파싱
+        if (row.detail_data) {
+          try {
+            detailData = JSON.parse(row.detail_data);
+            descriptionImageUrl = detailData.descriptionImageUrl;
+            additionalImages = detailData.additionalImages || [];
+            pricingData = detailData.pricingData;
+          } catch (e) {
+            console.error('Failed to parse detail_data for product', row.id, e);
+          }
+        }
+
+        const baseProduct = {
+          id: row.id.toString(),
+          nameKo: row.name_ko || row.name_en || '',
+          nameEn: row.name_en || row.name_ko || '',
+          descriptionKo: row.description_ko || '',
+          descriptionEn: row.description_en || '',
+          imageUrl: row.imageUrl,
+          categoryId: row.categoryId.toString(),
+          categoryKo: getCategoryName(row.categoryId.toString()),
+          categoryEn: getCategoryName(row.categoryId.toString()),
+          subcategory: '',
+          isPublished: row.isPublished === 1,
+          isFeatured: row.isFeatured === 1,
+          status: row.status,
+          stockQuantity: row.stock,
+          priceKrw: row.price,
+          createdAt: row.createdAt,
+          updatedAt: row.updatedAt
+        };
+
+        // 향상된 데이터가 요청되거나 available한 경우 포함
+        if (includeEnhanced || pricingData) {
+          return {
+            ...baseProduct,
+            descriptionImageUrl,
+            additionalImages,
+            pricingData,
+            hasEnhancedFeatures: !!pricingData
+          };
+        }
+
+        return baseProduct;
+      });
     } catch (dbError) {
-      console.error('Database query failed, using only acrylic products:', dbError);
+      console.error('Database query failed:', dbError);
+      return NextResponse.json(
+        { error: 'Failed to fetch products' },
+        { status: 500 }
+      );
     }
 
-    // 아크릴 상품과 데이터베이스 상품 합치기
-    const allProducts = [...acrylicProducts, ...dbProducts];
+    // 아크릴 상품들만 표시 (관리자용)
+    if (categoryId === '1' || category === '아크릴') {
+      const acrylicProducts = getAllAcrylicProducts();
+      dbProducts = acrylicProducts; // DB 상품 대신 아크릴 상품만
+    }
 
     // 카테고리 필터링
-    let filteredProducts = allProducts;
+    let filteredProducts = dbProducts;
     if (categoryId) {
-      filteredProducts = allProducts.filter(p => p.categoryId === categoryId);
+      filteredProducts = dbProducts.filter(p => p.categoryId === categoryId);
     } else if (category) {
       const categoryMapping: Record<string, string> = {
         '아크릴': '1',
         '의류': '2',
         '스티커': '3',
+        'umbrella': '6',
+        '우산': '6',
       };
       const mappedCategoryId = categoryMapping[category];
       if (mappedCategoryId) {
-        filteredProducts = allProducts.filter(p => p.categoryId === mappedCategoryId);
+        filteredProducts = dbProducts.filter(p => p.categoryId === mappedCategoryId);
       }
     }
 
-    return NextResponse.json({ products: filteredProducts }, {
+    return NextResponse.json({
+      products: filteredProducts,
+      totalCount: filteredProducts.length,
+      hasEnhancedData: filteredProducts.some(p => p.hasEnhancedFeatures)
+    }, {
       headers: {
         'Content-Type': 'application/json; charset=utf-8'
       }
@@ -135,7 +178,7 @@ function getCategoryName(categoryId: string): string {
     '23': '텀블러',
     '24': '수건',
     '25': '시계',
-    '26': '우산',
+    '6': '우산',
     '27': '광고물/사인',
     '28': 'LED 네온',
     '29': '환경디자인',
@@ -166,34 +209,46 @@ export async function POST(request: Request) {
       printTypes,
       sizes,
       pricingTiers,
-      customOptions
+      customOptions,
+      descriptionImageUrl,
+      additionalImages,
+      pricingData
     } = await request.json();
 
     // 최소 가격 계산 (가격 표시용)
     let minPrice = 0;
 
-    // 사이즈별 가격이 있으면 가장 저렴한 가격을 사용
-    if (sizes && sizes.length > 0) {
-      const sizePrices = sizes.map((size: any) => {
-        return size.basePrice || size.singlePrice || 0;
-      }).filter((price: number) => price > 0);
-
-      if (sizePrices.length > 0) {
-        minPrice = Math.min(...sizePrices);
-      }
-    }
-
-    // 사이즈별 가격이 없으면 pricing tiers에서 가격 찾기
-    if (minPrice === 0 && pricingTiers && pricingTiers.length > 0) {
-      const firstTier = pricingTiers[0];
+    // 향상된 가격 데이터에서 가격 추출
+    if (pricingData && pricingData.pricingTiers && pricingData.pricingTiers.length > 0) {
+      const firstTier = pricingData.pricingTiers[0];
       if (firstTier.prices) {
         const prices = Object.values(firstTier.prices) as number[];
         minPrice = Math.min(...prices.filter(p => p > 0));
       }
     }
 
-    // 기본 seller_id를 1로 설정 (관리자 계정)
-    const sellerId = 1;
+    // 기존 방식으로도 가격 계산 (하위 호환성)
+    if (minPrice === 0) {
+      // 사이즈별 가격이 있으면 가장 저렴한 가격을 사용
+      if (sizes && sizes.length > 0) {
+        const sizePrices = sizes.map((size: any) => {
+          return size.basePrice || size.singlePrice || 0;
+        }).filter((price: number) => price > 0);
+
+        if (sizePrices.length > 0) {
+          minPrice = Math.min(...sizePrices);
+        }
+      }
+
+      // 사이즈별 가격이 없으면 pricing tiers에서 가격 찾기
+      if (minPrice === 0 && pricingTiers && pricingTiers.length > 0) {
+        const firstTier = pricingTiers[0];
+        if (firstTier.prices) {
+          const prices = Object.values(firstTier.prices) as number[];
+          minPrice = Math.min(...prices.filter(p => p > 0));
+        }
+      }
+    }
 
     // 카테고리 매핑 (문자열 카테고리명을 ID로 변환)
     const categoryMapping: Record<string, number> = {
@@ -228,7 +283,6 @@ export async function POST(request: Request) {
       'funeral': 34,
       'packing-supplies': 35,
       'stationery-goods': 4,
-      // 기존 호환성
       'acrylic': 1,
       'clothing': 2,
       'sticker': 3,
@@ -239,55 +293,76 @@ export async function POST(request: Request) {
     // slug 생성 (간단한 방식)
     const slug = nameKo.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
 
+    // 기본 상품 정보 삽입
     const sql = `
       INSERT INTO products (
-        seller_id,
         category_id,
         name,
-        slug,
         description,
+        slug,
         price,
         stock,
         status,
         thumbnail_url,
         created_at,
         updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     `;
 
     const result = await query(sql, [
-      sellerId,
       categoryIdValue,
       nameKo,
-      `${slug}-${Date.now()}`, // 고유한 slug 보장
       descriptionKo || '',
+      `${slug}-${Date.now()}`, // 고유한 slug 보장
       minPrice || 10000, // 기본 가격
       stockQuantity || 100,
       status === 'active' ? 'ACTIVE' : 'DRAFT',
       imageUrl
     ]);
 
-    // 별도 테이블에 복잡한 가격 정보 저장 (향후 확장용)
     const productId = (result as any).insertId;
 
-    // pricing_data를 별도로 저장하거나 로그로 기록
-    console.log('Product created with pricing data:', {
-      productId,
-      printTypes,
-      sizes,
-      pricingTiers,
-      customOptions
-    });
+    // 향상된 상품 데이터가 있으면 product_details 테이블에 저장
+    if (pricingData || descriptionImageUrl || (additionalImages && additionalImages.length > 0)) {
+      const detailData = {
+        pricingData: pricingData || null,
+        descriptionImageUrl: descriptionImageUrl || null,
+        additionalImages: additionalImages || [],
+        printTypes: printTypes || null,
+        sizes: sizes || null,
+        pricingTiers: pricingTiers || null,
+        customOptions: customOptions || null,
+        lastUpdated: new Date().toISOString()
+      };
+
+      await query(`
+        INSERT INTO product_details (product_id, detail_data)
+        VALUES (?, ?)
+      `, [productId, JSON.stringify(detailData)]);
+
+      console.log('Enhanced product created with detailed data:', {
+        productId,
+        hasDetailData: true,
+        hasPricingData: !!pricingData,
+        hasImages: !!(descriptionImageUrl || additionalImages?.length)
+      });
+    } else {
+      console.log('Basic product created:', {
+        productId,
+        hasDetailData: false
+      });
+    }
 
     return NextResponse.json({
       success: true,
       id: productId,
-      message: '상품이 성공적으로 생성되었습니다.'
+      message: '상품이 성공적으로 생성되었습니다.',
+      hasEnhancedFeatures: !!(pricingData || descriptionImageUrl || additionalImages?.length)
     });
   } catch (error) {
     console.error('Failed to create product:', error);
     return NextResponse.json(
-      { error: 'Failed to create product' },
+      { error: 'Failed to create product', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

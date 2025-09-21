@@ -158,3 +158,62 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: '프로필 업데이트 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }
+
+// PATCH /api/users/profile - 사용자 프로필 부분 업데이트 (주문 시 사용)
+export async function PATCH(request: NextRequest) {
+  try {
+    const decoded = await verifyToken(request);
+    if (!decoded) {
+      return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
+    }
+
+    const data = await request.json();
+    const {
+      phone,
+      realName,
+      lastUsedAddress,
+      lastUsedZipCode
+    } = data;
+
+    // 업데이트 쿼리 구성
+    const updateFields = [];
+    const updateValues = [];
+
+    if (phone !== undefined) {
+      updateFields.push('phone = ?');
+      updateValues.push(phone);
+    }
+    if (realName !== undefined) {
+      updateFields.push('name = ?');
+      updateValues.push(realName);
+    }
+    if (lastUsedAddress !== undefined) {
+      updateFields.push('address1 = ?');
+      updateValues.push(lastUsedAddress);
+    }
+    if (lastUsedZipCode !== undefined) {
+      updateFields.push('zipcode = ?');
+      updateValues.push(lastUsedZipCode);
+    }
+
+    if (updateFields.length === 0) {
+      return NextResponse.json({ message: '업데이트할 정보가 없습니다.' });
+    }
+
+    updateFields.push('updated_at = NOW()');
+    updateValues.push(decoded.id);
+
+    await query(
+      `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`,
+      updateValues
+    );
+
+    return NextResponse.json({
+      success: true,
+      message: '사용자 정보가 성공적으로 업데이트되었습니다.'
+    });
+  } catch (error) {
+    console.error('Profile patch error:', error);
+    return NextResponse.json({ error: '프로필 업데이트 중 오류가 발생했습니다.' }, { status: 500 });
+  }
+}

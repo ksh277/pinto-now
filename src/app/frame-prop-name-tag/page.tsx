@@ -1,6 +1,7 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
 import { Metadata } from 'next';
+import { query } from '@/lib/mysql';
 
 const categorySlug = 'frame-prop-name-tag';
 const mapping = getCategoryMapping(categorySlug);
@@ -38,7 +39,27 @@ export const metadata: Metadata = {
   }
 };
 
-const framePropNameTagProducts: any[] = [];
+async function getFramePropNameTagProducts() {
+  try {
+    const products = await query(`
+      SELECT id, name, thumbnail_url as image, price
+      FROM products
+      WHERE category_id = 14 AND status = 'ACTIVE'
+      ORDER BY created_at DESC
+    `) as any[];
+
+    return products.map(product => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['액자/소품/네임택'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching frame prop name tag products:', error);
+    return [];
+  }
+}
 
 // 액자/소품/네임택 카테고리 전용 FAQ
 const framePropNameTagFaq = [
@@ -60,12 +81,16 @@ const framePropNameTagFaq = [
   }
 ];
 
-export default function FramePropNameTagPage() {
+export default async function FramePropNameTagPage() {
+  const products = await getFramePropNameTagProducts();
+
   return (
-    <CategoryPageTemplate 
-      mapping={mapping}
-      products={framePropNameTagProducts}
-      faq={framePropNameTagFaq}
+    <CategoryPageTemplate
+      mapping={mapping!}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

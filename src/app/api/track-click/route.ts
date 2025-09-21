@@ -14,11 +14,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Get client info
-    const headersList = headers();
+    const headersList = await headers();
     const userAgent = headersList.get('user-agent') || '';
     const forwarded = headersList.get('x-forwarded-for');
     const realIp = headersList.get('x-real-ip');
-    const ipAddress = forwarded?.split(',')[0] || realIp || req.ip || 'unknown';
+    const ipAddress = forwarded?.split(',')[0] || realIp || 'unknown';
 
     // Check if this IP clicked this product in the last hour to prevent spam
     const recentClicks = await query(`

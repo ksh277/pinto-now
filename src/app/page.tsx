@@ -33,22 +33,36 @@ const top4: Rankable[] = [
 import { getWeeklyMarket, type WeeklyMarketItem } from '@/lib/market';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 
-function getInfoCards() {
-  // 임시로 하드코딩된 데이터 사용 (DB 연결 후 API 호출로 변경 예정)
-  return [
-    { id: '1', title: '나랑 가까운 오프라인샵은 어디에 있을까요?', description: '핸드폰으로 뚝딱뚝딱 빠르고 간편하게 나만의 굿즈를 만들 수 있습니다.' },
-    { id: '2', title: '내 반려동물을 위한 굿즈출시', description: '일상생활용품, 반려장례용품, 추억 다양한 제품들이 준비되어 있습니다.' },
-    { id: '3', title: '커스텀 아이디어로 나만의 굿즈 판매하기', description: '핀토에서 준비한 굿즈 제품들로 나만의 디자인을 입혀 판매할 수 있습니다.' },
-    { id: '4', title: '웹툰/연예인 응원봉,포토카드,아크릴', description: '단체주문,소량부터 대량까지 핀토에게 맡겨 주세요. 직접 생산감리도 가능!' },
-    { id: '5', title: '커스터마이징 전문 컨설팅', description: '전문 디자이너와 함께 브랜딩부터 제품까지 완성도 높은 굿즈를 만들어보세요.' },
-    { id: '6', title: '친환경 소재로 만드는 굿즈', description: '환경을 생각하는 지속가능한 소재로 제작하는 친환경 굿즈 라인업입니다.' },
-    { id: '7', title: '24시간 빠른 배송 서비스', description: '급하게 필요한 굿즈도 24시간 내 제작 완료! 빠른 배송으로 만족도 100%입니다.' },
-  ];
+async function getInfoCards() {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/info-cards`, {
+      cache: 'no-store'
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch info cards');
+    }
+
+    const data = await response.json();
+    return data.infoCards || [];
+  } catch (error) {
+    console.error('Error fetching info cards:', error);
+    // 임시로 하드코딩된 데이터 사용 (DB 연결 실패 시 fallback)
+    return [
+      { id: '1', title: '나랑 가까운 오프라인샵은 어디에 있을까요?', description: '핸드폰으로 뚝딱뚝딱 빠르고 간편하게 나만의 굿즈를 만들 수 있습니다.' },
+      { id: '2', title: '내 반려동물을 위한 굿즈출시', description: '일상생활용품, 반려장례용품, 추억 다양한 제품들이 준비되어 있습니다.' },
+      { id: '3', title: '커스텀 아이디어로 나만의 굿즈 판매하기', description: '핀토에서 준비한 굿즈 제품들로 나만의 디자인을 입혀 판매할 수 있습니다.' },
+      { id: '4', title: '웹툰/연예인 응원봉,포토카드,아크릴', description: '단체주문,소량부터 대량까지 핀토에게 맡겨 주세요. 직접 생산감리도 가능!' },
+      { id: '5', title: '커스터마이징 전문 컨설팅', description: '전문 디자이너와 함께 브랜딩부터 제품까지 완성도 높은 굿즈를 만들어보세요.' },
+      { id: '6', title: '친환경 소재로 만드는 굿즈', description: '환경을 생각하는 지속가능한 소재로 제작하는 친환경 굿즈 라인업입니다.' },
+      { id: '7', title: '24시간 빠른 배송 서비스', description: '급하게 필요한 굿즈도 24시간 내 제작 완료! 빠른 배송으로 만족도 100%입니다.' },
+    ];
+  }
 }
 
 export default async function HomePage() {
 
-  const infoCards = getInfoCards();
+  const infoCards = await getInfoCards();
 
   let weekly: WeeklyMarketItem[] = [];
   const top4Fallback: Rankable[] = top4.map(p => ({

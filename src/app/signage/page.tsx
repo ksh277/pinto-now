@@ -1,5 +1,6 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
+import { query } from '@/lib/mysql';
 import { Metadata } from 'next';
 
 const categorySlug = 'signage';
@@ -38,7 +39,26 @@ export const metadata: Metadata = {
   }
 };
 
-const signageProducts: any[] = [];
+// 광고물/사인 카테고리 상품을 데이터베이스에서 가져오는 함수
+async function getSignageProducts() {
+  try {
+    const products = await query(
+      'SELECT id, name, thumbnail_url as image, price FROM products WHERE category_id = ? AND status = ? ORDER BY created_at DESC',
+      [16, 'ACTIVE']
+    );
+
+    return products.map((product: any) => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['사인'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching signage products:', error);
+    return [];
+  }
+}
 
 // 광고물/사인 카테고리 전용 FAQ
 const signageFaq = [
@@ -60,12 +80,16 @@ const signageFaq = [
   }
 ];
 
-export default function SignagePage() {
+export default async function SignagePage() {
+  const products = await getSignageProducts();
+
   return (
     <CategoryPageTemplate
       mapping={mapping!}
-      products={signageProducts}
-      faq={signageFaq}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

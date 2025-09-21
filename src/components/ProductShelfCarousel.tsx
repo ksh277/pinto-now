@@ -73,19 +73,9 @@ export default function ProductShelfCarousel({ banners }: ProductShelfCarouselPr
   const fmtPrice = (n?: number) =>
     typeof n === 'number' ? `${n.toLocaleString()}원` : '가격문의';
 
-  if (banners.length <= 3) {
-    return (
-      <section className="py-10 md:py-14">
-        <h2 className="mb-4 text-[15px] font-semibold text-slate-700">
-          단체 굿즈 합리적인 가격으로 예쁘게 만들어 드릴게요.
-        </h2>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6">
-          {banners.map(banner => (
-            <ProductShelfItem key={banner.id} banner={banner} fmtPrice={fmtPrice} />
-          ))}
-        </div>
-      </section>
-    );
+  // 항상 스크롤 가능한 캐러셀로 표시
+  if (banners.length === 0) {
+    return null;
   }
 
   return (
@@ -97,31 +87,15 @@ export default function ProductShelfCarousel({ banners }: ProductShelfCarouselPr
       <div className="relative">
         <div
           ref={scrollRef}
-          className="flex overflow-x-auto snap-x snap-mandatory gap-4 md:gap-6 pb-4 scrollbar-hide px-4 md:px-0"
+          className="flex overflow-x-auto snap-x snap-mandatory gap-4 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible pb-4 scrollbar-hide px-4 md:px-0"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {banners.map(banner => (
-            <div key={banner.id} className="flex-shrink-0 w-[calc(50vw-1.5rem)] md:w-[380px] snap-start">
+            <div key={banner.id} className="flex-shrink-0 w-[calc(100vw-3rem)] md:w-auto snap-start">
               <ProductShelfItem banner={banner} fmtPrice={fmtPrice} />
             </div>
           ))}
         </div>
-        
-        <button 
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 dark:bg-neutral-800/90 shadow-lg flex items-center justify-center hover:bg-white dark:hover:bg-neutral-700 transition-colors z-10"
-          onClick={scrollLeft}
-          aria-label="이전 배너"
-        >
-          <ChevronLeft className="w-4 h-4 text-neutral-600 dark:text-neutral-300" />
-        </button>
-        
-        <button 
-          className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 dark:bg-neutral-800/90 shadow-lg flex items-center justify-center hover:bg-white dark:hover:bg-neutral-700 transition-colors z-10"
-          onClick={scrollRight}
-          aria-label="다음 배너"
-        >
-          <ChevronRight className="w-4 h-4 text-neutral-600 dark:text-neutral-300" />
-        </button>
       </div>
     </section>
   );

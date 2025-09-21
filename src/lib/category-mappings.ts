@@ -122,6 +122,32 @@ export const categoryMappings: Record<string, CategoryMapping> = {
     ],
   heroImagePath: '/components/img/placeholder-product.jpg',
   },
+  'acrylic': {
+    slug: 'acrylic',
+    categoryKo: '아크릴',
+    type: 'category',
+    subtitle: '투명하고 견고한 프리미엄 아크릴 제품',
+    description: '내구성이 뛰어난 아크릴 소재로 제작하는 다양한 굿즈들을 만나보세요.',
+    usp: [
+      { icon: '✨', title: '고품질 아크릴', desc: '투명도 높은 프리미엄 아크릴 사용' },
+      { icon: '🎨', title: '정밀 인쇄', desc: 'UV 프린팅으로 선명하고 내구성 있는 인쇄' },
+      { icon: '🛡️', title: '내구성', desc: '긁힘과 충격에 강한 견고한 제품' }
+    ],
+    heroImagePath: '/components/img/placeholder-product.jpg',
+  },
+  'akril-goods': {
+    slug: 'akril-goods',
+    categoryKo: '아크릴 굿즈',
+    type: 'category',
+    subtitle: '투명하고 견고한 프리미엄 아크릴 제품',
+    description: '내구성이 뛰어난 아크릴 소재로 제작하는 다양한 굿즈들을 만나보세요.',
+    usp: [
+      { icon: '✨', title: '고품질 아크릴', desc: '투명도 높은 프리미엄 아크릴 사용' },
+      { icon: '🎨', title: '정밀 인쇄', desc: 'UV 프린팅으로 선명하고 내구성 있는 인쇄' },
+      { icon: '🛡️', title: '내구성', desc: '긁힘과 충격에 강한 견고한 제품' }
+    ],
+    heroImagePath: '/components/img/placeholder-product.jpg',
+  },
   'paper-goods': {
     slug: 'paper-goods',
     categoryKo: '지류 굿즈',
@@ -134,6 +160,19 @@ export const categoryMappings: Record<string, CategoryMapping> = {
       { icon: '💰', title: '합리적 가격', desc: '저렴한 단가의 대량 제작' }
     ],
   heroImagePath: '/components/img/placeholder-product.jpg',
+  },
+  'sticker': {
+    slug: 'sticker',
+    categoryKo: '스티커',
+    type: 'category',
+    subtitle: '다양한 용도의 맞춤 스티커',
+    description: '다꾸, 굿즈, 라벨 등 다양한 용도로 사용할 수 있는 스티커를 제작하세요.',
+    usp: [
+      { icon: '🌈', title: '다양한 디자인', desc: '트렌디한 스티커 디자인' },
+      { icon: '✂️', title: '정밀 재단', desc: '깔끔한 다이컷 스티커' },
+      { icon: '💧', title: '방수 옵션', desc: '실외용 방수 스티커 가능' }
+    ],
+    heroImagePath: '/components/img/placeholder-product.jpg',
   },
   'sticker-deco': {
     slug: 'sticker-deco',

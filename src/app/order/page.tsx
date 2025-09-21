@@ -57,12 +57,34 @@ export default function OrderPage() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // 사용자 포인트 정보 가져오기
+  // 사용자 포인트 정보 가져오기 및 프로필 정보 자동 채우기
   useEffect(() => {
     if (isAuthenticated && user) {
       fetchUserPoints();
+      prefillUserInfo();
     }
   }, [isAuthenticated, user]);
+
+  const prefillUserInfo = async () => {
+    try {
+      const response = await fetch('/api/me', {
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const userData = await response.json();
+        // 기존 사용자 정보가 있다면 미리 채우기
+        if (userData.user) {
+          setOrderInfo(prev => ({
+            ...prev,
+            recipientName: userData.user.nickname || prev.recipientName,
+            phone: userData.user.phone || prev.phone,
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error);
+    }
+  };
 
   // 로그인 체크
   useEffect(() => {
@@ -90,9 +112,7 @@ export default function OrderPage() {
   const fetchUserPoints = async () => {
     try {
       const response = await fetch('/api/points', {
-        headers: {
-          'Authorization': `Bearer ${user?.token}`,
-        },
+        credentials: 'include',
       });
       if (response.ok) {
         const result = await response.json();
@@ -109,7 +129,7 @@ export default function OrderPage() {
   };
 
   // 가격 계산
-  const shippingFee = totalPrice >= 50000 ? 0 : 3000;
+  const shippingFee = totalPrice >= 30000 ? 0 : 3000;
   const discountAmount = orderInfo.usePoints ? orderInfo.pointsToUse : 0;
   const finalAmount = Math.max(0, totalPrice + shippingFee - discountAmount);
 
@@ -196,6 +216,26 @@ export default function OrderPage() {
       const order = await orderResponse.json();
       const orderId = order.orderId;
 
+      // 3. 사용자 정보 업데이트 (소셜 로그인 사용자의 경우)
+      if (user && (user.username?.startsWith('kakao_') || user.username?.startsWith('naver_'))) {
+        try {
+          await fetch('/api/users/profile', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              phone: orderInfo.phone,
+              realName: orderInfo.recipientName, // 실명 저장
+              lastUsedAddress: `${orderInfo.address} ${orderInfo.detailAddress}`.trim(),
+              lastUsedZipCode: orderInfo.zipCode
+            })
+          });
+        } catch (error) {
+          console.error('Failed to update user profile:', error);
+          // 프로필 업데이트 실패해도 주문은 계속 진행
+        }
+      }
+
       // 2. 결제 처리
       toast({
         title: "결제 페이지로 이동 중...",
@@ -210,8 +250,8 @@ export default function OrderPage() {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${user?.token}`,
             },
+            credentials: 'include',
             body: JSON.stringify({
               orderId: orderId,
               paymentKey: `payment_${Date.now()}`,
@@ -267,6 +307,34 @@ export default function OrderPage() {
               <CardTitle>배송 정보</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* 소셜 로그인 사용자 안내 */}
+              {user && (user.username?.startsWith('kakao_') || user.username?.startsWith('naver_')) && (
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="text-sm font-medium text-blue-800">
+                        소셜 로그인 사용자 안내
+                      </h3>
+                      <div className="mt-2 text-sm text-blue-700">
+                        <p>주문을 위해 아래 정보를 입력해주세요:</p>
+                        <ul className="mt-1 list-disc list-inside">
+                          <li>실명 (받는 사람 이름)</li>
+                          <li>연락처 (배송 및 주문 확인용)</li>
+                          <li>배송 주소</li>
+                        </ul>
+                        <p className="mt-2 text-xs">
+                          입력하신 정보는 이번 주문에만 사용되며, 다음 주문 시 다시 입력해주셔야 합니다.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="recipientName">받는 사람 *</Label>

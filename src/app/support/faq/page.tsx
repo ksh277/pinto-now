@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Accordion,
   AccordionContent,
@@ -10,48 +10,104 @@ import {
 } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Search, MessageCircle, Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { FAQ } from '@/lib/types';
 
-const faqData: FAQ[] = [
-  {
-    id: '1',
-    category: '주문/결제',
-    question: '결제 수단은 무엇을 지원하나요?',
-    answer: '신용/체크카드, 간편결제(토스/카카오/네이버), 계좌이체를 지원합니다.',
-    order: 1, isPublished: true, createdAt: new Date(), updatedAt: new Date(),
-  },
-  {
-    id: '2',
-    category: '배송',
-    question: '제작/배송 기간은 얼마나 걸리나요?',
-    answer: '디자인 확정 후 평균 2-4영업일 제작, 출고 후 1-2일 소요됩니다.',
-    order: 1, isPublished: true, createdAt: new Date(), updatedAt: new Date(),
-  },
-  {
-    id: '3',
-    category: '취소/환불',
-    question: '주문 취소는 어떻게 하나요?',
-    answer: '결제 완료 후 제작 전 단계에서만 취소가 가능합니다. 1:1 문의로 접수해 주세요.',
-    order: 1, isPublished: true, createdAt: new Date(), updatedAt: new Date(),
-  },
-  {
-    id: '4',
-    category: '제작/편집',
-    question: '배경 제거/키링 위치 편집이 가능한가요?',
-    answer: '가능하며 굿즈에디터에서 배경 제거/구멍 위치 이동 기능을 제공합니다.',
-    order: 1, isPublished: true, createdAt: new Date(), updatedAt: new Date(),
-  },
-];
-
-const categories = ['전체', '주문/결제', '배송', '취소/환불', '제작/편집'];
+type AIResponse = {
+  success: boolean;
+  type: 'faq_match' | 'general_answer' | 'default_answer';
+  answer: string;
+  relatedFaqs?: FAQ[];
+  suggestion: string;
+};
 
 export default function FaqPage() {
   const [activeCategory, setActiveCategory] = useState('전체');
   const [searchTerm, setSearchTerm] = useState('');
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
+  const [categories, setCategories] = useState(['전체']);
+  const [loading, setLoading] = useState(true);
 
-  const filteredFaqs = faqData.filter(faq => {
+  // AI Inquiry states
+  const [showAIInquiry, setShowAIInquiry] = useState(false);
+  const [aiQuestion, setAiQuestion] = useState('');
+  const [aiResponse, setAiResponse] = useState<AIResponse | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  useEffect(() => {
+    fetchFaqs();
+  }, []);
+
+  const fetchFaqs = async () => {
+    try {
+      const response = await fetch('/api/faq');
+      if (response.ok) {
+        const data = await response.json();
+        const formattedFaqs = data.faqs.map((faq: any) => ({
+          id: faq.id.toString(),
+          question: faq.question,
+          category: faq.category,
+          answer: faq.answer,
+          isPublished: true,
+          order: faq.sort_order,
+          createdAt: new Date(faq.created_at),
+          updatedAt: new Date(faq.updated_at)
+        }));
+        setFaqs(formattedFaqs);
+
+        // Extract unique categories
+        const uniqueCategories = ['전체', ...Array.from(new Set(formattedFaqs.map((f: FAQ) => f.category)))];
+        setCategories(uniqueCategories);
+      }
+    } catch (error) {
+      console.error('FAQ 조회 오류:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAIInquiry = async () => {
+    if (!aiQuestion.trim()) return;
+
+    setAiLoading(true);
+    try {
+      const response = await fetch('/api/ai-inquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: aiQuestion,
+          category: activeCategory !== '전체' ? activeCategory : undefined
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAiResponse(data);
+      } else {
+        setAiResponse({
+          success: false,
+          type: 'default_answer',
+          answer: 'AI 문의 처리 중 오류가 발생했습니다.',
+          suggestion: '1:1 문의를 이용해주세요.'
+        });
+      }
+    } catch (error) {
+      console.error('AI 문의 오류:', error);
+      setAiResponse({
+        success: false,
+        type: 'default_answer',
+        answer: 'AI 문의 처리 중 오류가 발생했습니다.',
+        suggestion: '1:1 문의를 이용해주세요.'
+      });
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const filteredFaqs = faqs.filter(faq => {
     const categoryMatch = activeCategory === '전체' || faq.category === activeCategory;
     const searchMatch = faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         faq.answer.toLowerCase().includes(searchTerm.toLowerCase());
@@ -80,6 +136,56 @@ export default function FaqPage() {
         </div>
       </div>
 
+      {/* AI 문의 기능 */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageCircle className="h-5 w-5" />
+            AI 문의하기
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <Textarea
+                placeholder="궁금한 점을 물어보세요..."
+                value={aiQuestion}
+                onChange={(e) => setAiQuestion(e.target.value)}
+                rows={3}
+              />
+              <Button onClick={handleAIInquiry} disabled={aiLoading || !aiQuestion.trim()}>
+                {aiLoading ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+
+            {aiResponse && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold mb-2">AI 답변</h4>
+                <p className="mb-2">{aiResponse.answer}</p>
+                <p className="text-sm text-muted-foreground">{aiResponse.suggestion}</p>
+
+                {aiResponse.relatedFaqs && aiResponse.relatedFaqs.length > 0 && (
+                  <div className="mt-4">
+                    <h5 className="font-medium mb-2">관련 FAQ</h5>
+                    <ul className="space-y-1">
+                      {aiResponse.relatedFaqs.map((faq, index) => (
+                        <li key={index} className="text-sm">
+                          <span className="font-medium">Q.</span> {faq.question}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="mb-8 flex justify-center border-b">
         {categories.map((category) => (
           <Button
@@ -97,7 +203,11 @@ export default function FaqPage() {
       </div>
       
       <Accordion type="single" collapsible className="w-full">
-        {filteredFaqs.length > 0 ? (
+        {loading ? (
+          <div className="py-16 text-center text-muted-foreground">
+            <p>FAQ를 불러오는 중...</p>
+          </div>
+        ) : filteredFaqs.length > 0 ? (
           filteredFaqs.map((faq, index) => (
             <AccordionItem key={index} value={`item-${index}`} className="border-b">
               <AccordionTrigger className="py-4 text-left text-base hover:no-underline">
@@ -128,3 +238,5 @@ export default function FaqPage() {
     </div>
   );
 }
+
+export const dynamic = 'force-dynamic';

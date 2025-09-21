@@ -1,6 +1,7 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
 import { Metadata } from 'next';
+import { query } from '@/lib/mysql';
 
 const categorySlug = 'mini-sign';
 const mapping = getCategoryMapping(categorySlug);
@@ -38,7 +39,27 @@ export const metadata: Metadata = {
   }
 };
 
-const miniSignProducts: any[] = [];
+async function getMiniSignProducts() {
+  try {
+    const products = await query(`
+      SELECT id, name, thumbnail_url as image, price
+      FROM products
+      WHERE category_id = 27 AND status = 'ACTIVE'
+      ORDER BY created_at DESC
+    `) as any[];
+
+    return products.map(product => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['미니간판'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching mini sign products:', error);
+    return [];
+  }
+}
 
 // 미니간판 카테고리 전용 FAQ
 const miniSignFaq = [
@@ -60,12 +81,16 @@ const miniSignFaq = [
   }
 ];
 
-export default function MiniSignPage() {
+export default async function MiniSignPage() {
+  const products = await getMiniSignProducts();
+
   return (
-    <CategoryPageTemplate 
-      mapping={mapping}
-      products={miniSignProducts}
-      faq={miniSignFaq}
+    <CategoryPageTemplate
+      mapping={mapping!}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

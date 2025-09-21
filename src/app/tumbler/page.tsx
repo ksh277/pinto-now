@@ -1,71 +1,67 @@
-import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
-import { Metadata } from 'next';
+import { query } from '@/lib/mysql';
 
-const categorySlug = 'tumbler';
-const mapping = getCategoryMapping(categorySlug);
-
-if (!mapping) {
-  throw new Error(`Category mapping not found for: ${categorySlug}`);
-}
-
-export const metadata: Metadata = {
-  title: `${mapping.categoryKo} | PINTO`,
-  description: mapping.description,
+export const metadata = {
+  title: '텀블러 굿즈 제작 | PINTO',
+  description: '보온/보냉 기능이 뛰어난 맞춤형 텀블러를 로고나 디자인과 함께 제작하세요.',
   alternates: {
-    canonical: `https://pinto.co.kr/${mapping.slug}`
+    canonical: 'https://pinto.co.kr/tumbler'
   },
   openGraph: {
-    title: `${mapping.categoryKo} | PINTO`,
-    description: mapping.description,
-    url: `https://pinto.co.kr/${mapping.slug}`,
+    title: '텀블러 굿즈 제작 | PINTO',
+    description: '친환경적이고 실용적인 텀블러',
+    url: 'https://pinto.co.kr/tumbler',
     siteName: 'PINTO',
     type: 'website',
     images: [
       {
-        url: mapping.heroImagePath,
+        url: '/components/img/placeholder-product.jpg',
         width: 1200,
         height: 630,
-        alt: `${mapping.categoryKo} 메인 이미지`
+        alt: '텀블러 굿즈 제작'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${mapping.categoryKo} | PINTO`,
-    description: mapping.description,
-    images: [mapping.heroImagePath]
+    title: '텀블러 굿즈 제작 | PINTO',
+    description: '보온/보냉 기능이 뛰어난 맞춤형 텀블러를 로고나 디자인과 함께 제작하세요.',
+    images: ['/components/img/placeholder-product.jpg']
   }
 };
 
-const tumblerProducts: any[] = [];
+export default async function TumblerPage() {
+  // 카테고리 2 (텀블러) 상품들을 데이터베이스에서 조회
+  const products = await query(`
+    SELECT
+      id,
+      name,
+      thumbnail_url as image,
+      price,
+      '' as tags
+    FROM products
+    WHERE category_id = 2 AND status = 'ACTIVE'
+    ORDER BY created_at DESC
+  `) as any[];
 
-// 텀블러 카테고리 전용 FAQ
-const tumblerFaq = [
-  {
-    question: '텀블러 보온/보냉 시간은 어느 정도인가요?',
-    answer: '일반 스테인리스는 6시간, 진공 텀블러는 12시간, 프리미엄 모델은 24시간까지 온도 유지가 가능합니다.'
-  },
-  {
-    question: '텀블러에 인쇄할 수 있는 영역은 어디인가요?',
-    answer: '몸체 전면, 후면 모두 인쇄 가능하며, 레이저 각인이나 실크스크린 인쇄를 선택할 수 있습니다. 손잡이 부분은 인쇄가 어렵습니다.'
-  },
-  {
-    question: '뚜껑은 어떤 타입인가요?',
-    answer: '기본 플립탑, 빨대형, 원터치형 등 다양한 뚜껑 타입을 선택할 수 있습니다. 용도에 맞는 뚜껑을 선택해주세요.'
-  },
-  {
-    question: '친환경 인증 제품인가요?',
-    answer: '친환경 텀블러는 재활용 가능한 소재를 사용하며, 관련 인증을 받은 제품입니다. 일회용컵 사용을 줄이는 환경보호에 동참하실 수 있습니다.'
-  }
-];
+  // 상품 데이터를 CategoryPageTemplate 형식에 맞게 변환
+  const formattedProducts = products.map(product => ({
+    id: product.id,
+    name: product.name,
+    image: product.image || '/components/img/placeholder-product.jpg',
+    tags: ['텀블러'], // 기본 태그
+    price: parseInt(product.price)
+  }));
 
-export default function TumblerPage() {
   return (
     <CategoryPageTemplate
-      mapping={mapping!}
-      products={tumblerProducts}
-      faq={tumblerFaq}
+      title="텀블러 굿즈"
+      subtitle="친환경적이고 실용적인 텀블러"
+      description="보온/보냉 기능이 뛰어난 맞춤형 텀블러를 로고나 디자인과 함께 제작하세요."
+      products={formattedProducts}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

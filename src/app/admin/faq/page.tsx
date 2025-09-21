@@ -35,10 +35,17 @@ export default function AdminFaqsPage() {
 
   const fetchFaqs = async () => {
     try {
-      const response = await fetch('/api/faqs');
+      const response = await fetch('/api/admin/faq');
       if (response.ok) {
         const data = await response.json();
-        setFaqs(data.faqs || []);
+        const formattedFaqs = data.faqs?.map((faq: any) => ({
+          id: faq.id.toString(),
+          question: faq.question,
+          category: faq.category,
+          isPublished: faq.is_public,
+          order: faq.sort_order
+        })) || [];
+        setFaqs(formattedFaqs);
       }
     } catch (error) {
       console.error('Failed to fetch FAQs:', error);
@@ -54,22 +61,20 @@ export default function AdminFaqsPage() {
 
   const deleteFaq = async (id: string) => {
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(`/api/faqs/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await fetch(`/api/admin/faq?id=${id}`, {
+        method: 'DELETE'
       });
-      
+
       if (response.ok) {
         fetchFaqs();
+        alert('FAQ가 삭제되었습니다.');
       } else {
-        alert('Failed to delete FAQ');
+        const error = await response.json();
+        alert(error.error || 'FAQ 삭제에 실패했습니다.');
       }
     } catch (error) {
       console.error('Failed to delete FAQ:', error);
-      alert('Failed to delete FAQ');
+      alert('FAQ 삭제 중 오류가 발생했습니다.');
     }
   };
 

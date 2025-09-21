@@ -1,5 +1,6 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
+import { query } from '@/lib/mysql';
 import { Metadata } from 'next';
 
 const categorySlug = 'funeral';
@@ -38,7 +39,26 @@ export const metadata: Metadata = {
   }
 };
 
-const funeralProducts: any[] = [];
+// 장례용품 카테고리 상품을 데이터베이스에서 가져오는 함수
+async function getFuneralProducts() {
+  try {
+    const products = await query(
+      'SELECT id, name, thumbnail_url as image, price FROM products WHERE category_id = ? AND status = ? ORDER BY created_at DESC',
+      [19, 'ACTIVE']
+    );
+
+    return products.map((product: any) => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['장례용품'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching funeral products:', error);
+    return [];
+  }
+}
 
 // 장례용품 카테고리 전용 FAQ
 const funeralFaq = [
@@ -60,12 +80,16 @@ const funeralFaq = [
   }
 ];
 
-export default function FuneralPage() {
+export default async function FuneralPage() {
+  const products = await getFuneralProducts();
+
   return (
-    <CategoryPageTemplate 
+    <CategoryPageTemplate
       mapping={mapping}
-      products={funeralProducts}
-      faq={funeralFaq}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

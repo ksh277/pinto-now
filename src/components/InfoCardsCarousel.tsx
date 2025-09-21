@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 
@@ -17,9 +17,21 @@ type InfoCardsCarouselProps = {
 
 export default function InfoCardsCarousel({ cards }: InfoCardsCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  
+  const [isMobile, setIsMobile] = useState(false);
+
   // 최대 8개로 제한
   const displayCards = cards.slice(0, 8);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
   
   // 무한 스크롤을 위해 앞뒤로 카드 복제
   const infiniteCards = displayCards.length > 0 ? [
@@ -73,54 +85,25 @@ export default function InfoCardsCarousel({ cards }: InfoCardsCarouselProps) {
     }
   }, [displayCards.length, infiniteCards.length]);
 
-  if (displayCards.length <= 4) {
-    return (
-      <div className="grid grid-cols-1 gap-[55px] sm:grid-cols-2 lg:grid-cols-4">
-        {displayCards.map(card => (
-          <div
-            key={card.id}
-            className="min-h-[300px] md:min-h-[340px] rounded-2xl overflow-hidden bg-neutral-200/80 dark:bg-neutral-800/70 relative flex flex-col justify-end"
-          >
-            {card.imageUrl && (
-              <Image
-                src={card.imageUrl}
-                alt={card.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-              />
-            )}
-            <div className="absolute inset-0 bg-black/20" />
-            <div className="relative z-10 p-6 space-y-3">
-              <h3 className="text-[15px] font-semibold leading-6 text-white break-keep">
-                {card.title}
-              </h3>
-              <p className="text-[12px] leading-6 text-white/90 break-keep">
-                {card.description}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
+  // 항상 스크롤 가능한 캐러셀로 표시 (모바일에서 하나씩)
 
   return (
     <div className="relative">
-      <div 
+      <div
         ref={scrollRef}
-        className="flex overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide"
-        style={{ 
-          scrollbarWidth: 'none', 
-          msOverflowStyle: 'none',
-          gap: '55px'
+        className="flex overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide px-4 gap-4 md:gap-[55px] md:px-0"
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none'
         }}
       >
         {infiniteCards.map((card, index) => (
           <div
             key={`${card.id}-${index}`}
             className="flex-shrink-0 snap-start min-h-[300px] md:min-h-[340px] rounded-2xl overflow-hidden bg-neutral-200/80 dark:bg-neutral-800/70 relative flex flex-col justify-end"
-            style={{ width: 'calc(25% - 41.25px)' }} // 4개 표시를 위한 계산된 너비
+            style={{
+              width: isMobile ? 'calc(100vw - 3rem)' : 'calc(25% - 41.25px)' // 모바일에서 한 개씩, 데스크톱에서 4개
+            }}
           >
             {card.imageUrl && (
               <Image

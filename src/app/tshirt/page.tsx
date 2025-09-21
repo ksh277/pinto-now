@@ -1,6 +1,7 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
 import { Metadata } from 'next';
+import { query } from '@/lib/mysql';
 
 const categorySlug = 'tshirt';
 const mapping = getCategoryMapping(categorySlug);
@@ -38,15 +39,28 @@ export const metadata: Metadata = {
   }
 };
 
-// 티셔츠 카테고리 전용 샘플 제품들
-const tshirtProducts = [
-  { id: 'cotton-tshirt-basic', name: '기본 면 티셔츠', tags: ['면100%', '기본', '편안'], price: 15000, image: '/images/tshirt/cotton-basic.png' },
-  { id: 'poly-cotton-tshirt', name: '면폴리 혼방 티셔츠', tags: ['혼방', '내구성', '관리'], price: 12000, image: '/images/tshirt/poly-cotton.png' },
-  { id: 'premium-cotton-tshirt', name: '프리미엄 면 티셔츠', tags: ['고급면', '부드러움', '프리미엄'], price: 25000, image: '/images/tshirt/premium-cotton.png' },
-  { id: 'oversized-tshirt', name: '오버사이즈 티셔츠', tags: ['오버핏', '트렌드', '여유'], price: 20000, image: '/images/tshirt/oversized.png' },
-  { id: 'long-sleeve-tshirt', name: '긴팔 티셔츠', tags: ['긴팔', '사계절', '활용'], price: 18000, image: '/images/tshirt/long-sleeve.png' },
-  { id: 'v-neck-tshirt', name: 'V넥 티셔츠', tags: ['V넥', '심플', '깔끔'], price: 16000, image: '/images/tshirt/v-neck.png' }
-];
+// 티셔츠 카테고리 전용 제품들
+async function getTshirtProducts() {
+  try {
+    const products = await query(`
+      SELECT id, name, thumbnail_url as image, price
+      FROM products
+      WHERE category_id = 18 AND status = 'ACTIVE'
+      ORDER BY created_at DESC
+    `) as any[];
+
+    return products.map(product => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['티셔츠'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching tshirt products:', error);
+    return [];
+  }
+}
 
 // 티셔츠 카테고리 전용 FAQ
 const tshirtFaq = [
@@ -68,12 +82,16 @@ const tshirtFaq = [
   }
 ];
 
-export default function TshirtPage() {
+export default async function TshirtPage() {
+  const products = await getTshirtProducts();
+
   return (
     <CategoryPageTemplate
       mapping={mapping!}
-      products={tshirtProducts}
-      faq={tshirtFaq}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

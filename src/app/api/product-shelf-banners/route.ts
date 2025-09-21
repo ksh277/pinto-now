@@ -4,35 +4,43 @@ import { verifyToken } from '@/lib/auth/jwt';
 
 export async function GET() {
   try {
-    const sql = `
-      SELECT
-        psb.id,
-        psb.title,
-        psb.description,
-        psb.image_url,
-        psb.sort_order,
-        JSON_ARRAYAGG(
-          CASE
-            WHEN p.id IS NOT NULL THEN
-              JSON_OBJECT(
-                'id', p.id,
-                'nameKo', p.name,
-                'priceKrw', p.price,
-                'imageUrl', p.thumbnail_url,
-                'stats', JSON_OBJECT('likeCount', 0, 'reviewCount', 0)
-              )
-            ELSE NULL
-          END
-        ) as products
-      FROM product_shelf_banners psb
-      LEFT JOIN product_shelf_banner_products psbp ON psb.id = psbp.banner_id
-      LEFT JOIN products p ON psbp.product_id = p.id AND p.status = 'ACTIVE'
-      WHERE psb.is_active = 1
-      GROUP BY psb.id, psb.title, psb.description, psb.image_url, psb.sort_order
-      ORDER BY psb.sort_order ASC, psb.id ASC
-    `;
-    
-    const results = await query(sql) as any[];
+    // 테이블이 존재하지 않는 경우 빈 배열 반환
+    let results: any[] = [];
+
+    try {
+      const sql = `
+        SELECT
+          psb.id,
+          psb.title,
+          psb.description,
+          psb.image_url,
+          psb.sort_order,
+          JSON_ARRAYAGG(
+            CASE
+              WHEN p.id IS NOT NULL THEN
+                JSON_OBJECT(
+                  'id', p.id,
+                  'nameKo', p.name,
+                  'priceKrw', p.price,
+                  'imageUrl', p.thumbnail_url,
+                  'stats', JSON_OBJECT('likeCount', 0, 'reviewCount', 0)
+                )
+              ELSE NULL
+            END
+          ) as products
+        FROM product_shelf_banners psb
+        LEFT JOIN product_shelf_banner_products psbp ON psb.id = psbp.banner_id
+        LEFT JOIN products p ON psbp.product_id = p.id AND p.status = 'ACTIVE'
+        WHERE psb.is_active = 1
+        GROUP BY psb.id, psb.title, psb.description, psb.image_url, psb.sort_order
+        ORDER BY psb.sort_order ASC, psb.id ASC
+      `;
+
+      results = await query(sql) as any[];
+    } catch (dbError) {
+      console.log('Product shelf banners table not found, returning empty array');
+      return NextResponse.json({ banners: [] });
+    }
     
     const banners = await Promise.all(results.map(async (row) => {
       const products = row.products ?
@@ -46,7 +54,7 @@ export async function GET() {
         try {
           // 아크릴 상품 (ID 1-9)의 경우 개별 API에서 정확한 데이터 가져오기
           if (p.id >= 1 && p.id <= 9) {
-            const productResponse = await fetch(`http://localhost:3000/api/products/${p.id}`);
+            const productResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'}/api/products/${p.id}`);
             if (productResponse.ok) {
               const productData = await productResponse.json();
               const product = productData.product;

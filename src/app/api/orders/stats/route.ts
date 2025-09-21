@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/mysql';
-import { verifyToken } from '@/lib/auth/jwt';
+import { verifyRequestAuth } from '@/lib/auth/jwt';
 
 export async function GET(req: NextRequest) {
   try {
-    const authUser = await verifyToken(req);
+    const authUser = await verifyRequestAuth(req);
     if (!authUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

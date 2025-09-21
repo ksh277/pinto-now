@@ -6,7 +6,7 @@ import {
   setSessionCookie,
   Role,
 } from '@/lib/auth/jwt';
-import prisma from '@/lib/prisma';
+import { query } from '@/lib/mysql';
 import bcrypt from 'bcrypt';
 
 export async function POST(req: NextRequest) {
@@ -18,19 +18,19 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      // 데이터베이스에서 사용자 찾기
-      const dbUser = await prisma.user.findFirst({
-        where: {
-          OR: [
-            { username: username },
-            { email: username }
-          ]
-        },
-      });
+      // 데이터베이스에서 사용자 찾기 (실제 테이블 구조에 맞게 수정)
+      const users = await query(`
+        SELECT id, username, email, password_hash, status, created_at
+        FROM users
+        WHERE username = ? OR email = ?
+        LIMIT 1
+      `, [username, username]) as any[];
 
-      if (!dbUser) {
+      if (users.length === 0) {
         return NextResponse.json({ ok: false, error: '아이디 또는 비밀번호가 잘못되었습니다.' }, { status: 401 });
       }
+
+      const dbUser = users[0];
 
       // 계정 상태 확인
       if (dbUser.status !== 'ACTIVE') {
@@ -51,8 +51,8 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: false, error: '아이디 또는 비밀번호가 잘못되었습니다.' }, { status: 401 });
       }
 
-      // 관리자 권한 확인 (사용자명이 'admin'이거나 이메일에 'admin'이 포함된 경우)
-      const role: Role = (dbUser.username === 'admin' || dbUser.email?.includes('admin')) ? 'admin' : 'user';
+      // 관리자 권한 확인 (DB role 컬럼 우선, 없으면 username 기반)
+      const role: Role = dbUser.role === 'admin' || dbUser.username === 'admin' || dbUser.email?.includes('admin') ? 'admin' : 'user';
 
       const user: AuthUser = {
         id: dbUser.id.toString(),

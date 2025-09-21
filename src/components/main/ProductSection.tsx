@@ -17,7 +17,9 @@ type ProductShelfBanner = {
 
 async function fetchProductShelfBanners(): Promise<ProductShelfBanner[]> {
   try {
-    const response = await fetch('/api/product-shelf-banners');
+    const response = await fetch('/api/product-shelf-banners', {
+      cache: 'no-store'
+    });
     if (response.ok) {
       const data = await response.json();
       return data.banners || [];
@@ -73,6 +75,41 @@ export default function ProductSection() {
         ];
         setBanners(fallbackBanners);
       }
+      setLoading(false);
+    }).catch(error => {
+      console.error('Error in fetchProductShelfBanners:', error);
+      // API 에러 시에도 fallback 데이터 표시
+      const acrylic = products.filter(p => p.categoryId === 'acrylic');
+      const productPool = acrylic.length >= 6 ? acrylic : products.slice(0, 6);
+
+      const take = (arr: Product[], start = 0, count = 2): Product[] => {
+        return arr.slice(start, start + count);
+      };
+
+      const fallbackBanners: ProductShelfBanner[] = [
+        {
+          id: 's1',
+          title: '아크릴 키링 | 다양한 스타일과 색상으로 제작 가능',
+          description: '내 마음대로 커스텀! 고품질 아크릴 키링',
+          imageUrl: 'https://placehold.co/400x260/FFB6C1/333?text=아크릴+키링',
+          products: take(productPool, 0, 2),
+        },
+        {
+          id: 's2',
+          title: '아크릴 스탠드 | 캐릭터와 굿즈를 멋지게 세워보세요',
+          description: '완벽한 각도로 디스플레이! 자립형 아크릴 스탠드',
+          imageUrl: 'https://placehold.co/400x260/87CEEB/333?text=아크릴+스탠드',
+          products: take(productPool, 2, 2),
+        },
+        {
+          id: 's3',
+          title: '아크릴 굿즈 | 투명하고 견고한 프리미엄 제품',
+          description: '내구성 뛰어난 아크릴로 만드는 나만의 굿즈',
+          imageUrl: 'https://placehold.co/400x260/98FB98/333?text=아크릴+굿즈',
+          products: take(productPool, 4, 2),
+        },
+      ];
+      setBanners(fallbackBanners);
       setLoading(false);
     });
   }, [products]);

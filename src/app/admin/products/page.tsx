@@ -1,12 +1,28 @@
 
 'use client';
 
-import Image from 'next/image';
-import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { useI18n } from '@/contexts/i18n-context';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,38 +33,99 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from '@/components/ui/alert-dialog';
+import Link from 'next/link';
+import Image from 'next/image';
 
 type Product = {
-  id: string | number;
-  name?: string;
+  id: string;
   nameKo?: string;
-  price?: number;
-  priceKrw?: number;
+  nameEn?: string;
+  name?: string;
   imageUrl?: string;
   thumbnail_url?: string;
-  status?: string;
-  category_name?: string;
+  categoryId?: string;
   categoryKo?: string;
+  category_name?: string;
+  priceKrw?: number;
+  price?: number | string;
+  stockQuantity?: number;
+  status?: string;
+  isPublished?: boolean;
+  isFeatured?: boolean;
+  createdAt: string;
+  updatedAt?: string;
+  pricingData?: any;
+  descriptionImageUrl?: string;
+  additionalImages?: string[];
+};
+
+const statusLabels: Record<string, string> = {
+  ACTIVE: '활성',
+  INACTIVE: '비활성',
+  DRAFT: '초안',
+  DELETED: '삭제됨'
+};
+
+const statusColors: Record<string, string> = {
+  ACTIVE: 'bg-green-100 text-green-800',
+  INACTIVE: 'bg-yellow-100 text-yellow-800',
+  DRAFT: 'bg-blue-100 text-blue-800',
+  DELETED: 'bg-red-100 text-red-800'
+};
+
+const categoryLabels: Record<string, string> = {
+  '1': '아크릴 굿즈',
+  '2': '텀블러',
+  '3': '마그컵/유리컵',
+  '4': '의류 굿즈',
+  '5': '스티커 굿즈',
+  '6': '문구 굿즈',
+  '7': '인형/쿠션',
+  '8': '액자/액자굿즈',
+  '9': '팬굿즈',
+  '10': '기타'
 };
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const { t } = useI18n();
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    let filtered = products;
+
+    if (searchTerm) {
+      filtered = filtered.filter(product =>
+        (product.nameKo && product.nameKo.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (product.nameEn && product.nameEn.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        product.id.includes(searchTerm)
+      );
+    }
+
+    if (categoryFilter !== 'all') {
+      filtered = filtered.filter(product => product.categoryId === categoryFilter);
+    }
+
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(product => product.status === statusFilter);
+    }
+
+    setFilteredProducts(filtered);
+  }, [products, searchTerm, categoryFilter, statusFilter]);
+
   const fetchProducts = async () => {
     try {
-      const response = await fetch('/api/products', {
-        headers: {
-          'Accept': 'application/json; charset=utf-8',
-          'Content-Type': 'application/json; charset=utf-8'
-        }
-      });
+      const response = await fetch('/api/admin/products');
       if (response.ok) {
         const data = await response.json();
         console.log('API Response:', data); // 디버깅용

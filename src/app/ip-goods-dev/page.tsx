@@ -1,6 +1,7 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
 import { Metadata } from 'next';
+import { query } from '@/lib/mysql';
 
 const categorySlug = 'ip-goods-dev';
 const mapping = getCategoryMapping(categorySlug);
@@ -84,12 +85,38 @@ const ipFaq = [
   }
 ];
 
-export default function IpGoodsDevPage() {
+async function getIpGoodsDevProducts() {
+  try {
+    const products = await query(`
+      SELECT id, name, thumbnail_url as image, price
+      FROM products
+      WHERE category_id = 24 AND status = 'ACTIVE'
+      ORDER BY created_at DESC
+    `) as any[];
+
+    return products.map(product => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['IP굳즈'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching IP goods dev products:', error);
+    return [];
+  }
+}
+
+export default async function IpGoodsDevPage() {
+  const products = await getIpGoodsDevProducts();
+
   return (
     <CategoryPageTemplate
       mapping={mapping!}
-      products={[]}
-      faq={ipFaq}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
       processSteps={processSteps}
     />
   );

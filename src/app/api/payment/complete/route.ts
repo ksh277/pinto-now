@@ -86,8 +86,8 @@ export async function POST(req: NextRequest) {
         WHERE order_id = ?
       `, [paymentKey, orderId]);
 
-      // 3. 2% 포인트 적립
-      const pointsToEarn = Math.floor(amount * 0.02);
+      // 3. 3% 포인트 적립
+      const pointsToEarn = Math.floor(amount * 0.03);
 
       if (pointsToEarn > 0) {
         // 현재 잔액 조회
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
         await query(`
           INSERT INTO point_ledger (user_id, direction, amount, balance, description) 
           VALUES (?, 'EARN', ?, ?, ?)
-        `, [userId, pointsToEarn, newBalance, `주문 완료 포인트 적립 (${amount.toLocaleString()}원의 2%)`]);
+        `, [userId, pointsToEarn, newBalance, `주문 완료 포인트 적립 (${amount.toLocaleString()}원의 3%)`]);
       }
 
       return Response.json({

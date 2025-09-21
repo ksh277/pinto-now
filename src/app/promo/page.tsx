@@ -1,6 +1,7 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
 import { Metadata } from 'next';
+import { query } from '@/lib/mysql';
 
 const categorySlug = 'promo';
 const mapping = getCategoryMapping(categorySlug);
@@ -48,8 +49,28 @@ export const metadata: Metadata = {
   }
 };
 
-// 단체 판촉상품 카테고리 전용 샘플 제품들
-const promoProducts: any[] = [];
+// 단체 판촉상품 카테고리 전용 제품들
+async function getPromoProducts() {
+  try {
+    const products = await query(`
+      SELECT id, name, thumbnail_url as image, price
+      FROM products
+      WHERE category_id = 8 AND status = 'ACTIVE'
+      ORDER BY created_at DESC
+    `) as any[];
+
+    return products.map(product => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['단체판촉상품'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching promo products:', error);
+    return [];
+  }
+}
 
 // 단체 판촉상품 카테고리 전용 FAQ
 const promoFaq = [
@@ -75,17 +96,21 @@ const promoFaq = [
   }
 ];
 
-export default function PromoPage() {
+export default async function PromoPage() {
   // mapping이 없을 경우 에러 로깅
   if (!mapping) {
     console.error(`Category mapping not found for: ${categorySlug}`);
   }
 
+  const products = await getPromoProducts();
+
   return (
-    <CategoryPageTemplate 
+    <CategoryPageTemplate
       mapping={safeMapping}
-      products={promoProducts}
-      faq={promoFaq}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

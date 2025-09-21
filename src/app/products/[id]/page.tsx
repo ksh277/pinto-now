@@ -25,6 +25,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/language-context';
 import Image from 'next/image';
+import PricingTableModal from '@/components/PricingTableModal';
 
 export default function ProductDetail() {
   const params = useParams();
@@ -72,11 +73,21 @@ export default function ProductDetail() {
 
           // 새로운 상품 구조의 기본값 설정
           if (apiProduct.pricingData) {
-            if (apiProduct.pricingData.printTypes?.length) {
-              setSelectedPrintType(apiProduct.pricingData.printTypes[0].id);
+            // 첫 번째 pricingTier의 타입을 기본값으로 설정
+            if (apiProduct.pricingData.pricingTiers && apiProduct.pricingData.pricingTiers.length > 0) {
+              setSelectedPrintType(apiProduct.pricingData.pricingTiers[0].type);
             }
-            if (apiProduct.pricingData.sizes?.length) {
+
+            // sizes 배열이 있으면 첫 번째 사이즈 선택 (새로운 구조)
+            if (apiProduct.pricingData.sizes && apiProduct.pricingData.sizes.length > 0) {
               setSelectedSize(apiProduct.pricingData.sizes[0].id);
+            }
+            // pricingTiers에서 sizes 가져오기 (type별 분리된 구조)
+            else if (apiProduct.pricingData.pricingTiers && apiProduct.pricingData.pricingTiers[0]) {
+              const firstTier = apiProduct.pricingData.pricingTiers[0];
+              if (firstTier.sizes && firstTier.sizes.length > 0) {
+                setSelectedSize(firstTier.sizes[0]);
+              }
             }
           }
         } else {
@@ -167,25 +178,60 @@ export default function ProductDetail() {
 
     let baseTotal = 0;
 
-    // 새로운 상품 구조 (API에서 가져온 상품) - pricingData 사용
-    if (product.pricingData && selectedPrintType && selectedSize) {
-      const { pricingTiers } = product.pricingData;
+    // 새로운 상품 구조: API 기반 가격 데이터
+    if (product.pricingData && selectedSize && selectedPrintType && product.pricingData.pricingTiers) {
+      // 선택된 인쇄 방식에 해당하는 티어 찾기
+      const targetTier = product.pricingData.pricingTiers.find((tier: any) => tier.type === selectedPrintType);
+      if (targetTier && targetTier.prices && targetTier.prices[selectedSize]) {
+        const priceData = targetTier.prices[selectedSize];
 
-      // 수량에 맞는 가격 구간 찾기
-      const tier = pricingTiers.find((t: any) => quantity >= t.minQuantity && quantity <= t.maxQuantity);
-      if (tier) {
-        const priceKey = `${selectedPrintType}-${selectedSize}`;
-        const unitPrice = tier.prices[priceKey] || 0;
-        baseTotal = unitPrice * quantity;
+        // 수량에 따른 가격 찾기
+        let unitPrice = 0;
+        if (quantity >= 500) {
+          unitPrice = priceData['500-999개'] || 0;
+        } else if (quantity >= 100) {
+          unitPrice = priceData['100-499개'] || 0;
+        } else if (quantity >= 10) {
+          unitPrice = priceData['10-99개'] || 0;
+        } else {
+          unitPrice = priceData['1-9개'] || 0;
+        }
+
+        if (unitPrice > 0) {
+          baseTotal = unitPrice * quantity;
+        }
       }
     }
-    // 기존 고급 가격 시스템 (pricing-data.ts 사용)
+    // 기존 고급 가격 시스템 (pricing-data.ts 사용) - 기존 아크릴 상품들
     else if (hasAdvancedPricing(id) && selectedPrintType && selectedSize) {
       const advancedPricing = getPricingByProductId(id);
       if (advancedPricing) {
         const advancedQuote = calculatePrice(advancedPricing.id, selectedPrintType, selectedSize, quantity);
         if (advancedQuote) {
           baseTotal = advancedQuote.totalPrice;
+        }
+      }
+    }
+    // 새로운 구조에서 API 상품이지만 기존 형태 (type별 분리된 pricingTiers)
+    else if (product.pricingData && product.pricingData.pricingTiers && selectedPrintType && selectedSize) {
+      const targetTier = product.pricingData.pricingTiers.find((tier: any) => tier.type === selectedPrintType);
+      if (targetTier && targetTier.prices && targetTier.prices[selectedSize]) {
+        const priceData = targetTier.prices[selectedSize];
+        let unitPrice = 0;
+
+        // 수량에 따른 가격 구간 찾기
+        if (quantity >= 500) {
+          unitPrice = priceData['500-999개'] || priceData['500+'] || 0;
+        } else if (quantity >= 100) {
+          unitPrice = priceData['100-499개'] || priceData['100+'] || 0;
+        } else if (quantity >= 10) {
+          unitPrice = priceData['10-99개'] || priceData['10-99'] || 0;
+        } else {
+          unitPrice = priceData['1-9개'] || priceData['1-9'] || 0;
+        }
+
+        if (unitPrice > 0) {
+          baseTotal = unitPrice * quantity;
         }
       }
     }
@@ -451,32 +497,54 @@ export default function ProductDetail() {
             </div>
 
             <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-4">
-              <div className="text-3xl font-bold text-blue-600 dark:text-blue-300 mb-2">{calculateTotalPrice().toLocaleString()} 원</div>
+              <div className="flex justify-between items-start mb-2">
+                <div className="text-3xl font-bold text-blue-600 dark:text-blue-300">{calculateTotalPrice().toLocaleString()} 원</div>
+                {(product.pricingData || hasAdvancedPricing(id)) && (
+                  <PricingTableModal
+                    productName={productDisplay.name}
+                    sizes={product.pricingData?.sizes || getPricingByProductId(id)?.sizes || []}
+                    pricingTiers={product.pricingData?.pricingTiers || []}
+                    printTypes={product.pricingData?.printTypes || getPricingByProductId(id)?.printTypes}
+                  />
+                )}
+              </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">기본 가격부터 시작 (옵션에 따라 변동)</div>
             </div>
 
             <div className="space-y-4">
-              {/* 새로운 상품 구조: 인쇄 방식 선택 */}
-              {product.pricingData?.printTypes && (
+              {/* 새로운 상품 구조: 인쇄 방식 선택 (단면/양면 등) */}
+              {product.pricingData && product.pricingData.pricingTiers && product.pricingData.pricingTiers.length > 1 && (
                 <div>
                   <Label className="text-base font-medium mb-3 block text-gray-900 dark:text-white">🎨 인쇄 방식</Label>
-                  <div className="grid grid-cols-1 gap-3">
-                    {product.pricingData.printTypes.map((printType: any) => (
+                  <div className="grid grid-cols-2 gap-3">
+                    {product.pricingData.pricingTiers.map((tier: any) => (
                       <button
-                        key={printType.id}
-                        onClick={() => setSelectedPrintType(printType.id)}
+                        key={tier.type}
+                        onClick={() => setSelectedPrintType(tier.type)}
                         className={`p-4 rounded-lg border text-left transition-all ${
-                          selectedPrintType === printType.id
+                          selectedPrintType === tier.type
                             ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
                             : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 text-gray-900 dark:text-gray-100"
                         }`}
                       >
-                        <div className="font-medium">{printType.name}</div>
-                        {printType.multiplier !== 1.0 && (
-                          <div className="text-sm text-gray-600 dark:text-gray-400">
-                            기본 가격의 {(printType.multiplier * 100).toFixed(0)}%
-                          </div>
-                        )}
+                        <div className="font-medium">
+                          {tier.type === 'single' ? '단면 인쇄' :
+                           tier.type === 'double' ? '양면 인쇄' :
+                           tier.type === '3t-clear' ? '3T투명' :
+                           tier.type === '5t-clear' ? '5T투명' :
+                           tier.type === '3t-print-back' ? '3T인쇄(배면)' :
+                           tier.type === '3t-print-lami' ? '3T인쇄라미' :
+                           tier.name.includes('-') ? tier.name.split('-')[1].trim() : tier.name}
+                        </div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          {tier.type === 'single' ? '한쪽면만 인쇄' :
+                           tier.type === 'double' ? '양쪽면 모두 인쇄' :
+                           tier.type === '3t-clear' ? '3T 투명 바닥판' :
+                           tier.type === '5t-clear' ? '5T 투명 바닥판' :
+                           tier.type === '3t-print-back' ? '3T 인쇄 배면' :
+                           tier.type === '3t-print-lami' ? '3T 인쇄 라미' :
+                           '기본 타입'}
+                        </div>
                       </button>
                     ))}
                   </div>
@@ -512,14 +580,94 @@ export default function ProductDetail() {
               
               <div>
                 <Label className="text-base font-medium mb-3 block text-gray-900 dark:text-white">📏 {t('product.size')}</Label>
-                {hasAdvancedPricing(id) && getPricingByProductId(id) ? (
-                  // 고급 가격 시스템: 새로운 사이즈 옵션
+                {product.pricingData ? (
+                  // 새로운 상품 구조: API 상품의 사이즈 옵션
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {(product.pricingData.sizes || product.pricingData.pricingTiers[0]?.sizes || []).map((sizeItem: any) => {
+                      const sizeId = typeof sizeItem === 'string' ? sizeItem : sizeItem.id;
+                      return (
+                      <button
+                        key={sizeId}
+                        onClick={() => setSelectedSize(sizeId)}
+                        className={`p-3 rounded-lg border text-center transition-all ${
+                          selectedSize === sizeId
+                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                            : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 text-gray-900 dark:text-gray-100"
+                        }`}
+                      >
+                        <div className="font-medium">{typeof sizeItem === 'string' ? sizeId : sizeItem.name}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">{typeof sizeItem === 'string' ? sizeId : sizeItem.dimension}</div>
+                        <div className="text-sm font-medium text-blue-600 dark:text-blue-400 mt-1">
+                          {(() => {
+                            if (!selectedPrintType) return '인쇄방식 선택';
+
+                            // 선택된 인쇄 방식에 해당하는 티어 찾기
+                            const targetTier = product.pricingData.pricingTiers?.find((tier: any) => tier.type === selectedPrintType);
+                            if (targetTier && targetTier.prices && targetTier.prices[sizeId]) {
+                              const priceData = targetTier.prices[sizeId];
+
+                              // 수량에 따른 가격 찾기
+                              let unitPrice = 0;
+                              if (quantity >= 500) {
+                                unitPrice = priceData['500-999개'] || 0;
+                              } else if (quantity >= 100) {
+                                unitPrice = priceData['100-499개'] || 0;
+                              } else if (quantity >= 10) {
+                                unitPrice = priceData['10-99개'] || 0;
+                              } else {
+                                unitPrice = priceData['1-9개'] || 0;
+                              }
+
+                              if (unitPrice > 0) {
+                                return `${unitPrice.toLocaleString()}원`;
+                              }
+                            }
+                            return '가격없음';
+                          })()}
+                        </div>
+                      </button>
+                      );
+                    })}
+                  </div>
+                ) : (product.pricingData && product.pricingData.sizes) ? (
+                  // API 상품이지만 기존 형태 (sizes 배열)
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {product.pricingData.sizes.map((size: any) => (
+                      <button
+                        key={size.id}
+                        onClick={() => setSelectedSize(size.id)}
+                        className={`p-3 rounded-lg border text-center transition-all ${
+                          selectedSize === size.id
+                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                            : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50 text-gray-900 dark:text-gray-100"
+                        }`}
+                      >
+                        <div className="font-medium">{size.name}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">{size.dimension}</div>
+                        {selectedPrintType && (
+                          <div className="text-sm font-medium text-blue-600 dark:text-blue-400 mt-1">
+                            {(() => {
+                              const targetTier = product.pricingData.pricingTiers?.find((tier: any) => tier.type === selectedPrintType);
+                              if (targetTier && targetTier.prices && targetTier.prices[size.id]) {
+                                const priceData = targetTier.prices[size.id];
+                                const price = priceData['1-9개'] || priceData['1-9'] || 0;
+                                return `${price.toLocaleString()}원`;
+                              }
+                              return '-';
+                            })()}
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                ) : hasAdvancedPricing(id) && getPricingByProductId(id) ? (
+                  // 고급 가격 시스템: legacy pricing-data.ts 시스템
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {getPricingByProductId(id)!.sizes
                       .filter(size => {
                         // 선택된 인쇄 방식이 없으면 모든 사이즈 표시
                         if (!selectedPrintType) return true;
-                        
+
                         // 가격이 존재하는 사이즈만 표시
                         const quote = calculatePrice(getPricingByProductId(id)!.id, selectedPrintType, size.id, 1);
                         return quote !== null;
@@ -733,10 +881,10 @@ export default function ProductDetail() {
                 disabled={(() => {
                   const isNewProduct = product.pricingData || hasAdvancedPricing(id);
                   if (isNewProduct) {
-                    return !selectedPrintType || !selectedSize || (!uploadedFile && activeTab === 'pdf');
+                    return !selectedPrintType || !selectedSize;
                   } else {
                     const hasColorOptions = productDisplay?.options?.colors && productDisplay.options.colors.length > 0;
-                    return !selectedSize || !selectedBase || (hasColorOptions && !selectedColor) || (!uploadedFile && activeTab === 'pdf');
+                    return !selectedSize || !selectedBase || (hasColorOptions && !selectedColor);
                   }
                 })()}
                 size="lg"
@@ -751,10 +899,10 @@ export default function ProductDetail() {
                 disabled={(() => {
                   const isNewProduct = product.pricingData || hasAdvancedPricing(id);
                   if (isNewProduct) {
-                    return !selectedPrintType || !selectedSize || (!uploadedFile && activeTab === 'pdf');
+                    return !selectedPrintType || !selectedSize;
                   } else {
                     const hasColorOptions = productDisplay?.options?.colors && productDisplay.options.colors.length > 0;
-                    return !selectedSize || !selectedBase || (hasColorOptions && !selectedColor) || (!uploadedFile && activeTab === 'pdf');
+                    return !selectedSize || !selectedBase || (hasColorOptions && !selectedColor);
                   }
                 })()}
                 size="lg"

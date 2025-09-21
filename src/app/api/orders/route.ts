@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/mysql';
-import { verifyToken } from '@/lib/auth/jwt';
+import { verifyRequestAuth } from '@/lib/auth/jwt';
 
 interface OrderItem {
   productId: string;
@@ -14,6 +14,7 @@ interface OrderItem {
     name: string;
     type: string;
     url?: string;
+    data?: string; // Base64 데이터
   };
 }
 
@@ -43,7 +44,7 @@ interface OrderData {
 
 export async function POST(req: NextRequest) {
   try {
-    const authUser = await verifyToken(req);
+    const authUser = await verifyRequestAuth(req);
     if (!authUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -121,9 +122,8 @@ export async function POST(req: NextRequest) {
           `INSERT INTO order_items (
             order_id, product_id, product_name,
             qty, unit_price, option_snapshot,
-            design_file_name, design_file_type, design_file_url,
-            created_at
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+            design_file_name, design_file_type, design_file_url
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             orderId,
             item.productId,
@@ -134,7 +134,8 @@ export async function POST(req: NextRequest) {
               ...item.options,
               nameKo: item.nameKo,
               nameEn: item.nameEn,
-              image: item.image
+              image: item.image,
+              designFileData: item.designFile?.data || null
             }),
             item.designFile?.name || null,
             item.designFile?.type || null,
@@ -159,8 +160,8 @@ export async function POST(req: NextRequest) {
 
         // 포인트 사용 기록 추가
         await query(
-          `INSERT INTO point_ledger (user_id, direction, amount, balance, description) 
-           VALUES (?, 'SPEND', ?, ?, '주문 결제 시 포인트 사용')`,
+          `INSERT INTO point_ledger (user_id, direction, amount, balance, reason)
+           VALUES (?, 'SPEND', ?, ?, 'ORDER_PAYMENT')`,
           [authUser.id, orderData.pointsToUse, newBalance]
         );
       }
@@ -168,17 +169,44 @@ export async function POST(req: NextRequest) {
       // 4. 결제 정보 저장 (결제 대기 상태)
       await query(
         `INSERT INTO payments (
-          order_id, user_id, payment_method, amount, status,
-          payment_key, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, 'pending', NULL, NOW(), NOW())`,
-        [orderId, authUser.id, orderData.payment.method, orderData.amounts.finalAmount]
+          order_id, method, amount, status
+        ) VALUES (?, ?, ?, 'INIT')`,
+        [orderId, orderData.payment.method, orderData.amounts.finalAmount]
       );
+
+      // 5. 3% 포인트 적립 (주문 금액 기준)
+      const pointsToEarn = Math.floor(orderData.amounts.finalAmount * 0.03);
+      if (pointsToEarn > 0) {
+        // 현재 잔액 조회
+        const latestBalanceResult = await query<{ balance: number }[]>(`
+          SELECT balance
+          FROM point_ledger
+          WHERE user_id = ?
+          ORDER BY created_at DESC, id DESC
+          LIMIT 1
+        `, [authUser.id]);
+
+        const currentBalance = latestBalanceResult[0]?.balance || 0;
+        const newBalance = currentBalance + pointsToEarn;
+
+        // 포인트 적립 기록 추가
+        await query(
+          `INSERT INTO point_ledger (user_id, direction, amount, balance, reason)
+           VALUES (?, 'EARN', ?, ?, 'ORDER_COMPLETION')`,
+          [authUser.id, pointsToEarn, newBalance]
+        );
+      }
 
       return NextResponse.json({
         success: true,
         orderId: orderId,
         orderNumber: orderNumber,
+        pointsEarned: pointsToEarn,
         message: 'Order created successfully'
+      }, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8'
+        }
       });
 
     } catch (dbError) {
@@ -200,7 +228,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const authUser = await verifyToken(req);
+    const authUser = await verifyRequestAuth(req);
     if (!authUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -223,7 +251,11 @@ export async function GET(req: NextRequest) {
       address: order.addr_snapshot ? JSON.parse(order.addr_snapshot) : null
     }));
 
-    return NextResponse.json({ orders: ordersWithParsedAddr });
+    return NextResponse.json({ orders: ordersWithParsedAddr }, {
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8'
+      }
+    });
 
   } catch (error) {
     console.error('Get orders error:', error);

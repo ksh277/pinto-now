@@ -1,33 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/mysql';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-
-async function verifyAdminToken(request: NextRequest) {
-  const authHeader = request.headers.get('authorization');
-  const token = request.cookies.get('auth_token')?.value ||
-                (authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null);
-
-  if (!token) {
-    return null;
-  }
-
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: number; role?: string };
-    // Admin check - adjust according to your user role system
-    return decoded;
-  } catch (error) {
-    return null;
-  }
-}
+import { verifyRequestAuth } from '@/lib/auth/jwt';
 
 // GET /api/admin/inquiries - 관리자용 문의 내역 조회
 export async function GET(request: NextRequest) {
   try {
-    const decoded = await verifyAdminToken(request);
-    if (!decoded) {
-      return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
+    const authUser = await verifyRequestAuth(request);
+    if (!authUser || authUser.role !== 'admin') {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
     const inquiries = await query(
@@ -42,7 +22,7 @@ export async function GET(request: NextRequest) {
         i.updatedAt,
         u.nickname,
         u.username,
-        u.name
+        u.nickname
        FROM inquiries i
        LEFT JOIN users u ON i.userId = u.id
        ORDER BY i.createdAt DESC`

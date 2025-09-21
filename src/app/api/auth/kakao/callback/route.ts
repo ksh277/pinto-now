@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { query } from '@/lib/mysql';
 import { signToken, setSessionCookie, computeMaxAge, AuthUser } from '@/lib/auth/jwt';
 
 const KAKAO_CLIENT_ID = process.env.KAKAO_CLIENT_ID;
@@ -95,43 +95,43 @@ export async function GET(request: NextRequest) {
     const profileImage = userInfo.properties.profile_image || userInfo.kakao_account.profile.profile_image_url;
 
     // 3. 데이터베이스에서 사용자 찾기 또는 생성
-    let dbUser = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { kakao_id: kakaoId },
-          ...(email ? [{ email: email }] : [])
-        ]
-      }
-    });
+    let dbUser;
 
-    if (!dbUser) {
+    // 먼저 카카오 ID 또는 이메일로 기존 사용자 찾기
+    const existingUsers = await query(`
+      SELECT id, username, email, status, created_at, updated_at
+      FROM users
+      WHERE username = ? ${email ? 'OR email = ?' : ''}
+      LIMIT 1
+    `, email ? [`kakao_${kakaoId}`, email] : [`kakao_${kakaoId}`]) as any[];
+
+    if (existingUsers.length === 0) {
       // 새 사용자 생성
       const uniqueUsername = `kakao_${kakaoId}`;
-      
-      dbUser = await prisma.user.create({
-        data: {
-          username: uniqueUsername,
-          email: email || null,
-          kakao_id: kakaoId,
-          nickname: nickname,
-          profile_image: profileImage || null,
-          status: 'ACTIVE',
-          auth_provider: 'KAKAO',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }
-      });
+
+      await query(`
+        INSERT INTO users (username, email, status, created_at, updated_at)
+        VALUES (?, ?, 'ACTIVE', NOW(), NOW())
+      `, [uniqueUsername, email || null]);
+
+      // 생성된 사용자 정보 조회
+      const newUsers = await query(`
+        SELECT id, username, email, status, created_at, updated_at
+        FROM users
+        WHERE username = ?
+        LIMIT 1
+      `, [uniqueUsername]) as any[];
+
+      dbUser = newUsers[0];
     } else {
       // 기존 사용자 정보 업데이트
-      dbUser = await prisma.user.update({
-        where: { id: dbUser.id },
-        data: {
-          kakao_id: kakaoId,
-          nickname: nickname,
-          profile_image: profileImage || dbUser.profile_image,
-          updatedAt: new Date(),
-        }
-      });
+      dbUser = existingUsers[0];
+
+      await query(`
+        UPDATE users
+        SET updated_at = NOW()
+        WHERE id = ?
+      `, [dbUser.id]);
     }
 
     // 4. JWT 토큰 생성 및 세션 설정
@@ -139,17 +139,14 @@ export async function GET(request: NextRequest) {
       id: dbUser.id.toString(),
       username: dbUser.username,
       role: dbUser.username === 'admin' ? 'admin' : 'user',
-      nickname: dbUser.nickname,
+      nickname: nickname,
     };
 
     const maxAge = computeMaxAge(user, false); // 소셜 로그인은 기본적으로 세션 유지
     const token = await signToken(user, maxAge);
 
-    // 5. 추가 정보가 필요한지 확인 (전화번호, 배송지 등)
-    const needsAdditionalInfo = !dbUser.phone || !dbUser.name || !dbUser.nickname;
-    const redirectUrl = needsAdditionalInfo 
-      ? `${process.env.NEXT_PUBLIC_APP_URL}/onboarding?provider=kakao&new=true`
-      : `${process.env.NEXT_PUBLIC_APP_URL}/`;
+    // 5. 메인 페이지로 리다이렉트 (카카오 로그인 완료)
+    const redirectUrl = `${process.env.NEXT_PUBLIC_APP_URL}/`;
 
     const response = NextResponse.redirect(redirectUrl);
     setSessionCookie(response, token, maxAge);

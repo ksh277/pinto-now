@@ -132,7 +132,7 @@ export default function NewProductPage() {
         mainFormData.append('file', mainImage);
         mainFormData.append('type', 'main');
 
-        const mainUploadResponse = await fetch('/api/upload/products', {
+        const mainUploadResponse = await fetch('/api/upload', {
           method: 'POST',
           body: mainFormData
         });
@@ -152,7 +152,7 @@ export default function NewProductPage() {
         descFormData.append('file', descriptionImage);
         descFormData.append('type', 'description');
 
-        const descUploadResponse = await fetch('/api/upload/products', {
+        const descUploadResponse = await fetch('/api/upload', {
           method: 'POST',
           body: descFormData
         });
@@ -185,11 +185,10 @@ export default function NewProductPage() {
         stockQuantity: 999
       };
 
-      const response = await fetch('/api/products', {
+      const response = await fetch('/api/admin/products', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Authorization': `Bearer ${localStorage.getItem('auth_token') || 'dummy-token'}`
+          'Content-Type': 'application/json; charset=utf-8'
         },
         body: JSON.stringify(productData)
       });

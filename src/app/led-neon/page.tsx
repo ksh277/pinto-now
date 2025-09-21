@@ -1,71 +1,160 @@
-import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
-import { Metadata } from 'next';
+import { query } from '@/lib/mysql';
 
-const categorySlug = 'led-neon';
-const mapping = getCategoryMapping(categorySlug);
+const copy = {
+  title: 'LED 네온사인',
+  subtitle: '밝고 화려한 LED 네온 조명',
+  description: '카페, 매장, 이벤트 공간을 화려하게 장식하는 맞춤형 LED 네온사인을 제작하세요.',
+  faq: [
+    {
+        "question": "LED 네온사인의 최소 주문 수량은 얼마인가요?",
+        "answer": "LED 네온사인은 개별 제작으로 1개부터 주문 가능합니다."
+    },
+    {
+        "question": "전력 소모량은 어떻게 되나요?",
+        "answer": "기존 네온사인 대비 80% 이상 절약되며, 발열도 현저히 적습니다."
+    },
+    {
+        "question": "실외 설치가 가능한가요?",
+        "answer": "방수 처리된 제품으로 제작 시 실외 설치가 가능합니다."
+    },
+    {
+        "question": "디머 기능이 있나요?",
+        "answer": "밝기 조절 기능과 점멸 기능을 추가할 수 있습니다."
+    }
+],
+  info: [
+    "전국 무료배송 (10만원 이상 주문 시)",
+    "제작 기간: 10-14 영업일",
+    "A/S: 1년 품질보증"
+]
+};
 
-if (!mapping) {
-  throw new Error(`Category mapping not found for: ${categorySlug}`);
-}
+const products = [
+  {
+    "id": 401,
+    "name": "기본 LED 네온",
+    "tags": [
+      "기본",
+      "단색"
+    ],
+    "price": 50000,
+    "image": "/components/img/placeholder-product.jpg"
+  },
+  {
+    "id": 402,
+    "name": "RGB LED 네온",
+    "tags": [
+      "RGB",
+      "컬러변환"
+    ],
+    "price": 80000,
+    "image": "/components/img/placeholder-product.jpg"
+  },
+  {
+    "id": 403,
+    "name": "플렉시블 LED 네온",
+    "tags": [
+      "유연",
+      "곡선"
+    ],
+    "price": 60000,
+    "image": "/components/img/placeholder-product.jpg"
+  },
+  {
+    "id": 404,
+    "name": "아크릴 LED 네온",
+    "tags": [
+      "아크릴",
+      "고급"
+    ],
+    "price": 120000,
+    "image": "/components/img/placeholder-product.jpg"
+  },
+  {
+    "id": 405,
+    "name": "우드 LED 네온",
+    "tags": [
+      "원목",
+      "내추럴"
+    ],
+    "price": 150000,
+    "image": "/components/img/placeholder-product.jpg"
+  },
+  {
+    "id": 406,
+    "name": "미니 LED 네온",
+    "tags": [
+      "소형",
+      "데스크탑"
+    ],
+    "price": 30000,
+    "image": "/components/img/placeholder-product.jpg"
+  }
+];
 
-export const metadata: Metadata = {
-  title: `${mapping.categoryKo} | PINTO`,
-  description: mapping.description,
+export const metadata = {
+  title: 'LED 네온사인 제작 | PINTO',
+  description: '카페, 매장, 이벤트 공간을 화려하게 장식하는 맞춤형 LED 네온사인을 제작하세요.',
   alternates: {
-    canonical: `https://pinto.co.kr/${mapping.slug}`
+    canonical: 'https://pinto.co.kr/led-neon'
   },
   openGraph: {
-    title: `${mapping.categoryKo} | PINTO`,
-    description: mapping.description,
-    url: `https://pinto.co.kr/${mapping.slug}`,
+    title: 'LED 네온사인 제작 | PINTO',
+    description: '밝고 화려한 LED 네온 조명',
+    url: 'https://pinto.co.kr/led-neon',
     siteName: 'PINTO',
     type: 'website',
     images: [
       {
-        url: mapping.heroImagePath,
+        url: '/components/img/placeholder-product.jpg',
         width: 1200,
         height: 630,
-        alt: `${mapping.categoryKo} 메인 이미지`
+        alt: 'LED 네온사인 제작'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${mapping.categoryKo} | PINTO`,
-    description: mapping.description,
-    images: [mapping.heroImagePath]
+    title: 'LED 네온사인 제작 | PINTO',
+    description: '카페, 매장, 이벤트 공간을 화려하게 장식하는 맞춤형 LED 네온사인을 제작하세요.',
+    images: ['/components/img/placeholder-product.jpg']
   }
 };
 
-const ledNeonProducts: any[] = [];
+// LED 네온 카테고리 상품을 데이터베이스에서 가져오는 함수
+async function getLedNeonProducts() {
+  try {
+    const products = await query(
+      'SELECT id, name, thumbnail_url as image, price FROM products WHERE category_id = ? AND status = ? ORDER BY created_at DESC',
+      [10, 'ACTIVE']
+    );
 
-// LED 네온 카테고리 전용 FAQ
-const ledNeonFaq = [
-  {
-    question: 'LED 네온의 수명은 얼마나 되나요?',
-    answer: '일반적으로 50,000시간 이상 사용 가능합니다. 하루 8시간 사용 시 약 17년 정도 사용할 수 있으며, 기존 네온사인 대비 10배 이상 긴 수명을 자랑합니다.'
-  },
-  {
-    question: 'LED 네온 전력 소모량은 어느 정도인가요?',
-    answer: '기존 네온사인 대비 80% 이상 전력을 절약할 수 있습니다. 1미터 기준 약 10-15W 정도 소모되어 매우 경제적입니다.'
-  },
-  {
-    question: '실외 설치 시 방수가 되나요?',
-    answer: '실외용 LED 네온은 IP65 등급의 방수 처리가 되어 있어 비나 눈에도 안전합니다. 전용 아답터와 방수 커넥터를 사용합니다.'
-  },
-  {
-    question: '색상 변경이나 깜빡임 효과가 가능한가요?',
-    answer: 'RGB 타입은 다양한 색상 변경과 깜빡임 효과가 가능합니다. 전용 컨트롤러를 사용하여 패턴과 속도를 조절할 수 있습니다.'
+    return products.map((product: any) => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['LED 네온'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching LED neon products:', error);
+    return [];
   }
-];
+}
 
-export default function LedNeonPage() {
+export default async function LedNeonPage() {
+  const products = await getLedNeonProducts();
+
   return (
-    <CategoryPageTemplate 
-      mapping={mapping}
-      products={ledNeonProducts}
-      faq={ledNeonFaq}
+    <CategoryPageTemplate
+      title={copy.title}
+      subtitle={copy.subtitle}
+      description={copy.description}
+      products={products}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }

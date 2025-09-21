@@ -30,9 +30,49 @@ export function FaqForm({ faq }: FaqFormProps) {
     defaultValues: faq || { question: '', answer: '', category: '주문/결제', order: 1, isPublished: true },
   });
 
-  const onSubmit = (data: FaqFormData) => {
-    console.log(data);
-    router.push('/admin/faq');
+  const onSubmit = async (data: FaqFormData) => {
+    try {
+      const apiData = {
+        category: data.category,
+        question: data.question,
+        answer: data.answer,
+        is_public: data.isPublished,
+        sort_order: data.order
+      };
+
+      if (faq) {
+        const response = await fetch('/api/admin/faq', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: faq.id, ...apiData })
+        });
+
+        if (response.ok) {
+          alert('FAQ가 수정되었습니다.');
+          router.push('/admin/faq');
+        } else {
+          const error = await response.json();
+          alert(error.error || 'FAQ 수정에 실패했습니다.');
+        }
+      } else {
+        const response = await fetch('/api/admin/faq', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(apiData)
+        });
+
+        if (response.ok) {
+          alert('FAQ가 추가되었습니다.');
+          router.push('/admin/faq');
+        } else {
+          const error = await response.json();
+          alert(error.error || 'FAQ 추가에 실패했습니다.');
+        }
+      }
+    } catch (error) {
+      console.error('FAQ 저장 오류:', error);
+      alert('FAQ 저장 중 오류가 발생했습니다.');
+    }
   };
 
   return (

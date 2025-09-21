@@ -28,6 +28,7 @@ export default function CategoryShortcutManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState<CategoryForm>({
     title: '',
     image_url: '',
@@ -125,6 +126,36 @@ export default function CategoryShortcutManager() {
     }
   };
 
+  // 이미지 업로드 처리
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload/category-image', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setFormData(prev => ({ ...prev, image_url: result.image_url }));
+        alert('이미지가 업로드되었습니다.');
+      } else {
+        const error = await response.json();
+        alert(error.error || '이미지 업로드에 실패했습니다.');
+      }
+    } catch (error) {
+      alert('이미지 업로드 중 오류가 발생했습니다.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   // 수정 모드로 전환
   const startEdit = (category: CategoryShortcut) => {
     setEditingId(category.id);
@@ -181,12 +212,29 @@ export default function CategoryShortcutManager() {
                       id="image_url"
                       value={formData.image_url}
                       onChange={(e) => setFormData({...formData, image_url: e.target.value})}
-                      placeholder="이미지 URL을 입력하세요"
+                      placeholder="이미지 URL을 입력하거나 파일 업로드"
                     />
-                    <Button variant="outline" size="icon">
-                      <Upload className="w-4 h-4" />
-                    </Button>
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                        disabled={isUploading}
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        disabled={isUploading}
+                        type="button"
+                      >
+                        <Upload className={`w-4 h-4 ${isUploading ? 'animate-spin' : ''}`} />
+                      </Button>
+                    </div>
                   </div>
+                  {isUploading && (
+                    <p className="text-sm text-blue-600 mt-1">이미지 업로드 중...</p>
+                  )}
                 </div>
                 
                 <div>
@@ -214,8 +262,8 @@ export default function CategoryShortcutManager() {
               
               {/* 이미지 미리보기 */}
               <div className="flex flex-col items-center justify-center">
-                <Label className="mb-2">미리보기 (80x80)</Label>
-                <div className="relative rounded-full bg-white border-2 border-gray-200 overflow-hidden" style={{ width: '80px', height: '80px' }}>
+                <Label className="mb-3">실제 크기 미리보기 (156x156)</Label>
+                <div className="relative rounded-full bg-white border-2 border-gray-200 overflow-hidden shadow-md" style={{ width: '156px', height: '156px' }}>
                   {formData.image_url ? (
                     <Image
                       src={formData.image_url}
@@ -224,13 +272,16 @@ export default function CategoryShortcutManager() {
                       className="object-cover"
                     />
                   ) : (
-                    <div className="flex items-center justify-center h-full text-gray-400 text-xs">
+                    <div className="flex items-center justify-center h-full text-gray-400 text-sm">
                       이미지 없음
                     </div>
                   )}
                 </div>
-                <p className="text-xs text-gray-500 mt-2 text-center">
+                <p className="text-sm text-gray-700 mt-3 text-center font-medium max-w-[156px]" style={{ lineHeight: '1.2' }}>
                   {formData.title || '제목 없음'}
+                </p>
+                <p className="text-xs text-gray-500 mt-1 text-center">
+                  실제 화면에서 보이는 크기입니다
                 </p>
               </div>
             </div>
@@ -244,7 +295,7 @@ export default function CategoryShortcutManager() {
           <Card key={category.id} className="relative">
             <CardContent className="p-4">
               <div className="flex flex-col items-center space-y-3">
-                <div className="relative w-16 h-16 rounded-full bg-white border overflow-hidden">
+                <div className="relative w-20 h-20 rounded-full bg-white border-2 border-gray-200 overflow-hidden shadow-sm">
                   <Image
                     src={category.image_url}
                     alt={category.title}
@@ -252,10 +303,11 @@ export default function CategoryShortcutManager() {
                     className="object-cover"
                   />
                 </div>
-                
+
                 <div className="text-center">
                   <h3 className="font-medium text-sm">{category.title}</h3>
-                  <p className="text-xs text-gray-500 mt-1">{category.href}</p>
+                  <p className="text-xs text-gray-500 mt-1 break-all">{category.href}</p>
+                  <p className="text-xs text-blue-600 mt-1">정렬: {category.sort_order}</p>
                 </div>
                 
                 <div className="flex gap-1">

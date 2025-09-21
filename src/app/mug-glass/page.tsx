@@ -1,6 +1,7 @@
 import { getCategoryMapping } from '@/lib/category-mappings';
 import CategoryPageTemplate from '@/components/shared/CategoryPageTemplate';
 import { Metadata } from 'next';
+import { query } from '@/lib/mysql';
 
 const categorySlug = 'mug-glass';
 const mapping = getCategoryMapping(categorySlug);
@@ -38,34 +39,43 @@ export const metadata: Metadata = {
   }
 };
 
-const mugGlassProducts: any[] = [];
+// 머그컵/유리컵 카테고리 상품 데이터를 데이터베이스에서 직접 가져오는 함수
+async function getMugGlassProducts() {
+  try {
+    const products = await query(`
+      SELECT
+        id,
+        name,
+        thumbnail_url as image,
+        price
+      FROM products
+      WHERE category_id = 3 AND status = 'ACTIVE'
+      ORDER BY created_at DESC
+    `) as any[];
 
-// 머그컵/유리컵 카테고리 전용 FAQ
-const mugGlassFaq = [
-  {
-    question: '머그컵 인쇄는 어떤 방식으로 하나요?',
-    answer: '열전사, 승화전사, 실크스크린 인쇄 방식을 사용합니다. 도자기는 승화전사, 스테인리스는 레이저각인이나 실크스크린을 권장합니다.'
-  },
-  {
-    question: '식기세척기 사용이 가능한가요?',
-    answer: '도자기와 유리 제품은 식기세척기 사용이 가능합니다. 스테인리스 제품은 인쇄 방식에 따라 다르니 개별 문의해주세요.'
-  },
-  {
-    question: '선물용 포장이 가능한가요?',
-    answer: '네, 개별 선물 박스 포장이 가능합니다. 박스당 1,000원의 추가 비용이 있으며, 리본 포장도 함께 제공됩니다.'
-  },
-  {
-    question: '대량 주문 시 할인 혜택이 있나요?',
-    answer: '50개 이상 10% 할인, 100개 이상 15% 할인 혜택을 제공합니다. 기업 답례품이나 기념품용 대량 주문을 환영합니다.'
+    return products.map(product => ({
+      id: product.id,
+      name: product.name,
+      image: product.image || '/components/img/placeholder-product.jpg',
+      tags: ['머그컵', '유리컵'],
+      price: parseInt(product.price)
+    }));
+  } catch (error) {
+    console.error('Error fetching mug glass products:', error);
+    return []; // 에러 시 빈 배열 반환
   }
-];
+}
 
-export default function MugGlassPage() {
+export default async function MugGlassPage() {
+  const mugGlassProducts = await getMugGlassProducts();
+
   return (
-    <CategoryPageTemplate 
+    <CategoryPageTemplate
       mapping={mapping}
       products={mugGlassProducts}
-      faq={mugGlassFaq}
+      showFaq={false}
+      showInfo={false}
+      showCta={false}
     />
   );
 }
