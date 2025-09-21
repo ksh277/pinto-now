@@ -447,6 +447,32 @@ export const categoryMappings: Record<string, CategoryMapping> = {
     ],
     heroImagePath: '/components/img/placeholder-product.jpg',
   },
+  'clothing': {
+    slug: 'clothing',
+    categoryKo: '의류',
+    type: 'category',
+    subtitle: '편안하고 스타일리시한 맞춤 의류',
+    description: '티셔츠, 후드티, 모자 등 다양한 의류에 나만의 디자인을 새겨보세요.',
+    usp: [
+      { icon: '👕', title: '다양한 의류', desc: '티셔츠부터 아우터까지' },
+      { icon: '🎨', title: '프리미엄 인쇄', desc: '실크, DTG, 자수 등 다양한 방식' },
+      { icon: '📏', title: '사이즈 완비', desc: 'XS부터 3XL까지' }
+    ],
+    heroImagePath: '/components/img/placeholder-product.jpg',
+  },
+  'clothing-goods': {
+    slug: 'clothing-goods',
+    categoryKo: '의류 굿즈',
+    type: 'category',
+    subtitle: '편안하고 스타일리시한 맞춤 의류',
+    description: '티셔츠, 후드티, 모자 등 다양한 의류에 나만의 디자인을 새겨보세요.',
+    usp: [
+      { icon: '👕', title: '다양한 의류', desc: '티셔츠부터 아우터까지' },
+      { icon: '🎨', title: '프리미엄 인쇄', desc: '실크, DTG, 자수 등 다양한 방식' },
+      { icon: '📏', title: '사이즈 완비', desc: 'XS부터 3XL까지' }
+    ],
+    heroImagePath: '/components/img/placeholder-product.jpg',
+  },
   'view-all': {
     slug: 'view-all',
     categoryKo: '전체보기',
